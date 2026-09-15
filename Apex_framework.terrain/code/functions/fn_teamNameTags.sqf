@@ -1,243 +1,228 @@
-with uiNamespace do {SLTScriptDisplayName = "Team Name Tags";}; 
- 
-SLT_fnc_enableScript = { 
-  [] spawn 
-  { 
-   if(!hasInterface) exitWith {}; 
-   if (!isNil "TeamNameTagEvent") exitWith {}; 
-   if(isMultiplayer) then {waitUntil{getClientState isEqualTo "BRIEFING READ"};}; 
-   sleep 1; 
-   disableMapIndicators [true,false,false,false]; 
-    
-    TNTMaxDistanceUnitMarker3D = 7000; 
-    TNTMaxDistanceUnitMarkerText3D = 10; 
-    TNTNearbyFriendlyAI = [];
-     
-    TeamNameTagEvent = addMissionEventHandler ["Draw3D", { 
-     private _vehicleList = []; 
-     private _unitsToDraw = allPlayers + (missionNamespace getVariable ["TNTNearbyFriendlyAI",[]]);
-     private _cursorObject = cursorTarget;
-     if (!isNull _cursorObject) then {
-      private _cursorUnits = if (_cursorObject isKindOf "CAManBase") then {[_cursorObject]} else {crew _cursorObject};
-      {
-       if (!isPlayer _x && {(side group _x) isEqualTo (side group player)}) then {
-        _unitsToDraw pushBackUnique _x;
-       };
-      } forEach _cursorUnits;
-     };
-     { 
-     if(((side group _x) isEqualTo (side group player)) && (_x != player)) then 
-     { 
-      _position = _x modelToWorldVisual (_x selectionPosition "head_axis"); 
-      _position set[2,(_position select 2)+0.5]; 
-      _distance = (player) distance (_position); 
-      _driver = if (driver vehicle _x isEqualTo objNull) then {effectiveCommander vehicle _x} else {driver vehicle _x}; 
-      _textSize = 0.0325; 
-      _text = if (isPlayer _x) then {name _x} else {"AI"}; 
-      _imageSize = [0.5,0.5]; 
-    
-      _dif = (TNTMaxDistanceUnitMarker3D-_distance); 
-      _alpha = 0.75 min (_dif/TNTMaxDistanceUnitMarker3D); 
-      if(vehicle _x == cursorTarget) then {_alpha = 1;}; 
- 
-      _color = switch (side group player) do 
-      { 
-       case west: {[0,0.3,0.6,_alpha]}; 
-       case east: {[0.5,0,0,_alpha]}; 
-       case independent: {[0,0.5,0,_alpha]}; 
-       case civilian: {[0.4,0,0.5,_alpha]}; 
-       default {[1,1,1,_alpha]}; 
-      }; 
-       
-      if((group player) isEqualTo (group _x)) then  
-      { 
-       _color = switch (side group _x) do 
-       { 
-        case west: {[0,0.45,1,_alpha]}; 
-        case east: {[0.8,0.35,0,_alpha]}; 
-        case independent: {[0.34,0.75,0,_alpha]}; 
-        case civilian: {[0.7,0,0.75,_alpha]}; 
-        default {[1,1,1,_alpha]}; 
-       }; 
-      }; 
-    
-      _rankPath = switch (rank _x) do  
-      { 
-       case "COLONEL": {"\a3\ui_f\data\GUI\cfg\Ranks\colonel_pr.paa"}; 
-       case "MAJOR": {"\a3\ui_f\data\GUI\cfg\Ranks\major_pr.paa"}; 
-       case "CAPTAIN": {"\a3\ui_f\data\GUI\cfg\Ranks\captain_pr.paa"}; 
-       case "LIEUTENANT": {"\a3\ui_f\data\GUI\cfg\Ranks\lieutenant_pr.paa"}; 
-       case "SERGEANT": {"\a3\ui_f\data\GUI\cfg\Ranks\sergeant_pr.paa"}; 
-       case "CORPORAL": {"\a3\ui_f\data\GUI\cfg\Ranks\corporal_pr.paa"}; 
-       case "PRIVATE": {"\a3\ui_f\data\GUI\cfg\Ranks\private_pr.paa"}; 
-       default {"\a3\ui_f\data\GUI\cfg\Ranks\private_pr.paa"}; 
-      }; 
- 
-      if((rank _x) isEqualTo "COLONEL") then {_imageSize = [0.75,0.75]; _color = [1,1,1,_alpha];}; 
- 
-      comment "Dead"; 
-      _deadIcon = "\A3\ui_f\data\igui\cfg\revive\overlayicons\d100_ca.paa"; 
-      _deadColor = [0.25,0.25,0.25,0.75];  
- 
-      comment "Incap"; 
-      _incapIcon = "\A3\ui_f\data\igui\cfg\revive\overlayicons\u100_ca.paa"; 
-      _incapColor = [1,0.41,0,_alpha]; 
- 
-      comment "Mic"; 
-      _micIcon = "\a3\ui_f\data\IGUI\RscIngameUI\RscDisplayVoiceChat\microphone_ca.paa"; 
- 
-      if (lifeState _driver isEqualTo "INCAPACITATED" && damage _driver > 0.4) then  
-      { 
-       _color = _incapColor; 
-       _rankPath = _incapIcon; 
-      }; 
- 
-      if (!alive _driver) then  
-      { 
-       _color = _deadColor; 
-       _rankPath = _deadIcon; 
-      }; 
- 
-      if !(getPlayerChannel _driver isEqualTo -1) then  
-      { 
-       _rankPath = _micIcon; 
-      }; 
- 
-      if (vehicle _x != _x) then 
-      { 
-       if !((vehicle _x) in _vehicleList) then  
-       { 
-        _vehicleList pushback vehicle _x; 
- 
-        if (vehicle _x isEqualTo vehicle player) exitWith {}; 
- 
-        _position = (vehicle _x) modelToWorldVisual [0,0,2]; 
- 
-        _className = (typeOf vehicle _x); 
-        _file = getText (configfile >> "CfgVehicles" >> _className >> "icon"); 
-        _rankPath = _file; 
- 
-        if(_driver isEqualTo objNull) then {_driver = _x;}; 
- 
-        _vehName = getText (configfile >> "CfgVehicles" >> _className >> "displayName"); 
-        _text = _vehName; 
- 
-        _driverName = if (isPlayer _driver) then {name _driver} else {"AI"};
-        _count = count crew vehicle _x; 
-        if(_count > 1) then  
-        { 
-         _text = (_driverName + " + " + (str (_count-1)) + " more"); 
-        } 
-        else 
-        { 
-         _text = _driverName; 
-        }; 
- 
-        _imageSize = [0.65,0.65]; 
- 
-        if((_distance > TNTMaxDistanceUnitMarkerText3D) && (vehicle _x != cursorTarget)) then {_text = "";}; 
- 
-        if ((_distance < TNTMaxDistanceUnitMarker3D) || (vehicle _x == cursorTarget)) then 
-        { 
-         drawIcon3D [_rankPath,_color,_position, _imageSize select 0,_imageSize select 1, 0,(_text), 2, _textSize, "RobotoCondensedBold","center",false]; 
-        }; 
-       }; 
-      }; 
-       
-      if !((vehicle _x) in _vehicleList) then  
-      { 
-       if((_distance > TNTMaxDistanceUnitMarkerText3D) && (vehicle _x != cursorTarget)) then {_text = "";}; 
- 
-       if ((_distance < TNTMaxDistanceUnitMarker3D) || (vehicle _x == cursorTarget)) then 
-       { 
-        drawIcon3D [_rankPath,_color,_position, _imageSize select 0,_imageSize select 1, 0,(_text), 2, _textSize, "RobotoCondensedBold","center",false]; 
-       }; 
-      }; 
-     }; 
-    } foreach _unitsToDraw; 
-    }]; 
+with uiNamespace do {SLTScriptDisplayName = "Team Name Tags";};
 
-    TeamNameTagAIUpdater = [] spawn {
-     while {!isNil "TeamNameTagEvent"} do {
-      private _playerSide = side group player;
-      TNTNearbyFriendlyAI = allUnits select {
-       !isPlayer _x &&
-       {(side group _x) isEqualTo _playerSide} &&
-       {(_x distance player) <= TNTMaxDistanceUnitMarker3D}
-      };
-      uiSleep 0.5;
-     };
-    };
-   }; 
- }; 
- 
-SLT_fnc_disableScript = { 
- if (!isNil 'TeamNameTagEvent') then {removeMissionEventHandler ['Draw3D',TeamNameTagEvent];};
- if (!isNil 'TeamNameTagAIUpdater') then {terminate TeamNameTagAIUpdater;};
- TeamNameTagEvent = nil;
- TeamNameTagAIUpdater = nil;
- TNTNearbyFriendlyAI = nil;
+// Own the former core cursor labels. No all-player or nearby-AI scans are needed.
+SLT_fnc_enableScript = {
+	if (!hasInterface || {!isNil 'TeamNameTagEvent'}) exitWith {};
+	QS_teamNameTagTargets = [];
+	TeamNameTagEvent = addMissionEventHandler ['Draw3D',{
+		private _player = missionNamespace getVariable ['QS_player',objNull];
+		private _cameraOn = cameraOn;
+		if (
+			isNull _player ||
+			{isNull _cameraOn} ||
+			{!((lifeState _player) in ['HEALTHY','INJURED'])} ||
+			{!isNull (findDisplay 49)} ||
+			{!isNull curatorCamera} ||
+			{visibleMap} ||
+			{isStreamFriendlyUIEnabled} ||
+			{freeLook}
+		) exitWith {QS_teamNameTagTargets = [];};
+
+		private _font = 'RobotoCondensedBold';
+		(profileNamespace getVariable ['ApexFramework_3DGroupIconColor',(missionNamespace getVariable ['QS_missionConfig_3DIconColor',[0,125,255]])]) params ['_r','_g','_b'];
+		private ['_unit','_fade','_unitName','_unitType','_alpha'];
+		private _cursorTarget = cursorTarget;
+		if (isNull _cursorTarget) then {
+			_cursorTarget = getCursorObjectParams # 0;
+			if (isNull _cursorTarget) then {
+				_cursorTarget = cursorObject;
+			};
+		};
+		if (
+			(!isNull _cursorTarget) &&
+			{(!(_cursorTarget in [_player,_cameraOn]))} &&
+			{(
+				(
+					((_cursorTarget isKindOf 'CAManBase') || {((effectiveCommander _cursorTarget) isKindOf 'CAManBase')}) &&
+					{(_cursorTarget isNotEqualTo _cameraOn)} &&
+					{(!(_cursorTarget in (attachedObjects _cameraOn)))} &&
+					{(
+						((_cursorTarget isKindOf 'CAManBase') && {((side (group _cursorTarget)) isEqualTo (_player getVariable ['QS_unit_side',WEST]))}) ||
+						(!(_cursorTarget isKindOf 'CAManBase') && {((side (assignedGroup _cursorTarget)) isEqualTo (_player getVariable ['QS_unit_side',WEST]))})
+					)} &&
+					{(!(_cursorTarget getVariable ['QS_hidden',FALSE]))}
+				) ||
+				{(
+					(!(_cursorTarget isKindOf 'CAManBase')) &&
+					{(
+						(_cursorTarget getVariable ['QS_ST_showDisplayName',FALSE]) ||
+						{((!isNull (assignedGroup _cursorTarget)) && {((side (assignedGroup _cursorTarget)) isEqualTo (_player getVariable ['QS_unit_side',WEST]))})} ||
+						{(_cursorTarget getVariable ['QS_logistics_wreck',FALSE])} ||
+						{(_cursorTarget getVariable ['QS_logistics_deployed',FALSE])} ||
+						{(_cursorTarget getVariable ['QS_logistics_isCargoParent',FALSE])}
+					)}
+				)}
+			)}
+		) then {
+			if ((QS_teamNameTagTargets findIf { (_x # 0) isEqualTo _cursorTarget }) isEqualTo -1) then {
+				QS_teamNameTagTargets pushBack [_cursorTarget,0.01];
+			};
+		};
+		QS_teamNameTagTargets = QS_teamNameTagTargets select { (!isNull (_x # 0)) && {((_x # 1) > 0)} && {!((_x # 0) in [_player,_cameraOn])} };
+		if (QS_teamNameTagTargets isNotEqualTo []) then {
+			private _cursorColor = [_r,_g,_b,1];
+			{
+				_unit = _x # 0;
+				_fade = _x # 1;
+				_unitName = '';
+				if ((_unit isKindOf 'CAManBase') || {((effectiveCommander _unit) isKindOf 'CAManBase')}) then {
+					if ((_cameraOn distance2D _unit) >= 30) then {
+						if ((_cameraOn distance2D _unit) >= 300) then {
+							_unitName = [
+								'',
+								format ['(%1)',localize 'STR_QS_Utility_029']
+							] select (isPlayer _unit);
+						} else {
+							if (isPlayer _unit) then {
+								_unitName = (name _unit) + (format [' (%1)',localize 'STR_QS_Utility_029']);
+							} else {
+								_unitName = '';
+							};
+						};
+					} else {
+						if (isPlayer _unit) then {
+							if ((_unit getVariable ['QS_ST_customDN','']) isNotEqualTo '') then {
+								_unitType = _unit getVariable ['QS_ST_customDN',''];
+							} else {
+								_unitType = ['GET_ROLE_DISPLAYNAME',(_unit getVariable ['QS_unit_role','rifleman'])] call (missionNamespace getVariable 'QS_fnc_roles');
+							};
+							_unitName = (name _unit) + (format [' (%1)',_unitType]);
+						} else {
+							_unitName = '';
+						};
+					};
+					_alpha = [0.1 max (1 - ((((_cameraOn distance2D _unit) / 1000)) % 1)),0.1] select ((_cameraOn distance2D _unit) >= 1000);
+					QS_teamNameTagTargets set [_forEachIndex,[_unit,([(_fade + 0.1) min 1,(_fade - 0.1) max 0] select (_unit isNotEqualTo _cursorTarget))]];
+					_alpha = _alpha * _fade;
+					_cursorColor = _unit getVariable ['QS_ST_cursorIcon_color',[_r,_g,_b,_alpha]];
+				} else {
+					if (
+						(_unit getVariable ['QS_ST_showDisplayName',FALSE]) ||
+						{(_unit getVariable ['QS_logistics_wreck',FALSE])} ||
+						{(_unit getVariable ['QS_logistics_deployed',FALSE])} ||
+						{(_unit getVariable ['QS_logistics_isCargoParent',FALSE])}
+					) then {
+						_unitName = _unit getVariable ['QS_ST_customDN',''];
+						if (_unitName isEqualTo '') then {
+							_unitName = QS_hashmap_configfile getOrDefaultCall [
+								format ['cfgvehicles_%1_displayname',toLowerANSI (typeOf _unit)],
+								{(getText ((configOf _unit) >> 'displayName'))},
+								TRUE
+							];
+							_unit setVariable ['QS_ST_customDN',_unitName,FALSE];
+						};
+						if (_unit getVariable ['QS_logistics_wreck',FALSE]) then {
+							_unitName = format ['%1 (%2)',_unitName,localize 'STR_QS_Text_384'];
+						};
+						if (_unit getVariable ['QS_logistics_deployed',FALSE]) then {
+							_unitName = format ['%1 (%2)',_unitName,localize 'STR_QS_Text_409'];
+						};
+						if (_unit getVariable ['QS_logistics_isCargoParent',FALSE]) then {
+							_unitName = format ['%1 (%2)',_unitName,localize 'STR_QS_Text_410'];
+						};
+					};
+					if (
+						(_unitName isEqualTo '') &&
+						{(!isNull (assignedGroup _unit))} &&
+						{((crew _unit) isEqualTo [])}
+					) then {
+						_unitName = groupId (assignedGroup _unit);
+					};
+					_alpha = [0 max (1 - ((((_cameraOn distance2D _unit) / 30)) % 1)),0] select ((_cameraOn distance2D _unit) >= 30);
+					QS_teamNameTagTargets set [_forEachIndex,[_unit,([(_fade + 0.1) min 1,(_fade - 0.1) max 0] select (_unit isNotEqualTo _cursorTarget))]];
+					_alpha = _alpha * _fade;
+					_cursorColor = _unit getVariable ['QS_ST_cursorIcon_color',[0.5,0.5,0.5,_alpha]];
+				};
+				if ((_unitName isNotEqualTo '') && {_alpha > 0}) then {
+					drawIcon3D [
+						'',
+						_cursorColor,
+						((_unit modelToWorldVisual ((selectionPosition [_unit,(['pilot','head'] select (_unit isKindOf 'CAManBase')),11,TRUE]))) vectorAdd [0,0,0.5]),
+						1,
+						1,
+						0,
+						_unitName,
+						2,
+						0.03,
+						_font,
+						'center',
+						FALSE,
+						0,
+						-0.03
+					];
+				};
+			} forEach QS_teamNameTagTargets;
+		};
+	}];
+};
+
+SLT_fnc_disableScript = {
+	if (!isNil 'TeamNameTagEvent') then {
+		removeMissionEventHandler ['Draw3D',TeamNameTagEvent];
+	};
+	TeamNameTagEvent = nil;
+	QS_teamNameTagTargets = [];
 };
 
 QS_fnc_teamNameTagsEnable = SLT_fnc_enableScript;
 QS_fnc_teamNameTagsDisable = SLT_fnc_disableScript;
- 
-SLT_fnc_init = { 
- params[["_useToggleOptions",true]]; 
- 
- with uiNamespace do { 
-   
-  createDialog "RscDisplayEmpty"; 
-  private _display = findDisplay -1; 
-  {_x ctrlShow false;} foreach allControls _display; 
- 
-  private _ctrlHeader = _display ctrlCreate ["RscStructuredText",-1]; 
-  _ctrlHeader ctrlSetPosition [0.396875 * safezoneW + safezoneX,0.445 * safezoneH + safezoneY,0.20625 * safezoneW,0.022 * safezoneH]; 
-  _ctrlHeader ctrlSetBackgroundColor [1,0.7,0,0.66]; 
-  _ctrlHeader ctrlSetStructuredText parseText ("<t size='0.85' font='PuristaMedium'>"+toUpper SLTScriptDisplayName+"</t>"); 
-  _ctrlHeader ctrlCommit 0; 
- 
-  private _ctrlBorder = _display ctrlCreate ["RscPicture",-1]; 
-  _ctrlBorder ctrlSetPosition [0.396875 * safezoneW + safezoneX,0.467 * safezoneH + safezoneY,0.20625 * safezoneW,0.077 * safezoneH]; 
-  _ctrlBorder ctrlSetText "#(rgb,1,1,1)color(1,1,1,1)"; 
-  _ctrlBorder ctrlSetTextColor [0,0,0,0.5]; 
-  _ctrlBorder ctrlCommit 0; 
- 
-  private _ctrlBackground = _display ctrlCreate ["RscPicture",-1]; 
-  _ctrlBackground ctrlSetPosition [0.402031 * safezoneW + safezoneX,0.478 * safezoneH + safezoneY,0.195937 * safezoneW,0.055 * safezoneH]; 
-  _ctrlBackground ctrlSetText "#(rgb,1,1,1)color(1,1,1,1)"; 
-  _ctrlBackground ctrlSetTextColor [0.1,0.1,0.1,0.75]; 
-  _ctrlBackground ctrlCommit 0; 
- 
-  SLTEnableButton = _display ctrlCreate ["RscButtonMenu",-1]; 
-  SLTEnableButton ctrlSetPosition [0.407187 * safezoneW + safezoneX,0.489 * safezoneH + safezoneY,0.0928125 * safezoneW,0.033 * safezoneH]; 
-  SLTEnableButton ctrlSetText "ENABLE"; 
-  SLTEnableButton ctrlCommit 0; 
-  SLTEnableButton ctrlAddEventHandler ["ButtonClick",{ 
+
+SLT_fnc_init = {
+ params[["_useToggleOptions",true]];
+
+ with uiNamespace do {
+
+  createDialog "RscDisplayEmpty";
+  private _display = findDisplay -1;
+  {_x ctrlShow false;} foreach allControls _display;
+
+  private _ctrlHeader = _display ctrlCreate ["RscStructuredText",-1];
+  _ctrlHeader ctrlSetPosition [0.396875 * safezoneW + safezoneX,0.445 * safezoneH + safezoneY,0.20625 * safezoneW,0.022 * safezoneH];
+  _ctrlHeader ctrlSetBackgroundColor [1,0.7,0,0.66];
+  _ctrlHeader ctrlSetStructuredText parseText ("<t size='0.85' font='PuristaMedium'>"+toUpper SLTScriptDisplayName+"</t>");
+  _ctrlHeader ctrlCommit 0;
+
+  private _ctrlBorder = _display ctrlCreate ["RscPicture",-1];
+  _ctrlBorder ctrlSetPosition [0.396875 * safezoneW + safezoneX,0.467 * safezoneH + safezoneY,0.20625 * safezoneW,0.077 * safezoneH];
+  _ctrlBorder ctrlSetText "#(rgb,1,1,1)color(1,1,1,1)";
+  _ctrlBorder ctrlSetTextColor [0,0,0,0.5];
+  _ctrlBorder ctrlCommit 0;
+
+  private _ctrlBackground = _display ctrlCreate ["RscPicture",-1];
+  _ctrlBackground ctrlSetPosition [0.402031 * safezoneW + safezoneX,0.478 * safezoneH + safezoneY,0.195937 * safezoneW,0.055 * safezoneH];
+  _ctrlBackground ctrlSetText "#(rgb,1,1,1)color(1,1,1,1)";
+  _ctrlBackground ctrlSetTextColor [0.1,0.1,0.1,0.75];
+  _ctrlBackground ctrlCommit 0;
+
+  SLTEnableButton = _display ctrlCreate ["RscButtonMenu",-1];
+  SLTEnableButton ctrlSetPosition [0.407187 * safezoneW + safezoneX,0.489 * safezoneH + safezoneY,0.0928125 * safezoneW,0.033 * safezoneH];
+  SLTEnableButton ctrlSetText "ENABLE";
+  SLTEnableButton ctrlCommit 0;
+  SLTEnableButton ctrlAddEventHandler ["ButtonClick",{
    ['NAME_TAGS',TRUE] remoteExecCall ['QS_fnc_serverSetTeamFeature',2,FALSE];
-   closeDialog 0; 
-  }]; 
- 
-  SLTDisableButton = _display ctrlCreate ["RscButtonMenu",-1]; 
-  SLTDisableButton ctrlSetPosition [0.5 * safezoneW + safezoneX,0.489 * safezoneH + safezoneY,0.0928125 * safezoneW,0.033 * safezoneH]; 
-  SLTDisableButton ctrlSetText "DISABLE"; 
-  SLTDisableButton ctrlCommit 0; 
-  SLTDisableButton ctrlAddEventHandler ["ButtonClick",{ 
+   closeDialog 0;
+  }];
+
+  SLTDisableButton = _display ctrlCreate ["RscButtonMenu",-1];
+  SLTDisableButton ctrlSetPosition [0.5 * safezoneW + safezoneX,0.489 * safezoneH + safezoneY,0.0928125 * safezoneW,0.033 * safezoneH];
+  SLTDisableButton ctrlSetText "DISABLE";
+  SLTDisableButton ctrlCommit 0;
+  SLTDisableButton ctrlAddEventHandler ["ButtonClick",{
    ['NAME_TAGS',FALSE] remoteExecCall ['QS_fnc_serverSetTeamFeature',2,FALSE];
-   closeDialog 0; 
-  }]; 
- 
-  if (!_useToggleOptions) then  
-  { 
-   SLTEnableButton ctrlSetText "ARE YOU SURE?"; 
-   SLTEnableButton ctrlSetTooltip "This script cannot be disabled!"; 
-   SLTEnableButton ctrlCommit 0; 
- 
-   SLTDisableButton ctrlSetText "CANCEL"; 
-   SLTDisableButton ctrlCommit 0; 
-  }; 
- }; 
- deleteVehicle this; 
-}; 
- 
+   closeDialog 0;
+  }];
+
+  if (!_useToggleOptions) then
+  {
+   SLTEnableButton ctrlSetText "ARE YOU SURE?";
+   SLTEnableButton ctrlSetTooltip "This script cannot be disabled!";
+   SLTEnableButton ctrlCommit 0;
+
+   SLTDisableButton ctrlSetText "CANCEL";
+   SLTDisableButton ctrlCommit 0;
+  };
+ };
+ deleteVehicle this;
+};
+
 [] spawn QS_fnc_teamNameTagsEnable;
