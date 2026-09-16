@@ -20,40 +20,6 @@ private _isRxJ = isRemoteExecutedJIP;
 private _rxID = remoteExecutedOwner;
 
 /*
-	Pylon Bodger has an explicit Apex Framework compatibility path which sends
-	case 105 with these two identifiers. Its fourth loadout element is code, so
-	the request also needs a narrow exception from the generic payload-type
-	filter below. Only an assigned curator may use the exception.
-*/
-private _pylonBodgerData = _this param [2,[],[[]]];
-private _pylonBodgerPylons = _pylonBodgerData param [2,[],[[]]];
-private _isPylonBodgerPayload =
-	(_case isEqualTo 105) &&
-	{(count _this) isEqualTo 3} &&
-	{((_this param [1,objNull,[objNull]]) isNotEqualTo objNull)} &&
-	{(count _pylonBodgerData) isEqualTo 7} &&
-	{(_pylonBodgerData param [0,'',['']]) isEqualTo 'bodgedLoadout'} &&
-	{(_pylonBodgerData param [1,'',['']]) isEqualTo 'customPylonsBodged'} &&
-	{(_pylonBodgerData param [4,-1,[0]]) in [0,1]} &&
-	{(_pylonBodgerData param [5,-1,[0]]) in [0,1]} &&
-	{(count _pylonBodgerPylons) <= 64} &&
-	{(_pylonBodgerPylons findIf {
-		!(_x isEqualType []) ||
-		{(count _x) < 4} ||
-		{!((_x # 0) isEqualType 0)} ||
-		{!((_x # 2) isEqualType [])} ||
-		{!((_x # 3) isEqualType '')}
-	}) isEqualTo -1};
-private _isPylonBodgerSender =
-	_isRx &&
-	{_rxID > 2} &&
-	{(allCurators findIf {
-		private _curatorUnit = getAssignedCuratorUnit _x;
-		(!isNull _curatorUnit) && {((owner _curatorUnit) isEqualTo _rxID)}
-	}) isNotEqualTo -1};
-private _isPylonBodgerRequest = _isPylonBodgerPayload && {_isPylonBodgerSender};
-
-/*
 	Only police requests arriving from a client at the server. Server-originated
 	broadcasts and the few intentional local calls to this dispatcher must retain
 	their existing behaviour. The structural walk is deliberately bounded so the
@@ -86,7 +52,7 @@ if (_clientToServer) then {
 						if (_x isEqualType []) then {
 							_pending pushBack [_x,_depth + 1];
 						} else {
-							if ((_x isEqualType _hashMapType) || {(_x isEqualType _codeType) && {!_isPylonBodgerRequest}}) exitWith {
+							if ((_x isEqualType _hashMapType) || {_x isEqualType _codeType}) exitWith {
 								_rejectRequest = TRUE;
 								_rejectReason = 'payload type';
 							};
@@ -2623,8 +2589,9 @@ if (_case < 110) exitWith {
 		_args call (missionNamespace getVariable 'QS_fnc_fire');
 	};
 	if (_case isEqualTo 105) then {
-		// Keep the native hangar guard, but accept Pylon Bodger from an assigned curator.
-		if (((getMissionConfigValue ['disableHangarLoadouts',0]) isEqualTo 0) || {_isPylonBodgerRequest}) then {
+		// Executed globally on all machines. The mission config guard also blocks
+		// direct case 105 requests that bypass the client action and dialog.
+		if ((getMissionConfigValue ['disableHangarLoadouts',0]) isEqualTo 0) then {
 			params ['','_vehicle','_loadoutData'];
 			_pylonData = _loadoutData # 2;	
 			// Pylons
