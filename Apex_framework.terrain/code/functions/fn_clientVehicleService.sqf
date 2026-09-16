@@ -94,9 +94,9 @@ if (
 	private _repairInterval = 0.2;			// per 0.05 of dmg restore
 	private _repairPerCycle = 0.05;
 	if (local _vehicle) then {
+		private _repairingPerformed = FALSE;
 		(getAllHitPointsDamage _vehicle) params ['_selection','',['_damage',[]]];
 		if ((_damage isNotEqualTo []) || _waterDamaged) then {
-			private _repairingPerformed = FALSE;
 			private _hit = 0;
 			private _msgDelay = -1;
 			private _selectionCount = count _damage;
@@ -120,21 +120,6 @@ if (
 				};
 				if (_cancelled) exitWith {};
 			} forEach _damage;
-			if (!(_cancelled)) then {
-				if (_repairingPerformed || _waterDamaged) then {
-					// setDamage can overwrite individual hit-point values. Clear total damage
-					// first, then explicitly restore every configured hit point so destroyed
-					// components such as aircraft landing gear are repaired as well.
-					_vehicle setDamage [0,FALSE];
-					private _postRepairHitPoints = (getAllHitPointsDamage _vehicle) param [0,[]];
-					{
-						if (_x isNotEqualTo '') then {
-							_vehicle setHitPointDamage [_x,0,FALSE];
-						};
-					} forEach _postRepairHitPoints;
-					50 cutText [localize 'STR_QS_Text_278','PLAIN DOWN',0.333];
-				};
-			};
 		} else {
 			if (((damage _vehicle) > 0) || _waterDamaged) then {
 				private _damage = damage _vehicle;
@@ -151,6 +136,17 @@ if (
 					_vehicle setDamage [_damage,FALSE];
 					if (_damage <= 0) exitWith {};
 					sleep _repairInterval;
+				};
+			};
+		};
+		if (!(_cancelled)) then {
+			_cancelled = [_vehicle,_onFoot] call _fn_cancel;
+			if (!(_cancelled) && (local _vehicle)) then {
+				// Use the same full repair as Zeus, with effects enabled. Run even
+				// when damage values are zero: broken landing gear can remain then.
+				_vehicle setDamage 0;
+				if (_repairingPerformed || _waterDamaged) then {
+					50 cutText [localize 'STR_QS_Text_278','PLAIN DOWN',0.333];
 				};
 			};
 		};
