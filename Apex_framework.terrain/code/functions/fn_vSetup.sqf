@@ -225,7 +225,35 @@ if (_t2 in ['b_sam_system_03_f','b_radar_system_01_f']) then {
 if (_isSimpleObject) exitWith {};	// Simple Objects exit here - Actual vehicles continue
 _u allowService 0;
 _u allowCrewInImmobile [TRUE,TRUE];
-_u setUnloadInCombat [TRUE,FALSE];
+_u setVariable ['QS_vSetup_defaultUnloadInCombat',[TRUE,FALSE],FALSE];
+[_u] call QS_fnc_updateVehicleUnloadPolicy;
+[
+	_u,
+	'GetIn',
+	{
+		private _vehicle = _this # 0;
+		if (local _vehicle) then {
+			[_vehicle] call QS_fnc_updateVehicleUnloadPolicy;
+		} else {
+			[_vehicle] remoteExecCall ['QS_fnc_updateVehicleUnloadPolicy',_vehicle,FALSE];
+		};
+	},
+	'QS_vSetup_unloadPolicyGetInEH'
+] call _fn_addManagedEventHandler;
+[
+	_u,
+	'GetOut',
+	{
+		private _vehicle = _this # 0;
+		private _args = [_vehicle,_this # 2];
+		if (local _vehicle) then {
+			_args call QS_fnc_updateVehicleUnloadPolicy;
+		} else {
+			_args remoteExecCall ['QS_fnc_updateVehicleUnloadPolicy',_vehicle,FALSE];
+		};
+	},
+	'QS_vSetup_unloadPolicyGetOutEH'
+] call _fn_addManagedEventHandler;
 _u enableVehicleCargo TRUE;
 _u enableRopeAttach TRUE;
 _mass = QS_hashmap_configfile getOrDefaultCall [
@@ -788,6 +816,7 @@ if (isDedicated) then {
 				{((_vehicle getEventHandlerInfo ['HandleDamage',_damageEH]) param [0,FALSE])}
 			);
 			if (_isLocal) then {
+				[_vehicle] call QS_fnc_updateVehicleUnloadPolicy;
 				if ((_vehicle getVariable ['QS_spawnMenu_spawnedBy','']) isNotEqualTo '') then {
 					if (_damageEHActive) then {
 						_vehicle removeEventHandler ['HandleDamage',_damageEH];
