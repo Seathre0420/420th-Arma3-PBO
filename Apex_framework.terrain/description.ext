@@ -687,6 +687,7 @@ class CfgFunctions {
 			class setSimpleObject {file = "code\functions\fn_setSimpleObject.sqf";};
 			class setVehicleCargo {file = "code\functions\fn_setVehicleCargo.sqf";};
 			class setWrecked {file = "code\functions\fn_setWrecked.sqf";};
+			class updateVehicleUnloadPolicy {file = "code\functions\fn_updateVehicleUnloadPolicy.sqf";};
 			class showNotification {file = "code\functions\fn_showNotification.sqf";};
 			class showNotification_process {file = "code\functions\fn_showNotification_process.sqf";};
 			class sideID {file = "code\functions\fn_sideID.sqf";};
