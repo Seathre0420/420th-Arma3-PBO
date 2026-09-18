@@ -935,7 +935,9 @@ _QS_dawnDuskTimeDeccelerated = TRUE;
 	'_QS_noonAccelerationFactor',
 	'_QS_dawnDuskDeccelerationFactor'
 ];
-_QS_timeAccelerationControl = 1;
+// Use one constant time scale for the full day/night cycle.
+_QS_timeAccelerationControl = 12;
+setTimeMultiplier _QS_timeAccelerationControl;
 _QS_currentTimeMultiplier = timeMultiplier;
 _QS_timeAccelerationManager_delay = 15;
 _QS_timeAccelerationManager_checkDelay = _timeNow + _QS_timeAccelerationManager_delay;
@@ -5254,6 +5256,10 @@ for '_x' from 0 to 1 step 0 do {
 			if (_timeNow > _QS_timeAccelerationManager_checkDelay) then {
 				_QS_dayTime = dayTime;
 				_QS_currentTimeMultiplier = timeMultiplier;
+				if (_QS_currentTimeMultiplier isNotEqualTo _QS_timeAccelerationControl) then {
+					setTimeMultiplier _QS_timeAccelerationControl;
+				};
+				/* Dynamic day/night acceleration controller disabled in favor of a constant 12x multiplier.
 				if (_QS_timeAcceleration_inProgress > 0) then {
 					if (_QS_timeAcceleration_inProgress isEqualTo 1) then {
 						if (_QS_dayTime > (_QS_sunrise - 0.25)) then {
@@ -5327,6 +5333,7 @@ for '_x' from 0 to 1 step 0 do {
 						};
 					};
 				};
+				*/
 				if (_QS_baseLights) then {
 					if (_QS_baseLights_state) then {
 						if (([0,0,0] getEnvSoundController 'night') <= 0.7) then {
