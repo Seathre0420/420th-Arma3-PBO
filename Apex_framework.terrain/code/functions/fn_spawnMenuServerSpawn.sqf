@@ -243,6 +243,7 @@ if (_isVehicle) then {
 
 if (_isAI) then {
 	_entity setVariable ['QS_RD_dismissable',TRUE,TRUE];
+	_entity setVariable ['QS_unit_isRecruited',TRUE,TRUE];
 	_entity setVariable ['QS_spawnMenu_aiPendingJoin',TRUE,TRUE];
 	if (_destinationOwner > 2) then {
 		// Man units inherit locality from their group. Transfer the temporary

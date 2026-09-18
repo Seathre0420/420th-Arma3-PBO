@@ -94,10 +94,13 @@ private _damageEH = _unit addEventHandler ["HandleDamage", {
         };
         if (_isFriendlyAttacker) exitWith {_oldDamage};
 
-        // Recruited AI historically receives reduced non-friendly damage. Keep
-        // that behavior in this handler instead of a separate later numeric
-        // return that would override the player-damage rejection above.
-        if (_unit getVariable ["QS_unit_isRecruited", false]) exitWith {
+        // Recruited AI uses the same configured on-foot enemy-damage multiplier
+        // as players. Keep it in this handler instead of a separate later
+        // numeric return that would override the player-damage rejection above.
+        if (
+            (_unit getVariable ["QS_unit_isRecruited", false]) &&
+            {(call (missionNamespace getVariable ["QS_missionConfig_reducedDamage", {1}])) isEqualTo 1}
+        ) exitWith {
             _oldDamage + ((_damage - _oldDamage) * 0.333)
         };
     };
