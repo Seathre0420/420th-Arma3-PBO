@@ -569,10 +569,10 @@ if (!isStreamFriendlyUIEnabled) then {
 	(profileNamespace getVariable ['ApexFramework_3DGroupIconColor',(missionNamespace getVariable ['QS_missionConfig_3DIconColor',[0,125,255]])]) params ['_r','_g','_b'];
 	if (!isNull _cameraOn) then {
 		if (
-			FALSE && // Unit role and group-leader icons disabled; Team Name Tags handles unit identification.
-			{((_player getSlotItemName 612) isNotEqualTo '')} &&
+			((_player getSlotItemName 612) isNotEqualTo '') &&
 			{(missionNamespace getVariable ['QS_HUD_show3DHex',TRUE])}
 		) then {
+			private _maxUnitIconDistance = 7000;
 			private _getRoleIcon = {
 				params ['_unit'];
 				private _roleIcon = _unit getVariable ['QS_unit_role_icon',-1];
@@ -587,30 +587,34 @@ if (!isStreamFriendlyUIEnabled) then {
 				_roleIcon
 			};
 			{
+				private _distance = _cameraOn distance2D _x;
 				if (
-					((worldToScreen (_x modelToWorldVisual [0,0,0])) isNotEqualTo []) &&
+					(isPlayer _x) &&
+					{_distance < _maxUnitIconDistance} &&
+					{((worldToScreen (_x modelToWorldVisual [0,0,0])) isNotEqualTo [])} &&
 					(cameraOn isNotEqualTo (vehicle _x))
 				) then {
 					private _roleIcon = [_x] call _getRoleIcon;
-					_alpha = [0.25 max (1 - ((((_cameraOn distance2D _x) / 1000)) % 1)),0.25] select ((_cameraOn distance2D _x) >= 1000);
-					_objectParent = objectParent _x;
-					_iconPos = if (isNull _objectParent) then {
+					private _alpha = 1 - (_distance / _maxUnitIconDistance);
+					private _objectParent = objectParent _x;
+					private _iconPos = if (isNull _objectParent) then {
 						(_x modelToWorldVisual (selectionPosition [_x,'spine3',11,TRUE]))
 					} else {
 						(_objectParent modelToWorldVisual (_objectParent worldToModelVisual (_x modelToWorldVisual (selectionPosition [_x,'spine3',11,TRUE]))))
 					};
 					if ((_player isEqualTo (leader (group _player))) && (_x in (groupSelectedUnits _player))) then {
 						private _teamID = (['','MAIN','RED','GREEN','BLUE','YELLOW'] find (assignedTeam _x)) max 1;
-						_noChannel = (getPlayerChannel _x) isEqualTo -1;
+						private _noChannel = (getPlayerChannel _x) isEqualTo -1;
+						private _markerAlpha = _alpha * ([1,0.75] select _noChannel);
 						drawIcon3D [
 							_roleIcon,
 							([
-								([_r,_g,_b,([1,0.75] select _noChannel)]),
-								([_r,_g,_b,([1,0.75] select _noChannel)]),
-								[1,0,0,([1,0.75] select _noChannel)],
-								[0,1,0.5,([1,0.75] select _noChannel)],
-								[0,0.5,1,([1,0.75] select _noChannel)],
-								[1,1,0,([1,0.75] select _noChannel)]
+								([_r,_g,_b,_markerAlpha]),
+								([_r,_g,_b,_markerAlpha]),
+								[1,0,0,_markerAlpha],
+								[0,1,0.5,_markerAlpha],
+								[0,0.5,1,_markerAlpha],
+								[1,1,0,_markerAlpha]
 							] # _teamID),
 							_iconPos,
 							2.0,
@@ -624,9 +628,10 @@ if (!isStreamFriendlyUIEnabled) then {
 							FALSE
 						];
 					} else {
+						private _markerAlpha = _alpha * ([1,0.75] select ((getPlayerChannel _x) isEqualTo -1));
 						drawIcon3D [
 							_roleIcon,
-							[_r,_g,_b,([1,_alpha] select ((getPlayerChannel _x) isEqualTo -1))],
+							[_r,_g,_b,_markerAlpha],
 							_iconPos,
 							1.0,
 							1.0,
@@ -640,9 +645,10 @@ if (!isStreamFriendlyUIEnabled) then {
 						];
 					};
 					if (_x isEqualTo (leader _player)) then {
+						private _markerAlpha = _alpha * ([1,0.75] select ((getPlayerChannel _x) isEqualTo -1));
 						drawIcon3D [
 							'a3\ui_f\data\igui\cfg\cursors\leader_ca.paa',
-							[_r,_g,_b,([1,_alpha] select ((getPlayerChannel _x) isEqualTo -1))],
+							[_r,_g,_b,_markerAlpha],
 							_iconPos,
 							1.0,
 							1.0,
@@ -665,14 +671,12 @@ if (!isStreamFriendlyUIEnabled) then {
 					(_unit isNotEqualTo _player) &&
 					{!(_unit in _playerGroupUnits)} &&
 					{(side (group _unit)) isEqualTo (side (group _player))} &&
+					{(_cameraOn distance2D _unit) < _maxUnitIconDistance} &&
 					{(worldToScreen (_unit modelToWorldVisual [0,0,0])) isNotEqualTo []} &&
 					{_cameraOn isNotEqualTo (vehicle _unit)}
 				) then {
 					private _distance = _cameraOn distance2D _unit;
-					private _alpha = [
-						0.25 max (1 - (((_distance / 1000)) % 1)),
-						0.25
-					] select (_distance >= 1000);
+					private _alpha = 1 - (_distance / _maxUnitIconDistance);
 					private _objectParent = objectParent _unit;
 					private _roleIcon = [_unit] call _getRoleIcon;
 					private _iconPos = if (isNull _objectParent) then {
@@ -699,7 +703,7 @@ if (!isStreamFriendlyUIEnabled) then {
 						FALSE
 					];
 				};
-			} count allUnits;
+			} count allPlayers;
 		};
 		if (freeLook) then {
 			private _v = objNull;
