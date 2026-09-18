@@ -4,6 +4,9 @@ with uiNamespace do {SLTScriptDisplayName = "Team Name Tags";};
 SLT_fnc_enableScript = {
 	if (!hasInterface || {!isNil 'TeamNameTagEvent'}) exitWith {};
 	QS_teamNameTagTargets = [];
+	TNTMaxDistanceUnitMarker3D = 7000;
+	TNTMaxDistanceUnitMarkerText3D = 10;
+	TNTNearbyFriendlyAI = [];
 	TeamNameTagEvent = addMissionEventHandler ['Draw3D',{
 		private _player = missionNamespace getVariable ['QS_player',objNull];
 		private _cameraOn = cameraOn;
@@ -28,6 +31,98 @@ SLT_fnc_enableScript = {
 				_cursorTarget = cursorObject;
 			};
 		};
+
+		// Keep the friendly-AI portion of the original team tags. Player labels are
+		// handled by the cursor-target code below so they are not rendered twice.
+		private _aiUnits = +(missionNamespace getVariable ['TNTNearbyFriendlyAI',[]]);
+		if (!isNull _cursorTarget) then {
+			private _cursorUnits = if (_cursorTarget isKindOf 'CAManBase') then {[_cursorTarget]} else {crew _cursorTarget};
+			{
+				if (
+					(!isPlayer _x) &&
+					{(side (group _x)) isEqualTo (side (group _player))}
+				) then {
+					_aiUnits pushBackUnique _x;
+				};
+			} forEach _cursorUnits;
+		};
+		private _drawnVehicles = [];
+		{
+			private _ai = _x;
+			if (
+				(!isNull _ai) &&
+				{!isPlayer _ai} &&
+				{_ai isNotEqualTo _player} &&
+				{(side (group _ai)) isEqualTo (side (group _player))} &&
+				{!(_ai getVariable ['QS_hidden',FALSE])}
+			) then {
+				private _aiVehicle = vehicle _ai;
+				if (!(_aiVehicle in _drawnVehicles) && {_aiVehicle isNotEqualTo vehicle _player}) then {
+					_drawnVehicles pushBack _aiVehicle;
+					private _driver = driver _aiVehicle;
+					if (isNull _driver) then {_driver = effectiveCommander _aiVehicle;};
+					if (isNull _driver) then {_driver = _ai;};
+					private _position = if (_aiVehicle isEqualTo _ai) then {
+						((_ai modelToWorldVisual (_ai selectionPosition 'head_axis')) vectorAdd [0,0,0.5])
+					} else {
+						_aiVehicle modelToWorldVisual [0,0,2]
+					};
+					private _distance = _cameraOn distance _position;
+					private _alphaAI = 0.75 min ((TNTMaxDistanceUnitMarker3D - _distance) / TNTMaxDistanceUnitMarker3D);
+					if (_aiVehicle isEqualTo _cursorTarget || {_ai isEqualTo _cursorTarget}) then {_alphaAI = 1;};
+					if (_alphaAI > 0) then {
+						private _color = switch (side (group _ai)) do {
+							case WEST: {[0,0.3,0.6,_alphaAI]};
+							case EAST: {[0.5,0,0,_alphaAI]};
+							case INDEPENDENT: {[0,0.5,0,_alphaAI]};
+							case CIVILIAN: {[0.4,0,0.5,_alphaAI]};
+							default {[1,1,1,_alphaAI]};
+						};
+						if ((group _player) isEqualTo (group _ai)) then {
+							_color = switch (side (group _ai)) do {
+								case WEST: {[0,0.45,1,_alphaAI]};
+								case EAST: {[0.8,0.35,0,_alphaAI]};
+								case INDEPENDENT: {[0.34,0.75,0,_alphaAI]};
+								case CIVILIAN: {[0.7,0,0.75,_alphaAI]};
+								default {[1,1,1,_alphaAI]};
+							};
+						};
+						private _icon = if (_aiVehicle isEqualTo _ai) then {
+							switch (rank _ai) do {
+								case 'COLONEL': {'\a3\ui_f\data\GUI\cfg\Ranks\colonel_pr.paa'};
+								case 'MAJOR': {'\a3\ui_f\data\GUI\cfg\Ranks\major_pr.paa'};
+								case 'CAPTAIN': {'\a3\ui_f\data\GUI\cfg\Ranks\captain_pr.paa'};
+								case 'LIEUTENANT': {'\a3\ui_f\data\GUI\cfg\Ranks\lieutenant_pr.paa'};
+								case 'SERGEANT': {'\a3\ui_f\data\GUI\cfg\Ranks\sergeant_pr.paa'};
+								case 'CORPORAL': {'\a3\ui_f\data\GUI\cfg\Ranks\corporal_pr.paa'};
+								default {'\a3\ui_f\data\GUI\cfg\Ranks\private_pr.paa'};
+							}
+						} else {
+							getText ((configOf _aiVehicle) >> 'icon')
+						};
+						private _iconSize = [0.5,0.65] select (_aiVehicle isNotEqualTo _ai);
+						private _text = if ((count (crew _aiVehicle)) > 1) then {
+							format ['AI + %1 more',(count (crew _aiVehicle)) - 1]
+						} else {
+							'AI'
+						};
+						if ((_distance > TNTMaxDistanceUnitMarkerText3D) && {!(_aiVehicle isEqualTo _cursorTarget || {_ai isEqualTo _cursorTarget})}) then {
+							_text = '';
+						};
+						if ((lifeState _driver) isEqualTo 'INCAPACITATED' && {damage _driver > 0.4}) then {
+							_icon = '\A3\ui_f\data\igui\cfg\revive\overlayicons\u100_ca.paa';
+							_color = [1,0.41,0,_alphaAI];
+						};
+						if (!alive _driver) then {
+							_icon = '\A3\ui_f\data\igui\cfg\revive\overlayicons\d100_ca.paa';
+							_color = [0.25,0.25,0,0.75];
+						};
+						drawIcon3D [_icon,_color,_position,_iconSize,_iconSize,0,_text,2,0.0325,_font,'center',FALSE];
+					};
+				};
+			};
+		} forEach _aiUnits;
+
 		if (
 			(!isNull _cursorTarget) &&
 			{(!(_cursorTarget in [_player,_cameraOn]))} &&
@@ -181,13 +276,34 @@ SLT_fnc_enableScript = {
 			} forEach QS_teamNameTagTargets;
 		};
 	}];
+	TeamNameTagAIUpdater = [] spawn {
+		while {!isNil 'TeamNameTagEvent'} do {
+			private _player = missionNamespace getVariable ['QS_player',objNull];
+			if (isNull _player) then {
+				TNTNearbyFriendlyAI = [];
+			} else {
+				private _playerSide = side (group _player);
+				TNTNearbyFriendlyAI = allUnits select {
+					(!isPlayer _x) &&
+					{(side (group _x)) isEqualTo _playerSide} &&
+					{(_x distance _player) <= TNTMaxDistanceUnitMarker3D}
+				};
+			};
+			uiSleep 0.5;
+		};
+	};
 };
 
 SLT_fnc_disableScript = {
 	if (!isNil 'TeamNameTagEvent') then {
 		removeMissionEventHandler ['Draw3D',TeamNameTagEvent];
 	};
+	if (!isNil 'TeamNameTagAIUpdater') then {
+		terminate TeamNameTagAIUpdater;
+	};
 	TeamNameTagEvent = nil;
+	TeamNameTagAIUpdater = nil;
+	TNTNearbyFriendlyAI = nil;
 	QS_teamNameTagTargets = [];
 };
 
