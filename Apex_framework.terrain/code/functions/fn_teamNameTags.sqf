@@ -20,7 +20,7 @@ SLT_fnc_enableScript = {
 
 		private _font = 'RobotoCondensedBold';
 		(profileNamespace getVariable ['ApexFramework_3DGroupIconColor',(missionNamespace getVariable ['QS_missionConfig_3DIconColor',[0,125,255]])]) params ['_r','_g','_b'];
-		private ['_unit','_fade','_unitName','_unitType','_alpha'];
+		private ['_unit','_fade','_unitName','_unitType','_alpha','_labelPosition'];
 		private _cursorTarget = cursorTarget;
 		if (isNull _cursorTarget) then {
 			_cursorTarget = getCursorObjectParams # 0;
@@ -61,6 +61,7 @@ SLT_fnc_enableScript = {
 		QS_teamNameTagTargets = QS_teamNameTagTargets select { (!isNull (_x # 0)) && {((_x # 1) > 0)} && {!((_x # 0) in [_player,_cameraOn])} };
 		if (QS_teamNameTagTargets isNotEqualTo []) then {
 			private _cursorColor = [_r,_g,_b,1];
+			private _donatorUIDs = ['DONATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist');
 			{
 				_unit = _x # 0;
 				_fade = _x # 1;
@@ -141,10 +142,11 @@ SLT_fnc_enableScript = {
 					_cursorColor = _unit getVariable ['QS_ST_cursorIcon_color',[0.5,0.5,0.5,_alpha]];
 				};
 				if ((_unitName isNotEqualTo '') && {_alpha > 0}) then {
+					_labelPosition = ((_unit modelToWorldVisual ((selectionPosition [_unit,(['pilot','head'] select (_unit isKindOf 'CAManBase')),11,TRUE]))) vectorAdd [0,0,0.5]);
 					drawIcon3D [
 						'',
 						_cursorColor,
-						((_unit modelToWorldVisual ((selectionPosition [_unit,(['pilot','head'] select (_unit isKindOf 'CAManBase')),11,TRUE]))) vectorAdd [0,0,0.5]),
+						_labelPosition,
 						1,
 						1,
 						0,
@@ -157,6 +159,24 @@ SLT_fnc_enableScript = {
 						0,
 						-0.03
 					];
+					if ((isPlayer _unit) && {(getPlayerUID _unit) in _donatorUIDs}) then {
+						drawIcon3D [
+							'',
+							[0.85,0.7,0.2,_alpha],
+							_labelPosition,
+							1,
+							1,
+							0,
+							'Donator',
+							2,
+							0.03,
+							_font,
+							'center',
+							FALSE,
+							0,
+							-0.06
+						];
+					};
 				};
 			} forEach QS_teamNameTagTargets;
 		};
