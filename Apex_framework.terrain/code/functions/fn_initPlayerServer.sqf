@@ -28,6 +28,11 @@ waitUntil {
 	((!isNull _client) || {(diag_tickTime > _t)})
 };
 if (isNull _client) exitWith {};
+// Covers players whose whitelist query finished before their unit existed,
+// as well as servers using the static whitelist. Late DB results update this.
+if (isServer) then {
+	_client setVariable ['QS_isDonator',_uid in (['DONATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist')),TRUE];
+};
 if (allCurators isNotEqualTo []) then {
 	{
 		if (!isNull (getAssignedCuratorUnit _x)) then {

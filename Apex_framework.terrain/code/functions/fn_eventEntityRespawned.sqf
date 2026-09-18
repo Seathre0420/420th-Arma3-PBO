@@ -18,6 +18,10 @@ missionNamespace setVariable ['QS_analytics_entities_respawned',((missionNamespa
 missionNamespace setVariable ['QS_system_entitiesRespawned',((missionNamespace getVariable ['QS_system_entitiesRespawned',0]) + 1),FALSE];
 if (!isNull _newEntity) then {
 	if (isPlayer _newEntity) then {
+		// Rebuild cosmetic status from the server whitelist on the new unit.
+		if (isServer) then {
+			_newEntity setVariable ['QS_isDonator',(getPlayerUID _newEntity) in (['DONATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist')),TRUE];
+		};
 		['SERVER_SYNC',_newEntity] call (missionNamespace getVariable 'QS_fnc_serverPrivateChannels');
 		missionNamespace setVariable ['QS_playerRespawnCountServer',((missionNamespace getVariable 'QS_playerRespawnCountServer') + 1),FALSE];
 		if (_newEntity getUnitTrait 'QS_trait_fighterPilot') then {

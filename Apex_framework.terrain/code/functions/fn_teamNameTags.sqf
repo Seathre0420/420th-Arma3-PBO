@@ -156,7 +156,6 @@ SLT_fnc_enableScript = {
 		QS_teamNameTagTargets = QS_teamNameTagTargets select { (!isNull (_x # 0)) && {((_x # 1) > 0)} && {!((_x # 0) in [_player,_cameraOn])} };
 		if (QS_teamNameTagTargets isNotEqualTo []) then {
 			private _cursorColor = [_r,_g,_b,1];
-			private _donatorUIDs = ['DONATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist');
 			{
 				_unit = _x # 0;
 				_fade = _x # 1;
@@ -254,7 +253,7 @@ SLT_fnc_enableScript = {
 						0,
 						-0.03
 					];
-					if ((isPlayer _unit) && {(getPlayerUID _unit) in _donatorUIDs}) then {
+					if ((isPlayer _unit) && {_unit getVariable ['QS_isDonator',FALSE]}) then {
 						drawIcon3D [
 							'',
 							[0.85,0.7,0.2,_alpha],
@@ -269,7 +268,7 @@ SLT_fnc_enableScript = {
 							'center',
 							FALSE,
 							0,
-							-0.06
+							-0.07
 						];
 					};
 				};

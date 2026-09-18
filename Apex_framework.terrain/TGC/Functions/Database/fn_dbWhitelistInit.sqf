@@ -83,6 +83,7 @@ missionNamespace setVariable ["TGC_dbWhitelistServerInitialized", true, false];
 diag_log "TGC_fnc_dbWhitelistInit: server connect handlers initialized";
 
 TGC_fnc_dbWhitelistInit_refreshPlayer = {
+    if (!isServer || {isRemoteExecuted}) exitWith {};
     params [["_ownerId", -1], ["_uid", ""], ["_name", ""]];
     if (missionNamespace getVariable ["QS_missionConfig_dbWhitelistEnabled", false] isNotEqualTo true) exitWith {};
     if (_uid isEqualTo "") exitWith {};
@@ -113,6 +114,11 @@ TGC_fnc_dbWhitelistInit_refreshPlayer = {
     if (_ownerId > 1) then {_waitingOwners pushBackUnique _ownerId};
 
     if (_cacheExpiry > _now) exitWith {
+        {
+            if ((getPlayerUID _x) isEqualTo _uid) then {
+                _x setVariable ["QS_isDonator", "DONATOR" in _cachedRoles, true];
+            };
+        } forEach allPlayers;
         {
             TGC_dbWhitelistClientData = [_uid, _cachedRoles];
             _x publicVariableClient "TGC_dbWhitelistClientData";
@@ -173,6 +179,14 @@ TGC_fnc_dbWhitelistInit_refreshPlayer = {
         } forEach _clientRoles;
         diag_log format ["TGC_fnc_dbWhitelistInit: refreshed %1 (%2), roles %3, removed %4 stale entries", _name, _uid, _clientRoles, _removed];
     };
+
+    // Publish only the cosmetic status to observers, using server-verified roles.
+    // Resolve the current player object after the query in case they respawned.
+    {
+        if ((getPlayerUID _x) isEqualTo _uid) then {
+            _x setVariable ["QS_isDonator", "DONATOR" in _clientRoles, true];
+        };
+    } forEach allPlayers;
 
     // Re-read state because other retry handlers may have added owners while
     // the scheduled query was waiting.

@@ -13,6 +13,8 @@ Description:
 	Periodically updates the whitelist.
 ___________________________________________________________________________/*/
 
+if (!isServer || {isRemoteExecuted}) exitWith {};
+
 private _parseWhitelistsFromUsers = {
 	params ["_users"];
 	private _whitelists = [];
@@ -47,6 +49,10 @@ for "_i" from 0 to 1 step 0 do {
 				set [_id, 1];
 		} forEach _whitelists;
 		publicVariable "QS_whitelist_data";
+		private _donators = QS_whitelist_data getOrDefault ["DONATOR",createHashMap];
+		{
+			_x setVariable ["QS_isDonator",(getPlayerUID _x) in _donators,true];
+		} forEach allPlayers;
 	} catch {
 		diag_log format ["Ignoring exception in fn_dbWhitelistRefresher.sqf: %1", _exception];
 	};
