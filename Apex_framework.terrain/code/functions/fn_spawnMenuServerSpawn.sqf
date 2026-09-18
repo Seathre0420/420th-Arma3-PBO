@@ -263,6 +263,9 @@ if (_isAI) then {
 if (!_isAI && {!_isSupplyCrate} && {!isNil 'QS_fnc_vSetup'}) then {
 	[_entity] call QS_fnc_vSetup;
 };
+if ((typeOf _entity) isEqualTo 'I_C_Plane_Civil_01_F') then {
+	[_entity] call (missionNamespace getVariable 'QS_fnc_Q51');
+};
 if ((typeOf _entity) isEqualTo 'B_Heli_Light_01_F') then {
 	_entity addWeaponTurret ['CMFlareLauncher',[-1]];
 	_entity addMagazineTurret ['300Rnd_CMFlare_Chaff_Magazine',[-1]];
