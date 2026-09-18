@@ -94,7 +94,14 @@ SLT_fnc_enableScript = {
 					_alpha = [0.1 max (1 - ((((_cameraOn distance2D _unit) / 1000)) % 1)),0.1] select ((_cameraOn distance2D _unit) >= 1000);
 					QS_teamNameTagTargets set [_forEachIndex,[_unit,([(_fade + 0.1) min 1,(_fade - 0.1) max 0] select (_unit isNotEqualTo _cursorTarget))]];
 					_alpha = _alpha * _fade;
-					_cursorColor = _unit getVariable ['QS_ST_cursorIcon_color',[_r,_g,_b,_alpha]];
+					_cursorColor = if (
+						(isPlayer _unit) &&
+						{(group _unit) isEqualTo (group _player)}
+					) then {
+						[0,0.77,1,_alpha]
+					} else {
+						_unit getVariable ['QS_ST_cursorIcon_color',[_r,_g,_b,_alpha]]
+					};
 				} else {
 					if (
 						(_unit getVariable ['QS_ST_showDisplayName',FALSE]) ||
