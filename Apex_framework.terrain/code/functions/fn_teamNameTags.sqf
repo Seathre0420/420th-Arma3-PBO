@@ -87,19 +87,7 @@ SLT_fnc_enableScript = {
 								default {[1,1,1,_alphaAI]};
 							};
 						};
-						private _icon = if (_aiVehicle isEqualTo _ai) then {
-							switch (rank _ai) do {
-								case 'COLONEL': {'\a3\ui_f\data\GUI\cfg\Ranks\colonel_pr.paa'};
-								case 'MAJOR': {'\a3\ui_f\data\GUI\cfg\Ranks\major_pr.paa'};
-								case 'CAPTAIN': {'\a3\ui_f\data\GUI\cfg\Ranks\captain_pr.paa'};
-								case 'LIEUTENANT': {'\a3\ui_f\data\GUI\cfg\Ranks\lieutenant_pr.paa'};
-								case 'SERGEANT': {'\a3\ui_f\data\GUI\cfg\Ranks\sergeant_pr.paa'};
-								case 'CORPORAL': {'\a3\ui_f\data\GUI\cfg\Ranks\corporal_pr.paa'};
-								default {'\a3\ui_f\data\GUI\cfg\Ranks\private_pr.paa'};
-							}
-						} else {
-							getText ((configOf _aiVehicle) >> 'icon')
-						};
+						private _icon = '\a3\ui_f\data\GUI\cfg\Ranks\private_gs.paa';
 						private _iconSize = [0.5,0.65] select (_aiVehicle isNotEqualTo _ai);
 						private _text = if ((count (crew _aiVehicle)) > 1) then {
 							format ['AI + %1 more',(count (crew _aiVehicle)) - 1]
@@ -110,11 +98,9 @@ SLT_fnc_enableScript = {
 							_text = '';
 						};
 						if ((lifeState _driver) isEqualTo 'INCAPACITATED' && {damage _driver > 0.4}) then {
-							_icon = '\A3\ui_f\data\igui\cfg\revive\overlayicons\u100_ca.paa';
 							_color = [1,0.41,0,_alphaAI];
 						};
 						if (!alive _driver) then {
-							_icon = '\A3\ui_f\data\igui\cfg\revive\overlayicons\d100_ca.paa';
 							_color = [0.25,0.25,0,0.75];
 						};
 						drawIcon3D [_icon,_color,_position,_iconSize,_iconSize,0,_text,2,0.0325,_font,'center',FALSE];
