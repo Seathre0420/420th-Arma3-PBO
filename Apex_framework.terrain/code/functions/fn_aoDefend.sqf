@@ -889,7 +889,10 @@ for '_x' from 0 to 1 step 0 do {
 			_taruFlights = _taruFlights select {!scriptDone (_x # 1)};
 			private _cap = [3,1] select (_connected >= 20);
 			private _ready = diag_fps >= 18 && {_room >= _size + 1} && {_tickTimeNow >= _taruNext} && {count _taruFlights < _cap};
-			if (_connected > 0 && {_connected < 20} && {_room >= _size + 1} && {diag_fps >= 18} && {!_ready}) exitWith {};
+			
+			// Disabled
+			// if (_connected > 0 && {_connected < 20} && {_room >= _size + 1} && {diag_fps >= 18} && {!_ready}) exitWith {};
+
 			private _lift = ['TARU_POLICY',_connected,_taruSince,_size,_ready,random 1] call QS_fnc_AIXHeliInsert;
 			private _flight = [];
 			private _drop = +_spawnPos;
