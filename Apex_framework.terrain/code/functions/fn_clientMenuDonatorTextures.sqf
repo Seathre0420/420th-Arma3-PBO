@@ -30,18 +30,8 @@ private _fn_getTarget = {
 	};
 	private _targetType = uiNamespace getVariable ['QS_client_donatorTexture_target','Uniform'];
 	switch _targetType do {
-		case 'Vest': {
-			[vestContainer player,'vest']
-		};
 		case 'Backpack': {
 			[backpackContainer player,'backpack']
-		};
-		case 'Helmet': {
-			if ((headgear player) isEqualTo '') then {
-				[objNull,'helmet']
-			} else {
-				[player,'helmet']
-			};
 		};
 		default {
 			[player,'uniform']
@@ -63,7 +53,7 @@ private _fn_getTextureSlotCount = {
 if (_type isEqualTo 'onLoad') then {
 	(findDisplay 2000) closeDisplay 1;
 	(findDisplay 5000) closeDisplay 1;
-	if (isNil {uiNamespace getVariable 'QS_client_donatorTexture_target'}) then {
+	if (!((uiNamespace getVariable ['QS_client_donatorTexture_target','']) in ['Uniform','Backpack'])) then {
 		uiNamespace setVariable ['QS_client_donatorTexture_target','Uniform'];
 	};
 	setMousePosition (uiNamespace getVariable ['QS_ui_mousePosition',getMousePosition]);
@@ -79,9 +69,9 @@ if (_type isEqualTo 'onLoad') then {
 	};
 };
 
-if (_type in ['Uniform','Vest','Backpack','Helmet']) then {
+if (_type in ['Uniform','Backpack']) then {
 	if (!((vehicle player) isEqualTo player)) exitWith {
-		(missionNamespace getVariable 'QS_managed_hints') pushBack [5,FALSE,3,-1,'Exit the vehicle to select a uniform, vest, backpack, or helmet texture target.',[],-1];
+		(missionNamespace getVariable 'QS_managed_hints') pushBack [5,FALSE,3,-1,'Exit the vehicle to select a uniform or backpack texture target.',[],-1];
 	};
 	uiNamespace setVariable ['QS_client_donatorTexture_target',_type];
 	private _text = parseText (format ['Texture target set to %1.',toLower _type]);
