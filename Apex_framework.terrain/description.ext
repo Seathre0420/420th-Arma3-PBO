@@ -314,6 +314,7 @@ class CfgFunctions {
 			class clientInteractFOBTerminal {file = "code\functions\fn_clientInteractFOBTerminal.sqf";};
 			class clientInteractForceDismount {file = "code\functions\fn_clientInteractForceDismount.sqf";};
 			class clientInteractGetIn {file = "code\functions\fn_clientInteractGetIn.sqf";};
+			class clientInteractHaloJump {file = "code\functions\fn_clientInteractHaloJump.sqf";};
 			class clientInteractHangar {file = "code\functions\fn_clientInteractHangar.sqf";};
 			class clientInteractJoinGroup {file = "code\functions\fn_clientInteractJoinGroup.sqf";};
 			class clientInteractLaserToggle {file = "code\functions\fn_clientInteractLaserToggle.sqf";};

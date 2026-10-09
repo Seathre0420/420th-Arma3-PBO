@@ -36,6 +36,7 @@ ___________________________________________/*/
 	localize 'STR_QS_Interact_015',			// Unflip
 	localize 'STR_QS_Interact_016',			// Revive
 	localize 'STR_A3_Arsenal',				// Arsenal
+	'Halo Jump',
 	localize 'STR_QS_Interact_019',			// Beacons On
 	localize 'STR_QS_Interact_020',			// Beacons Off
 	localize 'STR_QS_Interact_021',			// Tow

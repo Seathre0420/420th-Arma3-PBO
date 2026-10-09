@@ -423,6 +423,10 @@ _QS_action_arsenal_text = localize 'STR_A3_Arsenal';
 _QS_action_arsenal_array = [_QS_action_arsenal_text,{_this spawn (missionNamespace getVariable 'QS_fnc_clientInteractArsenal')},[],90,TRUE,TRUE,'','TRUE',-1,FALSE,''];
 _QS_interaction_arsenal = FALSE;
 _QS_arsenal_model = ['arsenal_model_1'] call (missionNamespace getVariable 'QS_data_listOther');
+/*/===== Halo Jump/*/
+private _QS_action_haloJump = -1;
+private _QS_haloJump_arsenal = objNull;
+private _QS_haloJump_player = objNull;
 /*/===== Arsenal (AI)/*/
 private _QS_interaction_arsenalAI = FALSE;
 private _QS_action_arsenalAI_array = [_QS_action_arsenal_text,{_this spawn (missionNamespace getVariable 'QS_fnc_clientInteractArsenal')},[],90,TRUE,TRUE,'','TRUE',-1,FALSE,''];
@@ -2597,7 +2601,7 @@ for '_z' from 0 to 1 step 0 do {
 				(_noObjectParent) &&
 				{_isMissionCursorObject} &&
 				{(_cursorObjectDistance < 20)} &&
-				{(((((getModelInfo _cursorObject) # 1) in _QS_arsenal_model) && (!(simulationEnabled _cursorObject))) || {(_cursorTarget getVariable ['QS_arsenal_object',_false])})} &&
+				{(((((getModelInfo _cursorObject) # 1) in _QS_arsenal_model) && (!(simulationEnabled _cursorObject))) || {(_cursorObject getVariable ['QS_arsenal_object',_false])})} &&
 				{(((vectorMagnitude (velocity _QS_player)) * 3.6) < 1)}
 			) then {
 				if (!(_QS_interaction_arsenal)) then {
@@ -2613,6 +2617,31 @@ for '_z' from 0 to 1 step 0 do {
 				};
 			};
 			
+			/*/===== Halo Jump (main base arsenals)/*/
+			private _haloJumpArsenal = objNull;
+			if (
+				_QS_interaction_arsenal &&
+				{(['GET',_cursorObject,((missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'})] call _fn_zoneManager) isNotEqualTo []}
+			) then {
+				_haloJumpArsenal = _cursorObject;
+			};
+			if ((_haloJumpArsenal isNotEqualTo _QS_haloJump_arsenal) || {_QS_haloJump_player isNotEqualTo player}) then {
+				if (_QS_action_haloJump isNotEqualTo -1) then {
+					_QS_haloJump_player removeAction _QS_action_haloJump;
+					_QS_action_haloJump = -1;
+				};
+				_QS_haloJump_arsenal = _haloJumpArsenal;
+				_QS_haloJump_player = player;
+				if (!isNull _haloJumpArsenal) then {
+					// Pilot count is checked on selection so the action remains visible when blocked.
+					_QS_action_haloJump = player addAction [
+						'Halo Jump',
+						{_this call (missionNamespace getVariable 'QS_fnc_clientInteractHaloJump')},
+						_haloJumpArsenal,87,TRUE,TRUE,'','TRUE',-1,FALSE,''
+					];
+				};
+			};
+
 			/*/===== Arsenal (AI)/*/
 			if (
 				(_noObjectParent) &&
