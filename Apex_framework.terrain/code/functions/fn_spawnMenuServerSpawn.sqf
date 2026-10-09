@@ -270,6 +270,21 @@ if ((typeOf _entity) isEqualTo 'B_Heli_Light_01_F') then {
 	_entity addWeaponTurret ['CMFlareLauncher',[-1]];
 	_entity addMagazineTurret ['300Rnd_CMFlare_Chaff_Magazine',[-1]];
 };
+if ((typeOf _entity) in [
+	'B_CTRG_Heli_Transport_01_Assault_F',
+	'B_CTRG_Heli_Transport_01_Assault_sand_F',
+	'B_CTRG_Heli_Transport_01_Assault_tropic_F'
+]) then {
+	_entity animateSource ['hide_benchesfront',0,TRUE];
+};
+if ((typeOf _entity) in [
+	'B_CTRG_Heli_Transport_01_DAP_F',
+	'B_CTRG_Heli_Transport_01_DAP_sand_F',
+	'B_CTRG_Heli_Transport_01_DAP_tropic_F'
+]) then {
+	_entity animateSource ['hide_benchesfront',0,TRUE];
+	_entity animateSource ['hide_benchesback',0,TRUE];
+};
 if (
 	_isLogisticsContainer &&
 	{!(_entity getVariable ['QS_logistics',FALSE])} &&
