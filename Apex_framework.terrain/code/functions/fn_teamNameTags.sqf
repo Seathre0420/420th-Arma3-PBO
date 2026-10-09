@@ -32,6 +32,24 @@ SLT_fnc_enableScript = {
 			};
 		};
 
+		private _getPlayerCrew = {
+			params ['_vehicle'];
+			(crew _vehicle) select {
+				(isPlayer _x) &&
+				{(side (group _x)) isEqualTo (_player getVariable ['QS_unit_side',WEST])} &&
+				{!(_x getVariable ['QS_hidden',FALSE])}
+			};
+		};
+		private _cursorPlayerCrew = [];
+		if (
+			(!isNull _cursorTarget) &&
+			{!(_cursorTarget isKindOf 'CAManBase')} &&
+			{!(_cursorTarget in (attachedObjects _cameraOn))} &&
+			{!(_cursorTarget getVariable ['QS_hidden',FALSE])}
+		) then {
+			_cursorPlayerCrew = [_cursorTarget] call _getPlayerCrew;
+		};
+
 		// Keep the friendly-AI portion of the original team tags. Player labels are
 		// handled by the cursor-target code below so they are not rendered twice.
 		private _aiUnits = +(missionNamespace getVariable ['TNTNearbyFriendlyAI',[]]);
@@ -133,7 +151,8 @@ SLT_fnc_enableScript = {
 						{(_cursorTarget getVariable ['QS_logistics_deployed',FALSE])} ||
 						{(_cursorTarget getVariable ['QS_logistics_isCargoParent',FALSE])}
 					)}
-				)}
+				)} ||
+				{(_cursorPlayerCrew isNotEqualTo [])}
 			)}
 		) then {
 			if ((QS_teamNameTagTargets findIf { (_x # 0) isEqualTo _cursorTarget }) isEqualTo -1) then {
@@ -147,7 +166,9 @@ SLT_fnc_enableScript = {
 				_unit = _x # 0;
 				_fade = _x # 1;
 				_unitName = '';
-				if ((_unit isKindOf 'CAManBase') || {((effectiveCommander _unit) isKindOf 'CAManBase')}) then {
+				// Read crew again while fading so disembarked or hidden players disappear.
+				private _playerCrew = if ((_unit isKindOf 'CAManBase') || {_unit getVariable ['QS_hidden',FALSE]}) then {[]} else {[_unit] call _getPlayerCrew};
+				if ((_playerCrew isNotEqualTo []) || {(_unit isKindOf 'CAManBase')} || {((effectiveCommander _unit) isKindOf 'CAManBase')}) then {
 					if ((_cameraOn distance2D _unit) >= 30) then {
 						if ((_cameraOn distance2D _unit) >= 300) then {
 							_unitName = [
@@ -222,42 +243,61 @@ SLT_fnc_enableScript = {
 					_alpha = _alpha * _fade;
 					_cursorColor = _unit getVariable ['QS_ST_cursorIcon_color',[0.5,0.5,0.5,_alpha]];
 				};
-				if ((_unitName isNotEqualTo '') && {_alpha > 0}) then {
+				if (((_unitName isNotEqualTo '') || {_playerCrew isNotEqualTo []}) && {_alpha > 0}) then {
 					_labelPosition = ((_unit modelToWorldVisual ((selectionPosition [_unit,(['pilot','head'] select (_unit isKindOf 'CAManBase')),11,TRUE]))) vectorAdd [0,0,0.5]);
-					drawIcon3D [
-						'',
-						_cursorColor,
-						_labelPosition,
-						1,
-						1,
-						0,
-						_unitName,
-						2,
-						0.03,
-						_font,
-						'center',
-						FALSE,
-						0,
-						-0.03
-					];
-					if ((isPlayer _unit) && {_unit getVariable ['QS_isDonator',FALSE]}) then {
+					private _labels = [[_unit,_unitName,_cursorColor]];
+					if (_playerCrew isNotEqualTo []) then {
+						// Anchor a separate row for every player above the vehicle, at any range.
+						_labelPosition = _unit modelToWorldVisual [0,0,(((boundingBoxReal _unit) # 1) # 2) + 0.5];
+						_labels = _playerCrew apply {
+							private _color = if ((group _x) isEqualTo (group _player)) then {
+								[0,0.77,1,_alpha]
+							} else {
+								_x getVariable ['QS_ST_cursorIcon_color',[_r,_g,_b,_alpha]]
+							};
+							[_x,name _x,_color]
+						};
+					};
+					private _labelOffset = -0.03;
+					{
+						_x params ['_labelUnit','_labelText','_labelColor'];
 						drawIcon3D [
 							'',
-							[0.85,0.7,0.2,_alpha],
+							_labelColor,
 							_labelPosition,
 							1,
 							1,
 							0,
-							'Donator',
+							_labelText,
 							2,
 							0.03,
 							_font,
 							'center',
 							FALSE,
 							0,
-							-0.07
+							_labelOffset
 						];
-					};
+						_labelOffset = _labelOffset - 0.04;
+						if ((isPlayer _labelUnit) && {_labelUnit getVariable ['QS_isDonator',FALSE]}) then {
+							drawIcon3D [
+								'',
+								[0.85,0.7,0.2,_alpha],
+								_labelPosition,
+								1,
+								1,
+								0,
+								'Donator',
+								2,
+								0.03,
+								_font,
+								'center',
+								FALSE,
+								0,
+								_labelOffset
+							];
+							_labelOffset = _labelOffset - 0.04;
+						};
+					} forEach _labels;
 				};
 			} forEach QS_teamNameTagTargets;
 		};
