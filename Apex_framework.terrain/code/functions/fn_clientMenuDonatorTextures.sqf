@@ -113,8 +113,16 @@ if (_type isEqualTo 'Reset') then {
 		(missionNamespace getVariable 'QS_managed_hints') pushBack [5,FALSE,5,-1,_text,[],-1];
 	};
 	private _defaultTextures = [''];
+	if (_targetName isEqualTo 'uniform') then {
+		// Resolve the worn uniform, which may differ from the player's unit class.
+		private _uniformClass = getText (configFile >> 'CfgWeapons' >> (uniform player) >> 'ItemInfo' >> 'uniformClass');
+		_defaultTextures = getArray (configFile >> 'CfgVehicles' >> _uniformClass >> 'hiddenSelectionsTextures');
+	};
 	if (!(_target isEqualTo player)) then {
 		_defaultTextures = getArray ((configOf _target) >> 'hiddenSelectionsTextures');
+	};
+	if ((_targetName isEqualTo 'uniform') && {(_defaultTextures param [0,'']) isEqualTo ''}) exitWith {
+		(missionNamespace getVariable 'QS_managed_hints') pushBack [5,FALSE,5,-1,'Unable to find the original texture for your current uniform.',[],-1];
 	};
 	for '_i' from 0 to (([_target] call _fn_getTextureSlotCount) - 1) do {
 		_target setObjectTextureGlobal [_i,(_defaultTextures param [_i,''])];
