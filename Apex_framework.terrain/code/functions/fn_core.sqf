@@ -519,7 +519,7 @@ private _codeBool = {TRUE};
 private _objNull = objNull;
 private _spawnedType = '';
 private _cargoParent = objNull;
-_vRespawn_delay = 5;
+_vRespawn_delay = 15;
 _vRespawn_checkDelay = time + _vRespawn_delay;
 _allHitPointsDamage = [];
 _allHitPointsDamage_0 = [];
@@ -3620,6 +3620,13 @@ for '_x' from 0 to 1 step 0 do {
 
 	if (_timeNow > _vRespawn_checkDelay) then {
 		if ((serverNamespace getVariable 'QS_v_Monitor') isNotEqualTo []) then {
+			private _spawnMenuOwners = createHashMap;
+			{
+				_spawnMenuOwners set [getPlayerUID _x,_x];
+			} forEach allPlayers;
+			private _spawnMenuBaseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {
+				(_x # 0) isEqualTo 'BASE_HIGHSEC_0'
+			};
 			if (_trigger_delete_fobVehicles) then {
 				_trigger_delete_fobVehicles = _false;
 				['VEHICLES_REMOVE'] call _fn_fobAssets;
@@ -3874,6 +3881,28 @@ for '_x' from 0 to 1 step 0 do {
 								(serverNamespace getVariable 'QS_v_Monitor') set [_forEachIndex,[_v,_vdelay,_randomize,_configCode,_t,_vpos,_dir,_false,0,_fobVehicleID,_QS_vRespawnDist_base,_QS_vRespawnDist_field,_vRespawnTickets,_nearEntitiesCheck,_isDynamicVehicle,_isCarrierVehicle,_vehicleSpawnCondition,_isWreck,_isDeployed,_stateInfo,_wreckInfo,_wreckChance,_wreckCond,_spawnMenuOwnerUID,_spawnMenuVehicleSide]];
 							};
 						};
+						// Spawn Menu abandonment depends only on attachment, deployment,
+						// packing and owner distance from the vehicle's current position.
+						private _isSpawnMenuVehicle = (_spawnMenuOwnerUID isNotEqualTo '') && {!unitIsUAV _v};
+						if (
+							_isSpawnMenuVehicle &&
+							{isNull (attachedTo _v)} &&
+							{!_isDeployed} &&
+							{!(_v getVariable ['QS_logistics_deployed',_false])} &&
+							{!(_v getVariable ['QS_logistics_packed',_false])}
+						) then {
+							private _spawnMenuOwner = _spawnMenuOwners getOrDefault [_spawnMenuOwnerUID,_objNull];
+							if (!isNull _spawnMenuOwner) then {
+								// Use the configured main base polygon (and its existing circular fallback).
+								private _spawnMenuInBase = (['GET',_v,_spawnMenuBaseZones] call QS_fnc_zoneManager) isNotEqualTo [];
+								private _spawnMenuCleanupDistance = [1500,25] select _spawnMenuInBase;
+								if ((_spawnMenuOwner distance2D _v) > _spawnMenuCleanupDistance) then {
+									missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),_false];
+									deleteVehicle _v;
+									(serverNamespace getVariable 'QS_v_Monitor') set [_forEachIndex,_false];
+								};
+							};
+						};
 						if (
 							(
 								(!isSimpleObject _v) || 
@@ -3904,7 +3933,8 @@ for '_x' from 0 to 1 step 0 do {
 								};
 							};
 							if (
-								(isNull (ropeAttachedTo _v)) &&
+								(!_isSpawnMenuVehicle) &&
+								{(isNull (ropeAttachedTo _v))} &&
 								{(isNull (isVehicleCargo _v))} && 
 								{(isNull (attachedTo _v))} &&
 								{((ropeAttachedObjects _v) isEqualTo [])}

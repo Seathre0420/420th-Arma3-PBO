@@ -25,3 +25,19 @@ Polygon queries support both objects and coordinate positions so fire-support
 target checks also respect the boundary.
 The separate 1,000 m `QS_client_inBaseArea` check, vehicle-restricted infantry
 spawn polygon, and speed-limit polygons keep their existing definitions.
+
+## Spawn Menu vehicle abandonment
+
+Non-UAV Spawn Menu vehicles are checked approximately every five seconds. An
+unattached vehicle that is neither deployed nor logistics-packed is deleted when
+its owner is more than 25 m away inside the main base boundary, or more than
+1,500 m away outside it. Owner distance is horizontal (`distance2D`), and exactly
+25 m or 1,500 m does not trigger deletion. The main base query uses
+`BASE_HIGHSEC_0`, including its existing circular fallback for invalid markers.
+
+This check does not require an empty vehicle, movement from its spawn position,
+or absence of other players or rally points. It also replaces submerged cleanup
+for these vehicles. Attachment means an `attachedTo` parent; ropes and vehicle
+cargo do not independently exempt a vehicle. Deletion retires the vehicle's
+manager entry so it is not automatically replaced. Owner disconnect, destruction,
+manual vehicle respawn, and UAV cleanup retain their separate behavior.
