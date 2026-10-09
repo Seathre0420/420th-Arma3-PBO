@@ -31,16 +31,20 @@ spawn polygon, and speed-limit polygons keep their existing definitions.
 Main base arsenals offer a `Halo Jump` action alongside `Arsenal`, using the same
 interaction range and movement requirements. The arsenal must be inside
 `BASE_HIGHSEC_0`, including its circular fallback when polygon markers are invalid.
-Selecting the action teleports the player to the current AO center at 2,000 m
-above terrain. Use the existing `Open Parachute` action during freefall; the
-player's backpack and equipment are preserved.
+Selecting the action starts a ten-second countdown in private chat: `Halo Jumping
+in 10`, then `9` through `1` at one-second intervals. At ten seconds, `Good luck
+soldier!` appears as the player teleports to the current AO center at 2,000 m
+above terrain. Moving during the countdown cancels the jump and shows
+`Halo Jump cancelled. Player moved.` using `QS_fnc_hint`. Repeated selections do
+not start overlapping countdowns. Use the existing `Open Parachute` action during
+freefall; the player's backpack and equipment are preserved.
 
 The action remains visible when more than two connected players hold a Transport
 Pilot role (regular or whitelisted). Selecting it then leaves the player in place
 and displays: `Halo Jump is unavailable when there are more than two Transport Pilots.`
 The count includes pilots who are dead or outside base, excludes AI and players
-only queued for the role, and is checked each time the action is selected. A
-missing AO center also prevents teleportation.
+only queued for the role, and is checked when selected and again before
+teleportation. A missing AO center also prevents teleportation.
 
 ## Spawn Menu vehicle abandonment
 
