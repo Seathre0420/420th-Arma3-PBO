@@ -263,6 +263,55 @@ if (_isAI) then {
 if (!_isAI && {!_isSupplyCrate} && {!isNil 'QS_fnc_vSetup'}) then {
 	[_entity] call QS_fnc_vSetup;
 };
+if ((typeOf _entity) isEqualTo 'B_CargoNet_01_ammo_F') then {
+	clearWeaponCargoGlobal _entity;
+	clearMagazineCargoGlobal _entity;
+	clearItemCargoGlobal _entity;
+	clearBackpackCargoGlobal _entity;
+	{
+		_x params ['_cargoClass','_quantity'];
+		if (_cargoClass isEqualTo 'FirstAidKit') then {
+			_entity addItemCargoGlobal [_cargoClass,_quantity];
+		} else {
+			_entity addMagazineCargoGlobal [_cargoClass,_quantity];
+		};
+	} forEach [
+		['FirstAidKit',420],
+		['7Rnd_408_Mag',30],
+		['10Rnd_338_Mag',30],
+		['130Rnd_338_Mag',20],
+		['10Rnd_50BW_Mag_F',20],
+		['10Rnd_127x54_Mag',20],
+		['5Rnd_127x108_APDS_Mag',30],
+		['200Rnd_556x45_Box_Tracer_Red_F',60],
+		['30Rnd_556x45_Stanag_Tracer_Red',30],
+		['100Rnd_65x39_caseless_black_mag_tracer',30],
+		['20Rnd_650x39_Cased_Mag_F',30],
+		['30Rnd_65x39_caseless_msbs_mag_Tracer',30],
+		['30Rnd_65x39_caseless_black_mag_Tracer',30],
+		['200Rnd_65x39_cased_Box_Tracer_Red',60],
+		['10Rnd_762x54_Mag',30],
+		['150Rnd_762x54_Box_Tracer',20],
+		['75rnd_762x39_AK12_Mag_Tracer_F',30],
+		['75Rnd_762x39_Mag_Tracer_F',30],
+		['10Rnd_93x64_DMR_05_Mag',20],
+		['150Rnd_93x64_Mag',20],
+		['20Rnd_762x51_Mag',30],
+		['150Rnd_556x45_Drum_Mag_Tracer_F',20],
+		['30Rnd_762x39_AK12_Mag_Tracer_F',30],
+		['30Rnd_762x39_Mag_Tracer_Green_F',30],
+		['HandGrenade',20],
+		['10Rnd_Mk14_762x51_Mag',30],
+		['100Rnd_580x42_Mag_Tracer_F',20],
+		['30Rnd_545x39_Mag_Green_F',30],
+		['30Rnd_580x42_Mag_Tracer_F',30],
+		['30Rnd_9x21_Mag_SMG_02_Tracer_Red',30],
+		['20Rnd_556x45_UW_mag',30],
+		['30Rnd_65x39_caseless_green_mag_Tracer',30],
+		['1Rnd_HE_Grenade_shell',20],
+		['3Rnd_HE_Grenade_shell',20]
+	];
+};
 if ((typeOf _entity) isEqualTo 'I_C_Plane_Civil_01_F') then {
 	[_entity] call (missionNamespace getVariable 'QS_fnc_Q51');
 };
