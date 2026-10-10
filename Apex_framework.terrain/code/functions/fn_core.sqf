@@ -3895,7 +3895,7 @@ for '_x' from 0 to 1 step 0 do {
 							if (!isNull _spawnMenuOwner) then {
 								// Use the configured main base polygon (and its existing circular fallback).
 								private _spawnMenuInBase = (['GET',_v,_spawnMenuBaseZones] call QS_fnc_zoneManager) isNotEqualTo [];
-								private _spawnMenuCleanupDistance = [1500,25] select _spawnMenuInBase;
+								private _spawnMenuCleanupDistance = [1500,50] select _spawnMenuInBase;
 								if ((_spawnMenuOwner distance2D _v) > _spawnMenuCleanupDistance) then {
 									missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),_false];
 									deleteVehicle _v;
