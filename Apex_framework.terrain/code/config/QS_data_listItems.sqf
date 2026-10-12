@@ -61,6 +61,46 @@ if (_type isEqualTo 'sniper_rifles_1') exitWith {
 if (_type isEqualTo 'smokelaunchermags') exitWith {
 	['smokelaunchermag','smokelaunchermag_boat','smokelaunchermag_single']
 };
+if (_type isEqualTo 'random_pylon_magazines_1') exitWith {
+	// Randomized aircraft loadout allowlist. Keep docs/reference in sync.
+	[
+		'PylonMissile_1Rnd_AAA_missiles',
+		'PylonMissile_1Rnd_Bomb_04_F',
+		'PylonMissile_1Rnd_GAA_missiles',
+		'PylonMissile_1Rnd_Missile_AA_03_F',
+		'PylonMissile_1Rnd_Missile_AA_04_F',
+		'PylonMissile_1Rnd_Mk82_F',
+		'PylonMissile_Bomb_GBU12_x1',
+		'PylonMissile_Missile_AA_R73_x1',
+		'PylonMissile_Missile_AA_R77_INT_x1',
+		'PylonMissile_Missile_AA_R77_x1',
+		'PylonMissile_Missile_AGM_KH25_INT_x1',
+		'PylonMissile_Missile_AGM_KH25_x1',
+		'PylonMissile_Missile_AMRAAM_C_x1',
+		'PylonMissile_Missile_BIM9X_x1',
+		'PylonRack_12Rnd_missiles',
+		'PylonRack_12Rnd_missiles_black',
+		'PylonRack_19Rnd_Rocket_Skyfire',
+		'PylonRack_1Rnd_AAA_missiles',
+		'PylonRack_1Rnd_GAA_missiles',
+		'PylonRack_1Rnd_Missile_AA_03_F',
+		'PylonRack_1Rnd_Missile_AA_04_F',
+		'PylonRack_1Rnd_Missile_AGM_01_F',
+		'PylonRack_20Rnd_Rocket_03_AP_F',
+		'PylonRack_20Rnd_Rocket_03_HE_F',
+		'PylonRack_7Rnd_Rocket_04_AP_F',
+		'PylonRack_7Rnd_Rocket_04_HE_F',
+		'PylonRack_Bomb_GBU12_x2',
+		'PylonRack_Missile_AMRAAM_C_x1',
+		'PylonRack_Missile_AMRAAM_C_x2',
+		'PylonRack_Missile_BIM9X_x1',
+		'PylonRack_Missile_BIM9X_x2',
+		'PylonWeapon_2000Rnd_65x39_belt',
+		'PylonWeapon_300Rnd_20mm_shells',
+		'PylonWeapon_500Rnd_127mm_HEIAP_belt_left',
+		'PylonWeapon_500Rnd_127mm_HEIAP_belt_right'
+	] apply {toLowerANSI _x}
+};
 if (_type isEqualTo 'air_to_ground_missiles_1') exitWith {
 	[
 		'pylonmissile_1rnd_lg_scalpel',

@@ -301,11 +301,10 @@ if (_type isEqualTo 1) exitWith {
 if (_type isEqualTo 2) exitWith {
 	_vehicle call _preparePylons;
 	{
-		private _pylonMagazine = selectRandom _x;
-		if (_pylonMagazine in ['PylonMissile_1Rnd_Bomb_03_F','PylonMissile_Bomb_KAB250_x1']) then {
-			_pylonMagazine = 'PylonMissile_1Rnd_Bomb_04_F';
+		// Preserve pylon positions and leave unsupported pylons empty.
+		if (_x isNotEqualTo []) then {
+			_vehicle setPylonLoadout [(_forEachIndex + 1),(selectRandom _x),TRUE];
 		};
-		_vehicle setPylonLoadout [(_forEachIndex + 1),_pylonMagazine,TRUE];
 	} forEach ([0,_vehicle,0] call (missionNamespace getVariable 'QS_fnc_getCompatiblePylonMags'));
 };
 if (_type isEqualTo 3) exitWith {

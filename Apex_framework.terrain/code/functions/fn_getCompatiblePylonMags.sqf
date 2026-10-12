@@ -10,7 +10,8 @@ Last Modified:
 	
 Description:
 
-	Get Compatible Pylon Magazines, filtered
+	Get compatible pylon magazines restricted to the randomized loadout allowlist.
+	Helicopters retain the existing anti-air ammo filter.
 ____________________________________________________/*/
 
 params [
@@ -19,53 +20,26 @@ params [
 	['_pylon',0]
 ];
 if (_type isEqualTo 0) exitWith {
-	_airToGroundMissiles = ['air_to_ground_missiles_1'] call QS_data_listItems;
+	private _allowedPylonMagazines = ['random_pylon_magazines_1'] call QS_data_listItems;
 	private _compatiblePylonMagazines = _vehicle getCompatiblePylonMagazines _pylon;
-	private _pylonMagazines = [];
 	private _isHeli = _vehicle isKindOf 'Helicopter';
-	private _ammoText = '';
+	private _isAllowedMagazine = {
+		params ['_magazine'];
+		if (!((toLowerANSI _magazine) in _allowedPylonMagazines)) exitWith {FALSE};
+		if (!_isHeli) exitWith {TRUE};
+		private _ammoText = QS_hashmap_configfile getOrDefaultCall [
+			format ['cfgmagazines_%1_ammo',toLowerANSI _magazine],
+			{getText (configFile >> 'CfgMagazines' >> _magazine >> 'ammo')},
+			TRUE
+		];
+		!(['aa',_ammoText,FALSE] call (missionNamespace getVariable 'QS_fnc_inString'))
+	};
 	if (_pylon isNotEqualTo 0) then {
-		_compatiblePylonMagazines = _compatiblePylonMagazines select {
-			_ammoText = QS_hashmap_configfile getOrDefaultCall [
-				format ['cfgmagazines_%1_ammo',toLowerANSI _x],
-				{getText (configFile >> 'CfgMagazines' >> _x >> 'ammo')},
-				TRUE
-			];
-			(
-				(!((toLowerANSI _x) in _airToGroundMissiles)) &&
-				(!(['cluster',_x,FALSE] call (missionNamespace getVariable 'QS_fnc_inString'))) &&
-				(
-					(!_isHeli) ||
-					(
-						_isHeli &&
-						(!(['aa',_ammoText,FALSE] call (missionNamespace getVariable 'QS_fnc_inString')))
-					)
-				)
-			)
-		};
+		_compatiblePylonMagazines = _compatiblePylonMagazines select {[_x] call _isAllowedMagazine};
 	} else {
-		{
-			_pylonMagazines = _x;
-			_pylonMagazines = _pylonMagazines select {
-				_ammoText = QS_hashmap_configfile getOrDefaultCall [
-					format ['cfgmagazines_%1_ammo',toLowerANSI _x],
-					{getText (configFile >> 'CfgMagazines' >> _x >> 'ammo')},
-					TRUE
-				];
-				(
-					(!((toLowerANSI _x) in _airToGroundMissiles)) &&
-					(!(['cluster',_x,FALSE] call (missionNamespace getVariable 'QS_fnc_inString'))) &&
-					(
-						(!_isHeli) ||
-						(
-							_isHeli &&
-							(!(['aa',_ammoText,FALSE] call (missionNamespace getVariable 'QS_fnc_inString')))
-						)
-					)
-				)
-			};
-			_compatiblePylonMagazines set [_forEachIndex,_pylonMagazines];
-		} forEach _compatiblePylonMagazines;
+		_compatiblePylonMagazines = _compatiblePylonMagazines apply {
+			_x select {[_x] call _isAllowedMagazine}
+		};
 	};
 	_compatiblePylonMagazines
 };

@@ -61,3 +61,21 @@ for these vehicles. Attachment means an `attachedTo` parent; ropes and vehicle
 cargo do not independently exempt a vehicle. Deletion retires the vehicle's
 manager entry so it is not automatically replaced. Owner disconnect, destruction,
 manual vehicle respawn, and UAV cleanup retain their separate behavior.
+
+## Randomized aircraft pylons
+
+Randomized loadouts (mode 2) use the 35-magazine allowlist named
+`random_pylon_magazines_1` in
+`Apex_framework.terrain/code/config/QS_data_listItems.sqf`. Each pylon selects
+only an allowlisted magazine that the aircraft's config reports as compatible.
+Matching is case-insensitive, and pylons without eligible magazines stay empty.
+
+The allowlist replaces the old air-to-ground missile blacklist, allowing KH25,
+Sharur, and Mk82 where compatible. The existing helicopter AA ammo filter still
+applies, and normal AO/defend jets still have bombs removed after loading.
+Preset loadouts and Skyfire-only mode keep their existing behavior.
+
+The readable inventory and array are in `docs/reference/`. Keep those copies
+synchronized when editing the runtime allowlist, and run
+`python tests/randomized-pylons/validate_allowlist.py`. See
+`tests/randomized-pylons/README.md` for the in-engine validation procedure.
