@@ -1,0 +1,620 @@
+{
+  "metadata": {
+    "generated_on": "2026-10-12",
+    "arma_product_version": "2.22.0.154089",
+    "steam_build_id": "25623484",
+    "method": "Read non-Creator-DLC PBO root configs, convert with Bohemia CfgConvert, resolve CfgMagazines inheritance, select scope=2 and non-empty hardpoints. Localize names using bundled English stringtables.",
+    "scanned_pbos": 508,
+    "scanned_roots": [
+      "Addons",
+      "Dta",
+      "AoW",
+      "Argo",
+      "Bonus",
+      "Contact",
+      "Curator",
+      "Enoch",
+      "Expansion",
+      "Heli",
+      "Jets",
+      "Kart",
+      "Mark",
+      "Orange",
+      "Tacops",
+      "Tank"
+    ],
+    "excluded_creator_dlc_roots_present": [
+      "EF",
+      "RF",
+      "WS"
+    ],
+    "runtime_allowlist": "QS_data_listItems: random_pylon_magazines_1",
+    "selectable_count": 35,
+    "categories": {
+      "Air-to-air missiles": 17,
+      "Bombs": 4,
+      "Air-to-ground missiles and guided rockets": 3,
+      "Unguided rockets": 7,
+      "Gun pods": 4
+    },
+    "weapon_filter": "Exclude fuel tanks, sensor/searchlight/ECM/countermeasure pods, leaflet dispensers, dummy training ammunition, non-selectable base classes, and all AMRAAM-D variants. Retain only KH25 (external and internal) and Sharur within air-to-ground missiles and guided rockets. Retain only GBU-12 and Mk82 within bombs and mine-clearing charges. Retain other air-to-air missiles, unguided rockets, and gun pods."
+  },
+  "magazines": [
+    {
+      "classname": "PylonMissile_1Rnd_AAA_missiles",
+      "displayName": "ASRAAM",
+      "count": 1,
+      "ammo": "M_Air_AA",
+      "pylonWeapon": "missiles_ASRAAM",
+      "hardpoints": [
+        "B_ASRAAM"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_missiles_ASRAAM0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_1Rnd_Bomb_04_F",
+      "displayName": "GBU-12",
+      "count": 1,
+      "ammo": "Bomb_04_F",
+      "pylonWeapon": "Bomb_04_Plane_CAS_01_F",
+      "hardpoints": [
+        "B_BOMB_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo",
+        "Orange\\Addons\\weapons_f_orange.pbo"
+      ],
+      "displayNameKey": "$STR_A3_CFGMAGAZINES_GBU120",
+      "category": "Bombs"
+    },
+    {
+      "classname": "PylonMissile_1Rnd_GAA_missiles",
+      "displayName": "Zephyr",
+      "count": 1,
+      "ammo": "M_Zephyr",
+      "pylonWeapon": "missiles_Zephyr",
+      "hardpoints": [
+        "B_AMRAAM"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_missiles_Zephyr0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_1Rnd_Missile_AA_03_F",
+      "displayName": "Sahr-3",
+      "count": 1,
+      "ammo": "Missile_AA_03_F",
+      "pylonWeapon": "Missile_AA_03_Plane_CAS_02_F",
+      "hardpoints": [
+        "O_SAHR3"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_MISSILE_AA_03_F0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_1Rnd_Missile_AA_04_F",
+      "displayName": "Falchion-22",
+      "count": 1,
+      "ammo": "Missile_AA_04_F",
+      "pylonWeapon": "Missile_AA_04_Plane_CAS_01_F",
+      "hardpoints": [
+        "B_AIM9"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_04_Plane_CAS_01_F0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_1Rnd_Mk82_F",
+      "displayName": "Mk82",
+      "count": 1,
+      "ammo": "Bo_Mk82",
+      "pylonWeapon": "Mk82BombLauncher",
+      "hardpoints": [
+        "B_BOMB_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_DN_MK82LAUNCHER",
+      "category": "Bombs"
+    },
+    {
+      "classname": "PylonMissile_Bomb_GBU12_x1",
+      "displayName": "GBU 12 LGB x1",
+      "count": 1,
+      "ammo": "Bomb_04_F",
+      "pylonWeapon": "weapon_GBU12Launcher",
+      "hardpoints": [
+        "B_GBU12",
+        "I_GBU12"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Bomb_GBU_12_x1_magazine_name",
+      "category": "Bombs"
+    },
+    {
+      "classname": "PylonMissile_Missile_AA_R73_x1",
+      "displayName": "R73 SR AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_AA_R73",
+      "pylonWeapon": "weapon_R73Launcher",
+      "hardpoints": [
+        "O_R73"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_R73_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_Missile_AA_R77_INT_x1",
+      "displayName": "R77 MR AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_AA_R77",
+      "pylonWeapon": "weapon_R77Launcher",
+      "hardpoints": [
+        "O_R77_INT"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_R77_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_Missile_AA_R77_x1",
+      "displayName": "R77 MR AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_AA_R77",
+      "pylonWeapon": "weapon_R77Launcher",
+      "hardpoints": [
+        "O_R77"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_R77_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_Missile_AGM_KH25_INT_x1",
+      "displayName": "KH25 AGM x1",
+      "count": 1,
+      "ammo": "Missile_AGM_01_F",
+      "pylonWeapon": "weapon_AGM_KH25Launcher",
+      "hardpoints": [
+        "O_KH25_INT"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AGM_KH25_x1_magazine_name",
+      "category": "Air-to-ground missiles and guided rockets"
+    },
+    {
+      "classname": "PylonMissile_Missile_AGM_KH25_x1",
+      "displayName": "KH25 AGM x1",
+      "count": 1,
+      "ammo": "Missile_AGM_01_F",
+      "pylonWeapon": "weapon_AGM_KH25Launcher",
+      "hardpoints": [
+        "O_KH25"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AGM_KH25_x1_magazine_name",
+      "category": "Air-to-ground missiles and guided rockets"
+    },
+    {
+      "classname": "PylonMissile_Missile_AMRAAM_C_x1",
+      "displayName": "AMRAAM C AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_AMRAAM_C",
+      "pylonWeapon": "weapon_AMRAAMLauncher",
+      "hardpoints": [
+        "B_AMRAAM_C",
+        "I_AMRAAM_C"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AMRAAM_C_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonMissile_Missile_BIM9X_x1",
+      "displayName": "BIM 9X AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_BIM9X",
+      "pylonWeapon": "weapon_BIM9xLauncher",
+      "hardpoints": [
+        "B_BIM9X",
+        "I_BIM9X"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_9x_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_12Rnd_missiles",
+      "displayName": "DAR",
+      "count": 12,
+      "ammo": "M_AT",
+      "pylonWeapon": "missiles_DAR",
+      "hardpoints": [
+        "B_MISSILE_PYLON",
+        "DAR"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_missiles_dar0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_12Rnd_missiles_black",
+      "displayName": "DAR (Black)",
+      "count": 12,
+      "ammo": "M_AT",
+      "pylonWeapon": "missiles_DAR",
+      "hardpoints": [
+        "B_MISSILE_PYLON",
+        "DAR"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_12Rnd_missiles_black0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_19Rnd_Rocket_Skyfire",
+      "displayName": "Skyfire 19x",
+      "count": 19,
+      "ammo": "R_80mm_HE",
+      "pylonWeapon": "rockets_Skyfire",
+      "hardpoints": [
+        "O_MISSILE_PYLON",
+        "O_SKYFIRE"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_19Rnd_Rocket_Skyfire0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_1Rnd_AAA_missiles",
+      "displayName": "ASRAAM",
+      "count": 1,
+      "ammo": "M_Air_AA",
+      "pylonWeapon": "missiles_ASRAAM",
+      "hardpoints": [
+        "B_MISSILE_PYLON",
+        "B_ASRRAM_EJECTOR"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_missiles_ASRAAM0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_1Rnd_GAA_missiles",
+      "displayName": "Zephyr",
+      "count": 1,
+      "ammo": "M_Zephyr",
+      "pylonWeapon": "missiles_Zephyr",
+      "hardpoints": [
+        "B_ZEPHYR"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_missiles_Zephyr0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_1Rnd_Missile_AA_03_F",
+      "displayName": "Sahr-3",
+      "count": 1,
+      "ammo": "Missile_AA_03_F",
+      "pylonWeapon": "Missile_AA_03_Plane_CAS_02_F",
+      "hardpoints": [
+        "O_MISSILE_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_MISSILE_AA_03_F0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_1Rnd_Missile_AA_04_F",
+      "displayName": "Falchion-22",
+      "count": 1,
+      "ammo": "Missile_AA_04_F",
+      "pylonWeapon": "Missile_AA_04_Plane_CAS_01_F",
+      "hardpoints": [
+        "B_MISSILE_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_04_Plane_CAS_01_F0",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_1Rnd_Missile_AGM_01_F",
+      "displayName": "Sharur",
+      "count": 1,
+      "ammo": "Missile_AGM_01_F",
+      "pylonWeapon": "Missile_AGM_01_Plane_CAS_02_F",
+      "hardpoints": [
+        "O_MISSILE_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_MISSILE_AGM_01_F0",
+      "category": "Air-to-ground missiles and guided rockets"
+    },
+    {
+      "classname": "PylonRack_20Rnd_Rocket_03_AP_F",
+      "displayName": "Tratnyr 20x AP",
+      "count": 20,
+      "ammo": "Rocket_03_AP_F",
+      "pylonWeapon": "Rocket_03_AP_Plane_CAS_02_F",
+      "hardpoints": [
+        "O_MISSILE_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_20Rnd_Rocket_03_AP_F0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_20Rnd_Rocket_03_HE_F",
+      "displayName": "Tratnyr 20x HE",
+      "count": 20,
+      "ammo": "Rocket_03_HE_F",
+      "pylonWeapon": "Rocket_03_HE_Plane_CAS_02_F",
+      "hardpoints": [
+        "O_MISSILE_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_20Rnd_Rocket_03_HE_F0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_7Rnd_Rocket_04_AP_F",
+      "displayName": "Shrieker 7x AP",
+      "count": 7,
+      "ammo": "Rocket_04_AP_F",
+      "pylonWeapon": "Rocket_04_AP_Plane_CAS_01_F",
+      "hardpoints": [
+        "B_MISSILE_PYLON",
+        "B_SHIEKER"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_7Rnd_Rocket_04_AP_F0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_7Rnd_Rocket_04_HE_F",
+      "displayName": "Shrieker 7x HE",
+      "count": 7,
+      "ammo": "Rocket_04_HE_F",
+      "pylonWeapon": "Rocket_04_HE_Plane_CAS_01_F",
+      "hardpoints": [
+        "B_MISSILE_PYLON",
+        "B_SHIEKER"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonRack_7Rnd_Rocket_04_HE_F0",
+      "category": "Unguided rockets"
+    },
+    {
+      "classname": "PylonRack_Bomb_GBU12_x2",
+      "displayName": "GBU 12 LGB x2",
+      "count": 2,
+      "ammo": "Bomb_04_F",
+      "pylonWeapon": "weapon_GBU12Launcher",
+      "hardpoints": [
+        "B_GBU12_DUAL_RAIL",
+        "I_GBU12_DUAL_RAIL"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Bomb_GBU_12_x2_magazine_name",
+      "category": "Bombs"
+    },
+    {
+      "classname": "PylonRack_Missile_AMRAAM_C_x1",
+      "displayName": "AMRAAM C AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_AMRAAM_C",
+      "pylonWeapon": "weapon_AMRAAMLauncher",
+      "hardpoints": [
+        "B_AMRAAM_C_RAIL",
+        "I_AMRAAM_C_RAIL"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AMRAAM_C_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_Missile_AMRAAM_C_x2",
+      "displayName": "AMRAAM C AA x2",
+      "count": 2,
+      "ammo": "ammo_Missile_AMRAAM_C",
+      "pylonWeapon": "weapon_AMRAAMLauncher",
+      "hardpoints": [
+        "B_AMRAAM_C_DUAL_RAIL",
+        "I_AMRAAM_C_DUAL_RAIL"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AMRAAM_C_x2_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_Missile_BIM9X_x1",
+      "displayName": "BIM 9X AA x1",
+      "count": 1,
+      "ammo": "ammo_Missile_BIM9X",
+      "pylonWeapon": "weapon_BIM9xLauncher",
+      "hardpoints": [
+        "B_BIM9X_RAIL",
+        "I_BIM9X_RAIL"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_9x_x1_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonRack_Missile_BIM9X_x2",
+      "displayName": "BIM 9X AA x2",
+      "count": 2,
+      "ammo": "ammo_Missile_BIM9X",
+      "pylonWeapon": "weapon_BIM9xLauncher",
+      "hardpoints": [
+        "B_BIM9X_DUAL_RAIL",
+        "I_BIM9X_DUAL_RAIL"
+      ],
+      "scope": 2,
+      "sources": [
+        "Jets\\Addons\\weapons_f_jets.pbo"
+      ],
+      "displayNameKey": "$STR_A3_Missile_AA_9x_x2_magazine_name",
+      "category": "Air-to-air missiles"
+    },
+    {
+      "classname": "PylonWeapon_2000Rnd_65x39_belt",
+      "displayName": "Minigun 6.5\u00a0mm",
+      "count": 2000,
+      "ammo": "B_65x39_Minigun_Caseless_Green_splash",
+      "pylonWeapon": "LMG_Minigun_heli",
+      "hardpoints": [
+        "I_ORCA_RIGHT_PYLON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_LMG_Minigun0",
+      "category": "Gun pods"
+    },
+    {
+      "classname": "PylonWeapon_300Rnd_20mm_shells",
+      "displayName": "Twin Cannon 20mm",
+      "count": 300,
+      "ammo": "B_20mm",
+      "pylonWeapon": "Twin_Cannon_20mm_gunpod",
+      "hardpoints": [
+        "B_A143_BUZZARD_CENTER_PYLON",
+        "20MM_TWIN_CANNON"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_twin_cannon_20mm",
+      "category": "Gun pods"
+    },
+    {
+      "classname": "PylonWeapon_500Rnd_127mm_HEIAP_belt_left",
+      "displayName": "Minigun 12.7 mm",
+      "count": 500,
+      "ammo": "B_127x99_HEIAP_Tracer_Red",
+      "pylonWeapon": "Gatling_127mm_HeliPylon_F",
+      "hardpoints": [
+        "B_GAU19_HELI_L"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonWeapon_500Rnd_127mm_HE_belt0",
+      "category": "Gun pods"
+    },
+    {
+      "classname": "PylonWeapon_500Rnd_127mm_HEIAP_belt_right",
+      "displayName": "Minigun 12.7 mm",
+      "count": 500,
+      "ammo": "B_127x99_HEIAP_Tracer_Red",
+      "pylonWeapon": "Gatling_127mm_HeliPylon_F",
+      "hardpoints": [
+        "B_GAU19_HELI_R"
+      ],
+      "scope": 2,
+      "sources": [
+        "Addons\\weapons_f.pbo"
+      ],
+      "displayNameKey": "$STR_A3_PylonWeapon_500Rnd_127mm_HE_belt0",
+      "category": "Gun pods"
+    }
+  ]
+}
