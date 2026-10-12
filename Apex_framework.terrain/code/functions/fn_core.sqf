@@ -3409,7 +3409,7 @@ for '_x' from 0 to 1 step 0 do {
 				{(!(missionNamespace getVariable ['QS_customAO_blockSideMissions',_false]))} &&
 				{((!(missionNamespace getVariable ['QS_smSuspend',_false])) || {_forcedSideMission isNotEqualTo ''})} &&
 				{((_timeNow > _smDelay) || {(missionNamespace getVariable ['QS_forceSideMission',_false])} || {_forcedSideMission isNotEqualTo ''})} &&
-				{((_allAICount < _unitCap) || {(_allPlayersCount < 20)} || {(missionNamespace getVariable ['QS_forceSideMission',_false])} || {_forcedSideMission isNotEqualTo ''})}
+				{((_allAICount < _unitCap) && {(_allPlayersCount >= 20)} || {(missionNamespace getVariable ['QS_forceSideMission',_false])} || {_forcedSideMission isNotEqualTo ''})}
 			) then {
 				if (missionNamespace getVariable 'QS_forceSideMission') then {
 					missionNamespace setVariable ['QS_forceSideMission',_false,_false];
