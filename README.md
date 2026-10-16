@@ -1,5 +1,19 @@
 Mission file for 420th Delta Invade & Annex.
 
+## Pilot roles
+
+`Attack Pilot (Whitelisted)` (`pilot_attack_WL`) and
+`Logistics Pilot (Whitelisted)` (`pilot_logistics_WL`) currently share the
+Transport Pilot's equipment, arsenal, traits, aircraft radio, helicopter spawn,
+and aircraft/logistics/AI terminal access. All three require the existing S3
+whitelist through the role menu. Each role has its own 5–15 slots, with the same
+population scaling, and its own queue and saved loadouts.
+
+Deploy the updated root `@Apex_cfg/roles.sqf` and `@Apex_cfg/arsenal.sqf` alongside
+the updated mission. Terrain-specific role or arsenal overrides, if used on the
+server, must include the same additions. See `tests/pilot-roles/README.md` for
+multiplayer acceptance checks.
+
 ## Classic AO damage protection
 
 Classic AO ground enemies are protected until a living player on foot and on

@@ -24,7 +24,7 @@ if (_trait isEqualTo 'uavhacker') then {
 			[1,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};
 	} else {
-		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','jtac_WL','staff'])) then {
+		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL','jtac_WL','staff'])) then {
 			[0,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};
 	};
@@ -38,7 +38,7 @@ if (_trait isEqualTo 'QS_trait_HQ') then {
 			[1,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};
 	} else {
-		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','jtac_WL','staff'])) then {
+		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL','jtac_WL','staff'])) then {
 			[0,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};
 	};
@@ -49,7 +49,7 @@ if (_trait isEqualTo 'QS_trait_pilot') then {
 			[1,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};	
 	} else {
-		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','jtac_WL','staff'])) then {
+		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL','jtac_WL','staff'])) then {
 			[0,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};	
 	};
@@ -61,7 +61,7 @@ if (_trait isEqualTo 'QS_trait_JTAC') then {
 			[1,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};	
 	} else {
-		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','jtac_WL','staff'])) then {
+		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL','jtac_WL','staff'])) then {
 			[0,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};	
 	};
@@ -127,7 +127,7 @@ if (_trait isEqualTo 'QS_trait_fighterPilot') then {
 			_carrierLaptop setUserActionText [_QS_carrierLaptop_action,localize 'STR_QS_Interact_091',(format ["<t size='3'>%1</t>",localize 'STR_QS_Interact_091'])];
 		};
 	} else {
-		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','jtac_WL','staff'])) then {
+		if (!(_role in ['pilot','pilot_heli','pilot_plane','uav','pilot_cas','commander','jtac','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL','jtac_WL','staff'])) then {
 			[0,2] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 		};
 		missionNamespace setVariable ['QS_CAS_jetAllowance_gameover',FALSE,2];

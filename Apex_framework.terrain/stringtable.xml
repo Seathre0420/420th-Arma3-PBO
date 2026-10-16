@@ -8254,6 +8254,12 @@ _____________________________________________________________-->
         <Key ID="STR_QS_Role_030">
             <Original>No info available</Original>
         </Key>
+        <Key ID="STR_QS_Role_031">
+            <Original>Attack Pilot</Original>
+        </Key>
+        <Key ID="STR_QS_Role_032">
+            <Original>Logistics Pilot</Original>
+        </Key>
     </Container>
     <Container name="QS_xml_utilityText">
         <Key ID="STR_QS_Utility_000">

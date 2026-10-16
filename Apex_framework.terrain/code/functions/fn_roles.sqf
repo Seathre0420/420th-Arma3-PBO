@@ -181,7 +181,8 @@ if (_type isEqualTo 'GET_ROLE_DISPLAYNAME2') exitWith {
 	};
 	private _exit = FALSE;
 	private _roles_side = [];
-	if (['_WL',_role,FALSE] call (missionNamespace getVariable 'QS_fnc_inString')) then {
+	// These roles already include the localized whitelist suffix in their names.
+	if ((['_WL',_role,FALSE] call (missionNamespace getVariable 'QS_fnc_inString')) && {!(_role in ['pilot_attack_WL','pilot_logistics_WL'])}) then {
 		_return = (format ['[%1] ',localize 'STR_QS_Role_028']) + _return;
 	};
 	_return;
@@ -346,7 +347,7 @@ if (_type isEqualTo 'CLIENT_QUEUE_EVENT') exitWith {
 		if (_side isEqualTo CIVILIAN) exitWith {
 			player setVehiclePosition [(markerPos ['respawn_civilian',TRUE]),[],7,'NONE'];
 		};
-		if (_role in ['pilot_heli','pilot_heli_WL']) exitWith {
+		if (_role in ['pilot_heli','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL']) exitWith {
 			private _deploymentIndex = (missionNamespace getVariable ['QS_system_deployments',[]]) findIf {((_x # 1) isEqualTo 'ID_HELISPAWN_01')};
 			if (_deploymentIndex isEqualTo -1) then {
 				player setVehiclePosition [(markerPos ['QS_marker_heli_spawn',TRUE]),[],5,'NONE'];
@@ -415,7 +416,7 @@ if (_type isEqualTo 'QUEUE_PROCESS') exitWith {
 					_roleName = ['GET_ROLE_DISPLAYNAME',_role] call (missionNamespace getVariable 'QS_fnc_roles');
 					if ((_availableIndex isNotEqualTo -1) && {(_expires isEqualTo -1)} && {!isNull _queuedUnit}) then {
 						private _currentRole = _queuedUnit getVariable ['QS_unit_role','rifleman'];
-						private _offerDuration = [90,180] select (_currentRole in ['pilot','pilot_heli','pilot_heli_WL']);
+						private _offerDuration = [90,180] select (_currentRole in ['pilot','pilot_heli','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL']);
 						_entry = [_uid,_now + _offerDuration,0,_offerDuration];
 						_roleQueue set [_firstIndex,_entry];
 						if ((lifeState _queuedUnit) isEqualTo 'INCAPACITATED') then {
@@ -607,7 +608,7 @@ if (_type isEqualTo 'REQUEST_ROLE') exitWith {
 	private _whitelisted = _uid in (['S3'] call (missionNamespace getVariable 'QS_fnc_whitelist'));
 	private _staffWhitelisted = _uid in (['ALL'] call (missionNamespace getVariable 'QS_fnc_whitelist'));
 	if (!(_whitelisted)) then {
-		if (_roleLower isEqualTo 'pilot_heli_wl') then {
+		if (_roleLower in ['pilot_heli_wl','pilot_attack_wl','pilot_logistics_wl']) then {
 			_whitelisted = _uid in (call (missionNamespace getVariable ['QS_pilot_whitelist',{[]}]));	
 		};
 		if (_roleLower isEqualTo 'sniper_wl') then {
@@ -1093,7 +1094,7 @@ if (_type isEqualTo 'INIT_ROLE') exitWith {
 			[['QS_trait_Sniper',FALSE,TRUE]]
 		];
 	};
-	if (_role in ['pilot_heli','pilot_heli_WL']) then {
+	if (_role in ['pilot_heli','pilot_heli_WL','pilot_attack_WL','pilot_logistics_WL']) then {
 		_traitsData = [
 			[['medic',_medic,FALSE]],
 			[['uavhacker',FALSE,FALSE]],
