@@ -323,7 +323,8 @@ params [
 	['_useSupport',FALSE],
 	['_supportType','O_Heli_Attack_02_dynamicLoadout_black_F'],
 	['_useUnits',[]],
-	['_manageGroup',FALSE]
+	['_manageGroup',FALSE],
+	['_QS_classicDamageEpoch',-1]
 ];
 missionNamespace setVariable ['QS_AI_insertHeli_helis',((missionNamespace getVariable 'QS_AI_insertHeli_helis') select {(alive _x)}),FALSE];
 if (_heliType isEqualType []) then {
@@ -386,6 +387,7 @@ _HLZ set [2,0];
 private _array = [];
 _heli = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _heliType,_heliType],_mapEdgePosition,[],500,'FLY'];
 _heli setVariable ['QS_dynSim_ignore',TRUE,TRUE];
+_heli setVariable ['QS_classicDamage_insertEpoch',_QS_classicDamageEpoch,FALSE];
 _heli enableDynamicSimulation FALSE;
 _heliGroup = createGroup [EAST,TRUE];
 _heliPilot = _heliGroup createUnit [(QS_core_units_map getOrDefault ['o_helipilot_f','o_helipilot_f']),(getPosWorld _heli),[],0,'NONE'];
@@ -520,7 +522,7 @@ _heliGroup addEventHandler [
 	{
 		params ['_group','_waypointIndex'];
 		_group removeEventHandler [_thisEvent,_thisEventHandler];
-		[leader _group] spawn (missionNamespace getVariable 'QS_fnc_AIXHeliInsertLanding');
+		[leader _group,(vehicle (leader _group)) getVariable ['QS_classicDamage_insertEpoch',-1]] spawn (missionNamespace getVariable 'QS_fnc_AIXHeliInsertLanding');
 	}
 ];
 private _supportGroup = grpNull;

@@ -150,6 +150,7 @@ class CfgFunctions {
 			class aoCreateUXOfield {file = "code\functions\fn_aoCreateUXOfield.sqf";};
 			class aoCustomize {file = "code\functions\fn_aoCustomize.sqf";};
 			class aoDefend {file = "code\functions\fn_aoDefend.sqf";};
+			class aoDamageProtection {file = "code\functions\fn_aoDamageProtection.sqf";};
 			class aoEnemy {file = "code\functions\fn_aoEnemy.sqf";};
 			class aoEnemyReinforce {file = "code\functions\fn_aoEnemyReinforce.sqf";};
 			class aoEnemyReinforceVehicles {file = "code\functions\fn_aoEnemyReinforceVehicles.sqf";};

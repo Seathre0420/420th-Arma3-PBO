@@ -119,6 +119,7 @@ private _mappedThisBatch = 0;
 			_newObj = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _type,_type],[(random -1000),(random -1000),(1000 + (random 1000))],[],0,'CAN_COLLIDE'];
 			[_perfCreate,([0,1] select (!isNull _newObj))] call QS_fnc_perfEnd;
 		};
+		if (!isNil '_QS_classicDamageEpoch') then {['REGISTER',[_newObj],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;};
 		_newObj setDir (_azi + _azimuth);
 		_newObj setPos _newPos;
 		if (canSuspend) then {
@@ -132,7 +133,7 @@ private _mappedThisBatch = 0;
 		if (_orientation isNotEqualTo []) then {
 			([_newObj] + _orientation) call (missionNamespace getVariable 'BIS_fnc_setPitchBank');
 		};
-		_newObj allowDamage _allowDamage;
+		_newObj allowDamage (_allowDamage && {!(['LOCKED',_newObj] call QS_fnc_aoDamageProtection)});
 		_newObj enableSimulationGlobal _simulation;
 		if (_simulation) then {
 			if (_dynSim) then {
@@ -146,6 +147,7 @@ private _mappedThisBatch = 0;
 		_newObj = [_newObj] call _code;
 	};
 	if (_newObj isEqualType objNull) then {
+		if (!isNil '_QS_classicDamageEpoch') then {['REGISTER',[_newObj],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;};
 		0 = _newObjs pushBack _newObj;
 	} else {
 		if (_newObj isEqualType []) then {

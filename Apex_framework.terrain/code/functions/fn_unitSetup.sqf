@@ -15,6 +15,10 @@ ______________________________________________________/*/
 
 private _perfUnitSetup = ['unitSetup.total',1,[typeOf _this,netId _this]] call QS_fnc_perfBegin;
 _unit = _this;
+// Only explicitly scoped Primary AO callers opt into the damage gate.
+if (!isNil '_QS_classicDamageEpoch') then {
+	['REGISTER',[_unit],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
+};
 _unitType = toLowerANSI (typeOf _unit);
 
 // Hold non-sniper enemy infantry in a standing stance from initial setup.

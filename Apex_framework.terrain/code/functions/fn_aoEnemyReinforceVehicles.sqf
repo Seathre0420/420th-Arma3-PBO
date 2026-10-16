@@ -95,6 +95,7 @@ _roadRoadValid = _slots # 0;
 if (!(_roadRoadValid call _fn_blacklist) || {(_roadRoadValid distance2D _baseMarker) <= 500} || {[_roadRoadValid,_pos,25] call QS_fnc_waterIntersect}) exitWith {deleteGroup _reinforceGroup; []};
 // End Updated Code
 _v = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _vType,_vType],_roadRoadValid,[],0,'NONE'];
+if (!isNil '_QS_classicDamageEpoch') then {['REGISTER',[_v],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;};
 _v setVariable ['QS_dynSim_ignore',TRUE,FALSE];
 _v allowCrewInImmobile [TRUE,TRUE];
 _v setUnloadInCombat [TRUE,FALSE];

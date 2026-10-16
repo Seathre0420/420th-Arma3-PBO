@@ -16,7 +16,7 @@ ______________________________________________/*/
 diag_log '****************************************************';
 diag_log '***** AO ENEMY ***** fn_aoEnemy START *****';
 diag_log '****************************************************';
-params ['_pos','_isHCEnabled','_aoData'];
+params ['_pos','_isHCEnabled','_aoData',['_QS_classicDamageEpoch',-1]];
 private _terrainData = missionNamespace getVariable ['QS_classic_terrainData',[ [],[],[],[],[],[],[],[],[],[],[],[] ] ];
 private _enemiesArray = [];
 private _playerCount = count allPlayers;
@@ -318,6 +318,7 @@ if ((random 1) > _staticChance) then {
 		_object = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI (_x # 0),(_x # 0)],[0,0,0]];
 		[_perfSpawn,([0,1] select (!isNull _object)),[typeOf _object,netId _object]] call QS_fnc_perfEnd;
 		_object allowDamage FALSE;
+		['REGISTER',[_object],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
 		_attachPos = _x # 1;
 		_attachPos set [2,(_attachPos # 2) - _offset];
 		[1,_object,[_tower,_attachPos]] call QS_fnc_eventAttach;
@@ -335,6 +336,7 @@ if ((random 1) > _staticChance) then {
 			};
 			private _perfCrew = ['aoEnemy.createVehicleCrew',1,[typeOf _object,netId _object]] call QS_fnc_perfBegin;
 			_grp = createVehicleCrew _object;
+			['REGISTER',units _grp,_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
 			[_perfCrew,count (crew _object)] call QS_fnc_perfEnd;
 			(units _grp) joinSilent _towerGrp;
 			(gunner _object) setVariable ['QS_AI_UNIT_isMG',TRUE,QS_system_AI_owners];
@@ -535,6 +537,7 @@ for '_x' from 0 to (_vehCount - 1) step 1 do {
 	_AOveh = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _AOvehType,_AOvehType],(_randomPos vectorAdd [0,0,0.25]),[],0,'NONE'];
 	[_perfSpawn,([0,1] select (!isNull _AOveh)),[typeOf _AOveh,netId _AOveh]] call QS_fnc_perfEnd;
 	_AOveh allowDamage FALSE;
+	['REGISTER',[_AOveh],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
 	_AOveh limitSpeed (random [30,40,50]);
 	(missionNamespace getVariable 'QS_AI_vehicles') pushBack _AOveh;
 	clearMagazineCargoGlobal _AOveh;
@@ -549,7 +552,11 @@ for '_x' from 0 to (_vehCount - 1) step 1 do {
 	if (random 1 >= 0.25) then {_AOveh allowCrewInImmobile [TRUE,TRUE];};
 	/*/_AOveh forceFollowRoad TRUE;/*/
 	_AOveh setConvoySeparation 50;
-	[_AOveh] spawn {sleep 2.5; (_this # 0) allowDamage TRUE;};
+	[_AOveh,_QS_classicDamageEpoch] spawn {
+		params ['_vehicle','_epoch'];
+		sleep 2.5;
+		['ALLOW',_vehicle,_epoch] call QS_fnc_aoDamageProtection;
+	};
 	_AOveh setVectorUp (surfaceNormal _randomPos);
 	if (_playerCount < 30) then {
 		[_AOveh] call (missionNamespace getVariable 'QS_fnc_downgradeVehicleWeapons');
@@ -561,6 +568,7 @@ for '_x' from 0 to (_vehCount - 1) step 1 do {
 	_AOveh addEventHandler ['Killed',(missionNamespace getVariable 'QS_fnc_vKilled2')];
 	private _perfCrew = ['aoEnemy.createVehicleCrewAndJoin',1,[typeOf _AOveh,netId _AOveh]] call QS_fnc_perfBegin;
 	(units (createVehicleCrew _AOveh)) joinSilent _AOvehGroup;
+	['REGISTER',crew _AOveh,_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
 	[_perfCrew,count (crew _AOveh)] call QS_fnc_perfEnd;
 	_AOvehGroup addVehicle _AOveh;
 	[_AOvehGroup,_randomPos,_aoSize,_roadPositionsValid,TRUE] call (missionNamespace getVariable 'QS_fnc_taskPatrolVehicle');

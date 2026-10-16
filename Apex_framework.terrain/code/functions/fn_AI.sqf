@@ -635,6 +635,7 @@ if (_mode isEqualTo 'GROUP') exitWith {
 
 if (!isServer) exitWith {FALSE};
 private _state = missionNamespace getVariable ['QS_primaryPressure_state',createHashMap];
+private _QS_classicDamageEpoch = _state getOrDefault ['damageEpoch',-1];
 private _now = diag_tickTime;
 private _fn_humans = {
 	allPlayers select {
@@ -663,6 +664,10 @@ private _fn_register = {
 	params ['_entity'];
 	_entity setVariable ['QS_primaryPressure_entityEpoch',_state get 'epoch',FALSE];
 	(_state get 'entities') pushBackUnique _entity;
+	// Infantry is registered by unitSetup after its cargo/operator role is known.
+	if (!(_entity isKindOf 'CAManBase')) then {
+		['REGISTER',[_entity],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
+	};
 	if (_entity isKindOf 'CAManBase') then {
 		(_state get 'men') pushBackUnique _entity;
 		_entity setVariable ['QS_primaryPressure_rosterEpoch',_state get 'epoch',TRUE];
@@ -1365,6 +1370,7 @@ if (_mode isEqualTo 'INIT') exitWith {
 	private _firePlan = [_now + 90,_fireBudget,_randoms] call _fn_firePlan;
 	_state = createHashMapFromArray [
 		['epoch',_epoch],['pos',+_pos],['radius',_radius],['hq',+_hq],['nodes',_nodes],
+		['damageEpoch',(missionNamespace getVariable ['QS_classicDamage_context',[-1]]) # 0],
 		['posts',[]],
 		['engaged',FALSE],['contactJobs',[]],['contactSerial',0],['nextContact',_now],['nextDispatch',_now],
 		['casualtyJobs',[]],['casualtySeen',[]],['nextCasualty',_now + 10],
@@ -2509,6 +2515,7 @@ private _QS_module_virtualSectors_attackerCheckDelay = _QS_uiTime + _QS_module_v
 private _QS_module_classic = _isDedicated && (missionNamespace getVariable ['QS_missionConfig_aoType','ZEUS']) isEqualTo 'CLASSIC';
 // Added Code
 private _QS_module_classic_pressure = FALSE;
+private _QS_module_classic_damageEpoch = -1;
 // End Updated Code
 private _QS_module_classic_delay = 10;
 private _QS_module_classic_checkDelay = _QS_uiTime + _QS_module_classic_delay;
@@ -3851,9 +3858,13 @@ for '_x' from 0 to 1 step 0 do {
 	
 	/*/Module classic AOs/*/
 	if (_QS_module_classic) then {
+		// Dynamic call context for native reinforcement helpers; never used by Defend.
+		private _QS_classicDamageEpoch = _QS_module_classic_damageEpoch;
 		if (_QS_uiTime > _QS_module_classic_checkDelay) then {
 			if (missionNamespace getVariable 'QS_classic_AI_triggerInit') then {
 				missionNamespace setVariable ['QS_classic_AI_triggerInit',_false,_false];
+				_QS_module_classic_damageEpoch = (missionNamespace getVariable ['QS_classicDamage_context',[-1]]) # 0;
+				_QS_classicDamageEpoch = _QS_module_classic_damageEpoch;
 				_QS_module_classic_aoPos = missionNamespace getVariable 'QS_AOpos';
 				_QS_module_classic_aoSize = missionNamespace getVariable 'QS_aoSize';
 				_QS_module_classic_aoData = missionNamespace getVariable 'QS_classic_AOData';
@@ -3862,7 +3873,7 @@ for '_x' from 0 to 1 step 0 do {
 				waitUntil {
 					(scriptDone _QS_module_classic_terrainData)
 				};
-				_QS_module_classic_scriptCreateEnemy = [_QS_module_classic_aoPos,_false,_QS_module_classic_aoData] spawn _fn_aoEnemy;
+				_QS_module_classic_scriptCreateEnemy = [_QS_module_classic_aoPos,_false,_QS_module_classic_aoData,_QS_classicDamageEpoch] spawn _fn_aoEnemy;
 				waitUntil {
 					(scriptDone _QS_module_classic_scriptCreateEnemy)
 				};
@@ -3870,7 +3881,10 @@ for '_x' from 0 to 1 step 0 do {
 					_QS_module_classic_aoUrbanSpawning &&
 					(missionNamespace getVariable ['QS_ao_urbanSpawn',_false])
 				) then {
-					_QS_module_classic_scriptAOUrbanSpawn = ['INIT'] spawn _fn_aoUrbanSpawn;
+					_QS_module_classic_scriptAOUrbanSpawn = [_fn_aoUrbanSpawn,_QS_classicDamageEpoch] spawn {
+						params ['_spawnUrban','_QS_classicDamageEpoch'];
+						['INIT'] call _spawnUrban;
+					};
 					waitUntil {
 						(scriptDone _QS_module_classic_scriptAOUrbanSpawn)
 					};

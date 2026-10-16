@@ -31,6 +31,7 @@ for '_i' from 0 to 1 step 1 do {
 			_position set [2,0];
 			_boatType = selectRandom _boatTypes;
 			_boat = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _boatType,_boatType],_position,[],0,'NONE'];
+			if (!isNil '_QS_classicDamageEpoch') then {['REGISTER',[_boat],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;};
 			_boat setDir (random 360);
 			_boat allowCrewInImmobile [TRUE,TRUE];
 			_boat enableRopeAttach FALSE;

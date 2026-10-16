@@ -164,6 +164,11 @@ if (_type isEqualTo 1) exitWith {
 			};
 		};
 		[_object] joinSilent _grp;
+		// Invalidate Primary AO callbacks on every owner before this unit is reused.
+		if (!isNil {_object getVariable 'QS_classicDamage_epoch'}) then {
+			_object setVariable ['QS_classicDamage_epoch',nil,TRUE];
+			_object setVariable ['QS_classicDamage_protected',nil,TRUE];
+		};
 		{
 			if (!isNull _object) then {
 				_object setVariable [_x,nil,FALSE];

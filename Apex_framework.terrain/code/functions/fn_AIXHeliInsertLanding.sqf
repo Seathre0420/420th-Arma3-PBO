@@ -13,7 +13,7 @@ Description:
 	-
 __________________________________________________/*/
 
-params ['_groupLeader'];
+params ['_groupLeader',['_QS_classicDamageEpoch',-1]];
 _v = vehicle _groupLeader;
 _g = group _groupLeader;
 _v land 'GET OUT';

@@ -14,6 +14,8 @@ Description:
 __________________________________________________/*/
 
 params ['_type'];
+// Operators are created before entering their seats; never inherit AO protection.
+private _QS_classicDamageEpoch = -1;
 private [
 	'_centerPos','_centerRadius','_arrayHelicopters','_grp','_side','_randomPos','_pilotType','_worldSize','_air','_airType','_airTypes','_playerCount','_unit','_increment',
 	'_radialPatrolPositions','_position'

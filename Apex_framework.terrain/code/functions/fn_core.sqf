@@ -1755,6 +1755,7 @@ for '_x' from 0 to 1 step 0 do {
 							missionNamespace setVariable ['QS_megaDefense_pending',FALSE,FALSE];
 							missionNamespace setVariable ['QS_megaDefense_targetEpoch',-1,FALSE];
 // End Updated Code
+							private _QS_classicDamageEpoch = ['START',_QS_AOpos] call QS_fnc_aoDamageProtection;
 							_aoArray = [_ao] call _fn_aoPrepare;
 // Added Code
 							missionNamespace setVariable ['QS_megaDefense_core',['PRIMARY',_megaDefenseEpoch,+(missionNamespace getVariable ['QS_HQpos',[]])],FALSE];
@@ -1988,6 +1989,8 @@ for '_x' from 0 to 1 step 0 do {
 // End Updated Code
 						{(missionNamespace getVariable 'QS_aoCycleVar')}
 					) then {
+						// Release before any normal/forced Defend handoff or recycler cleanup.
+						['STOP'] call QS_fnc_aoDamageProtection;
 						diag_log 'Main AO deactivating';
 // Added Code
 						// MEGA_CORE_HANDOFF_BEGIN

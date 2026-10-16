@@ -1,5 +1,20 @@
 Mission file for 420th Delta Invade & Annex.
 
+## Classic AO damage protection
+
+Classic AO ground enemies are protected until a living player on foot and on
+the ground reaches within 2,000 m horizontally of the AO center. This unlocks
+damage permanently for that AO, including its later reinforcements. Each new
+Classic AO starts protected again.
+
+The commander and radio tower retain their existing damage conditions. Enemy
+aircraft, aircraft operators, the two Tigris classes (`O_APC_Tracked_02_AA_F`,
+`O_T_APC_Tracked_02_AA_ghex_F`), Nyx AA (`I_LT_01_AA_F`), and their operators
+retain their existing behavior. Transported infantry remain subject to the AO
+protection. Defend and unrelated missions are unaffected.
+
+See `tests/ao-damage-protection/README.md` for offline and multiplayer validation.
+
 ## Main base safe zone
 
 Place markers in the Arma 3 Editor named `QS_base_safe_1`, `QS_base_safe_2`,

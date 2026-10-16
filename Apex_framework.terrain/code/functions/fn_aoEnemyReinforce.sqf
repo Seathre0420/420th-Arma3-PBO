@@ -137,7 +137,8 @@ if (
 		(((random 1) > 0.85) && ((count _allPlayers) > 10)),
 		['classic_reinforceheliescort_1'] call QS_data_listVehicles,
 		[],
-		FALSE
+		FALSE,
+		(if (isNil '_QS_classicDamageEpoch') then {-1} else {_QS_classicDamageEpoch})
 	] spawn (missionNamespace getVariable 'QS_fnc_AIXHeliInsert');
 	[]
 };

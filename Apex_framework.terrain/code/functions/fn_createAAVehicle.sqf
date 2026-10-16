@@ -19,7 +19,13 @@ _vehicle allowCrewInImmobile [TRUE,TRUE];
 _vehicle lock 2;
 _vehicle lockDriver TRUE;
 _vehicle allowDamage FALSE;
-_vehicle spawn {uiSleep 3;_this enableSimulationGlobal TRUE;uiSleep 3;_this allowDamage TRUE;};
+[_vehicle,(if (isNil '_QS_classicDamageEpoch') then {-1} else {_QS_classicDamageEpoch})] spawn {
+	params ['_vehicle','_epoch'];
+	uiSleep 3;
+	_vehicle enableSimulationGlobal TRUE;
+	uiSleep 3;
+	['ALLOW',_vehicle,_epoch] call QS_fnc_aoDamageProtection;
+};
 {
 	_vehicle setVariable _x;
 } forEach [
