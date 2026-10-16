@@ -83,6 +83,21 @@ with uiNamespace do {
         0 spawn {isNil TGC_fnc_staffWeatherGUI};
     }];
 
+    private _forceRifleman = _display ctrlCreate ["RscButtonMenu", -1, _group];
+    _forceRifleman ctrlSetPosition ([0.03, 0.4, 0.2, 0.08] call _scaleToGroup);
+    _forceRifleman ctrlSetStructuredText composeText [
+        parseText "<t size='0.25'>&#160;</t><br/>",
+        text "Force Rifleman Role" setAttributes [
+            "align", "center",
+            "font", "RobotoCondensed"
+        ]
+    ];
+    _forceRifleman ctrlCommit 0;
+    _forceRifleman ctrlAddEventHandler ["ButtonClick", {
+        closeDialog 1;
+        0 spawn {isNil TGC_fnc_staffForceRiflemanGUI};
+    }];
+
     private _close = _display ctrlCreate ["RscButtonMenu", 2];
     _close ctrlSetPosition [_groupX, _groupY + _height, 0.2, 0.04];
     _close ctrlSetText toUpper localize "$str_disp_cancel";

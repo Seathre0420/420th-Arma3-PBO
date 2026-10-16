@@ -844,6 +844,7 @@ class CfgFunctions {
         };
         class Staff {
             file = "TGC\Functions\Staff";
+            class forceRiflemanRole {};
             class forceSideMission {};
             class initStaffKeybinds { postInit = 1; };
             class isStaff {};
@@ -851,6 +852,7 @@ class CfgFunctions {
             class manageSideMissions {};
             class manageWeather {};
             class staffChannelsGUI {};
+            class staffForceRiflemanGUI {};
             class staffGUI {};
             class staffMainAOGUI {};
             class staffSideMissionGUI {};

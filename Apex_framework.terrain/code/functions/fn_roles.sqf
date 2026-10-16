@@ -721,7 +721,7 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 			} forEach _rolesSideSearch;
 		};
 	} forEach _roles;
-	if ((!(_fromQueue)) && {(_sameQueuePosition isNotEqualTo -1)}) exitWith {
+	if ((!(_fromQueue)) && {!(_bypassQueue)} && {(_sameQueuePosition isNotEqualTo -1)}) exitWith {
 		[121,'HINT',format ['You are already in queue for this role. You are number %1 in the queue.',_sameQueuePosition]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	};
 	private _requestedCurrentRole = ((_unit getVariable ['QS_unit_role','rifleman']) isEqualTo _role) && {((_unit getVariable ['QS_unit_side',WEST]) isEqualTo _side)};
@@ -763,6 +763,13 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 		'_role_queue'
 	];
 	private _available_role_index = _role_units findIf {(((_x # 0) isEqualTo '') && (((_x # 1) isEqualTo -1) || (_pCnt > (_x # 1))))};
+	// A forced reassignment can reuse this player's own slot, even at capacity.
+	if (_bypassQueue && {_requestedCurrentRole}) then {
+		private _currentRoleIndex = _role_units findIf {((_x # 0) isEqualTo _uid)};
+		if (_currentRoleIndex isNotEqualTo -1) then {
+			_available_role_index = _currentRoleIndex;
+		};
+	};
 	_role_data params [
 		'',	//'_role_data_role',
 		'_role_data_side',
