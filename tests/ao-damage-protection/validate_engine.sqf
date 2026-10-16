@@ -51,6 +51,18 @@ _objects append (crew _mortar);
 private _reinforcement = call _fn_man;
 ['REGISTER',[_reinforcement],1000000] call QS_fnc_aoDamageProtection;
 [!isDamageAllowed _reinforcement,'reinforcement protected before unlock'] call _assert;
+private _handlers = missionNamespace getVariable ['QS_classicDamage_localHandlers',createHashMap];
+[{!(_x isEqualType '')} count (keys _handlers) isEqualTo 0,'handler registry uses string keys'] call _assert;
+private _entryCount = count _handlers;
+['LOCAL',_infantry,1000000] call QS_fnc_aoDamageProtection;
+[count _handlers isEqualTo _entryCount,'repeat LOCAL reuses existing handler entry'] call _assert;
+private _deleted = call _fn_man;
+['REGISTER',[_deleted],1000000] call QS_fnc_aoDamageProtection;
+private _deletedKey = netId _deleted;
+[_deletedKey in _handlers,'registered unit has a handler entry'] call _assert;
+deleteVehicle _deleted;
+uiSleep 0.1;
+[!(_deletedKey in _handlers),'Deleted event removes cached string key'] call _assert;
 
 {
 	private _vehicle = [_x] call _fn_vehicle;
@@ -76,6 +88,7 @@ _tower allowDamage FALSE;
 [!(['LOCKED',_commander] call QS_fnc_aoDamageProtection),'commander excluded from new protection'] call _assert;
 
 ['UNLOCK'] call QS_fnc_aoDamageProtection;
+[count _handlers isEqualTo 0,'unlock removes all local handler entries'] call _assert;
 [isDamageAllowed _infantry && {isDamageAllowed _armor} && {isDamageAllowed _mortar} && {isDamageAllowed _reinforcement},'unlock releases tracked forces'] call _assert;
 [!isDamageAllowed _commander && {!isDamageAllowed _tower},'commander/tower original protection retained'] call _assert;
 private _late = call _fn_man;

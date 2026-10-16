@@ -46,7 +46,9 @@ if (_mode isEqualTo 'LOCAL') exitWith {
 	// Keep handler IDs outside the entity: the recycler clears all entity variables.
 	private _handlers = missionNamespace getVariable ['QS_classicDamage_localHandlers',createHashMap];
 	missionNamespace setVariable ['QS_classicDamage_localHandlers',_handlers];
-	private _entry = _handlers getOrDefault [_arg,[-1,-1,-1]];
+	// SQF HashMaps do not support Object keys. Network IDs are stable strings.
+	private _key = netId _arg;
+	private _entry = _handlers getOrDefault [_key,[-1,-1,-1,-1]];
 	private _current = (_arg getVariable ['QS_classicDamage_epoch',-2]) isEqualTo _epoch;
 	private _locked = _current && {['LOCKED',_arg] call QS_fnc_aoDamageProtection};
 	if (!_locked) exitWith {
@@ -54,7 +56,8 @@ if (_mode isEqualTo 'LOCAL') exitWith {
 			_arg removeEventHandler ['HandleDamage',_entry # 1];
 			_arg removeEventHandler ['Local',_entry # 2];
 			_arg removeEventHandler ['Deleted',_entry # 3];
-			_handlers deleteAt _arg;
+			_handlers deleteAt _key;
+			_arg setVariable ['QS_classicDamage_handlerKey',nil,FALSE];
 		};
 		// A late release must never change a recycled/new AO entity's damage state.
 		if (_current && {local _arg}) then {_arg allowDamage TRUE;};
@@ -78,11 +81,14 @@ if (_mode isEqualTo 'LOCAL') exitWith {
 				['LOCAL',_entity,_entity getVariable ['QS_classicDamage_epoch',-1]] call QS_fnc_aoDamageProtection;
 			};
 		}];
+		// Cache the string before deletion, when netId may no longer be available.
+		_arg setVariable ['QS_classicDamage_handlerKey',_key,FALSE];
 		private _deletedEH = _arg addEventHandler ['Deleted',{
 			params ['_entity'];
-			(missionNamespace getVariable ['QS_classicDamage_localHandlers',createHashMap]) deleteAt _entity;
+			private _key = _entity getVariable ['QS_classicDamage_handlerKey',''];
+			(missionNamespace getVariable ['QS_classicDamage_localHandlers',createHashMap]) deleteAt _key;
 		}];
-		_handlers set [_arg,[_epoch,_damageEH,_localEH,_deletedEH]];
+		_handlers set [_key,[_epoch,_damageEH,_localEH,_deletedEH]];
 	};
 	if (local _arg) then {_arg allowDamage FALSE;};
 };

@@ -199,9 +199,9 @@ QS_roles_data = [
 		[
 			'pilot_heli',
 			WEST,
-			5,
-			15,
+			1,
 			10,
+			5,
 			0,
 			0,
 			0,
@@ -212,8 +212,8 @@ QS_roles_data = [
 		[
 			'pilot_attack_WL',
 			WEST,
-			5,
-			15,
+			1,
+			10,
 			10,
 			0,
 			0,
@@ -225,8 +225,8 @@ QS_roles_data = [
 		[
 			'pilot_logistics_WL',
 			WEST,
-			5,
-			15,
+			1,
+			10,
 			10,
 			0,
 			0,

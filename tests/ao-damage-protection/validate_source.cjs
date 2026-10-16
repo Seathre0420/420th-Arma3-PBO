@@ -42,6 +42,13 @@ const names = ['aoDamageProtection', 'core', 'AI', 'aoEnemy', 'unitSetup',
 for (const name of names) balanced(fn(name), name);
 balanced(read('tests/ao-damage-protection/validate_engine.sqf'), 'engine harness');
 const controller = fn('aoDamageProtection');
+// Regression: Object keys raise an engine type error and leave _entry undefined.
+assert(controller.includes('private _key = netId _arg;'), 'Handler registry must use string network IDs');
+assert(controller.includes('_handlers getOrDefault [_key,[-1,-1,-1,-1]]'), 'Handler lookup must use a supported key and complete default entry');
+assert(controller.includes('_handlers set [_key,[_epoch,_damageEH,_localEH,_deletedEH]]'), 'Handler insert must use the same string key');
+assert.equal((controller.match(/deleteAt _key;/g) || []).length, 2, 'Release and deletion must both remove the string key');
+assert(!/_handlers\s+(?:getOrDefault|set)\s*\[\s*_arg\b|deleteAt\s+_(?:arg|entity)\b/.test(controller), 'Object-key registry operations must not return');
+assert(controller.includes("_entity getVariable ['QS_classicDamage_handlerKey','']"), 'Deletion must use the cached key');
 assert(read('Apex_framework.terrain/description.ext').includes('class aoDamageProtection {file = "code\\functions\\fn_aoDamageProtection.sqf";};'));
 assert(/class QS_fnc_aoDamageProtection \{allowedTargets = 0; jip = 1;\};/.test(read('Apex_framework.terrain/code/config/security.hpp')));
 assert(controller.includes('isRemoteExecuted && {remoteExecutedOwner isNotEqualTo 2}'), 'Remote state changes must reject clients');
