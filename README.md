@@ -28,9 +28,22 @@ spawn polygon, and speed-limit polygons keep their existing definitions.
 
 ## Halo Jump
 
-Main base arsenals offer a `Halo Jump` action alongside `Arsenal`, using the same
-interaction range and movement requirements. The arsenal must be inside
-`BASE_HIGHSEC_0`, including its circular fallback when polygon markers are invalid.
+Place a dedicated Halo Jump object (for example, a sign) in the Arma 3 Editor and
+put this in its **Init** field, using the same object-variable approach as Spawn
+Menu terminals:
+
+```sqf
+this setVariable ["QS_haloJump_terminal",true];
+```
+
+No variable name or arsenal setup is required. Marked objects offer a `Halo Jump`
+action while the player is standing still, on foot, looking at the object within
+20 m. The object must be inside `BASE_HIGHSEC_0`, including its circular fallback
+when polygon markers are invalid. Ordinary arsenals no longer offer Halo Jump
+unless explicitly marked with `QS_haloJump_terminal`.
+The flag, object range, and base boundary are checked again before teleportation;
+deleting the object or clearing its flag during the countdown prevents the jump.
+
 Selecting the action starts a ten-second countdown in private chat: `Halo Jumping
 in 10`, then `9` through `1` at one-second intervals. At ten seconds, `Good luck
 soldier!` appears as the player teleports to the current AO center at 2,000 m
@@ -39,12 +52,13 @@ above terrain. Moving during the countdown cancels the jump and shows
 not start overlapping countdowns. Use the existing `Open Parachute` action during
 freefall; the player's backpack and equipment are preserved.
 
-The action remains visible when more than two connected players hold a Transport
-Pilot role (regular or whitelisted). Selecting it then leaves the player in place
-and displays: `Halo Jump is unavailable when there are more than two Transport Pilots.`
-The count includes pilots who are dead or outside base, excludes AI and players
-only queued for the role, and is checked when selected and again before
-teleportation. A missing AO center also prevents teleportation.
+Halo Jump is available with fewer than 30 connected human players in the mission,
+regardless of role. At 30 or more, the action remains visible, but selecting it
+leaves the player in place and displays:
+`Halo Jump is unavailable when there are 30 or more players online.`
+The count includes dead players and players outside base, excludes AI and headless
+clients, and is checked when selected and again before teleportation. A missing
+AO center also prevents teleportation.
 
 ## Spawn Menu vehicle abandonment
 

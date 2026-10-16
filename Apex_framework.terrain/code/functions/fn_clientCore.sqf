@@ -425,7 +425,7 @@ _QS_interaction_arsenal = FALSE;
 _QS_arsenal_model = ['arsenal_model_1'] call (missionNamespace getVariable 'QS_data_listOther');
 /*/===== Halo Jump/*/
 private _QS_action_haloJump = -1;
-private _QS_haloJump_arsenal = objNull;
+private _QS_haloJump_terminal = objNull;
 private _QS_haloJump_player = objNull;
 /*/===== Arsenal (AI)/*/
 private _QS_interaction_arsenalAI = FALSE;
@@ -2617,27 +2617,31 @@ for '_z' from 0 to 1 step 0 do {
 				};
 			};
 			
-			/*/===== Halo Jump (main base arsenals)/*/
-			private _haloJumpArsenal = objNull;
+			/*/===== Halo Jump (marked main base objects)/*/
+			private _haloJumpTerminal = objNull;
 			if (
-				_QS_interaction_arsenal &&
+				(_noObjectParent) &&
+				{_isMissionCursorObject} &&
+				{(_cursorObjectDistance < 20)} &&
+				{(_cursorObject getVariable ['QS_haloJump_terminal',FALSE])} &&
+				{(((vectorMagnitude (velocity _QS_player)) * 3.6) < 1)} &&
 				{(['GET',_cursorObject,((missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'})] call _fn_zoneManager) isNotEqualTo []}
 			) then {
-				_haloJumpArsenal = _cursorObject;
+				_haloJumpTerminal = _cursorObject;
 			};
-			if ((_haloJumpArsenal isNotEqualTo _QS_haloJump_arsenal) || {_QS_haloJump_player isNotEqualTo player}) then {
+			if ((_haloJumpTerminal isNotEqualTo _QS_haloJump_terminal) || {_QS_haloJump_player isNotEqualTo player}) then {
 				if (_QS_action_haloJump isNotEqualTo -1) then {
 					_QS_haloJump_player removeAction _QS_action_haloJump;
 					_QS_action_haloJump = -1;
 				};
-				_QS_haloJump_arsenal = _haloJumpArsenal;
+				_QS_haloJump_terminal = _haloJumpTerminal;
 				_QS_haloJump_player = player;
-				if (!isNull _haloJumpArsenal) then {
-					// Pilot count is checked on selection so the action remains visible when blocked.
+				if (!isNull _haloJumpTerminal) then {
+					// Player count is checked on selection so the action remains visible when blocked.
 					_QS_action_haloJump = player addAction [
 						'Halo Jump',
 						{_this call (missionNamespace getVariable 'QS_fnc_clientInteractHaloJump')},
-						_haloJumpArsenal,87,TRUE,TRUE,'','TRUE',-1,FALSE,''
+						_haloJumpTerminal,87,TRUE,TRUE,'','TRUE',-1,FALSE,''
 					];
 				};
 			};

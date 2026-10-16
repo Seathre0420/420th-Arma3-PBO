@@ -1,10 +1,11 @@
 /*
 File: fn_clientInteractHaloJump.sqf
-Description: Count down, then jump from a main base arsenal to 2,000 m above the AO center.
+Description: Count down, then jump from a marked main base object to 2,000 m above the AO center.
+Editor object Init: this setVariable ["QS_haloJump_terminal",true];
 */
 
 if (!hasInterface) exitWith {};
-params ['','_caller','','_arsenal'];
+params ['','_caller','','_terminal'];
 if (_caller getVariable ['QS_haloJump_countdown',FALSE]) exitWith {};
 
 // Recheck the source and caller when selected; the menu updates periodically.
@@ -14,21 +15,17 @@ if (
 	{!((lifeState _caller) in ['HEALTHY','INJURED'])} ||
 	{!isNull (objectParent _caller)} ||
 	{!isNull (attachedTo _caller)} ||
-	{isNull _arsenal} ||
-	{(_caller distance _arsenal) >= 20}
-) exitWith {};
-private _arsenalModels = ['arsenal_model_1'] call (missionNamespace getVariable 'QS_data_listOther');
-if (
-	!(_arsenal getVariable ['QS_arsenal_object',FALSE]) &&
-	{!((((getModelInfo _arsenal) # 1) in _arsenalModels) && {!simulationEnabled _arsenal})}
+	{isNull _terminal} ||
+	{!(_terminal getVariable ['QS_haloJump_terminal',FALSE])} ||
+	{(_caller distance _terminal) >= 20}
 ) exitWith {};
 private _baseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'};
-if ((['GET',_arsenal,_baseZones] call QS_fnc_zoneManager) isEqualTo []) exitWith {};
+if ((['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []) exitWith {};
 
-// Include both regular and whitelisted Transport Pilots, even while dead or away from base.
-private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
-if (_pilotCount > 2) exitWith {
-	hint 'Halo Jump is unavailable when there are more than two Transport Pilots.';
+// Count connected human players in every role, including dead players; exclude headless clients.
+private _playerCount = {!(_x isKindOf 'HeadlessClient_F')} count allPlayers;
+if (_playerCount >= 30) exitWith {
+	hint 'Halo Jump is unavailable when there are 30 or more players online.';
 };
 
 private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
@@ -41,8 +38,8 @@ _caller setVariable ['QS_haloJump_countdown',TRUE,FALSE];
 private _startPosition = getPosASL _caller;
 private _startTime = diag_tickTime;
 systemChat 'Halo Jumping in 10';
-[_caller,_arsenal,_startPosition,_startTime] spawn {
-	params ['_caller','_arsenal','_startPosition','_startTime'];
+[_caller,_terminal,_startPosition,_startTime] spawn {
+	params ['_caller','_terminal','_startPosition','_startTime'];
 	private _cancelled = FALSE;
 	private _moved = FALSE;
 	private _nextMessageTime = _startTime + 1;
@@ -88,10 +85,15 @@ systemChat 'Halo Jumping in 10';
 
 		// Recheck availability and use the current AO when the countdown finishes.
 		private _baseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'};
-		if (isNull _arsenal || {(['GET',_arsenal,_baseZones] call QS_fnc_zoneManager) isEqualTo []}) exitWith {};
-		private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
-		if (_pilotCount > 2) exitWith {
-			hint 'Halo Jump is unavailable when there are more than two Transport Pilots.';
+		if (
+			isNull _terminal ||
+			{!(_terminal getVariable ['QS_haloJump_terminal',FALSE])} ||
+			{(_caller distance _terminal) >= 20} ||
+			{(['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []}
+		) exitWith {};
+		private _playerCount = {!(_x isKindOf 'HeadlessClient_F')} count allPlayers;
+		if (_playerCount >= 30) exitWith {
+			hint 'Halo Jump is unavailable when there are 30 or more players online.';
 		};
 		private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
 		if (_aoCenter isEqualTo [0,0,0]) exitWith {
