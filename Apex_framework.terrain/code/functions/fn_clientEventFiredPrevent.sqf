@@ -33,7 +33,17 @@ if (_mode isEqualTo 1) exitWith {
 				FALSE,
 				TRUE,
 				'defaultAction',
-				'((_target isEqualTo cameraOn) || {(!(cameraOn isKindOf "CAManBase")) && (_target in cameraOn)})'		// A3 2.16 - replace cameraOn with focusOn
+				// Check the marker and terrain-relative height each frame, including in vehicles.
+				'(
+					(_target isEqualTo cameraOn) ||
+					{(!(cameraOn isKindOf "CAManBase")) && (_target in cameraOn)}
+				) && {
+					!(
+						((markerShape "QS_marker_base_firing_area") in ["RECTANGLE","ELLIPSE"]) &&
+						{(_originalTarget inArea "QS_marker_base_firing_area")} &&
+						{(((getPosATL _originalTarget) # 2) <= 5)}
+					)
+				}'		// A3 2.16 - replace cameraOn with focusOn
 			]),
 			FALSE
 		];

@@ -55,6 +55,25 @@ target checks also respect the boundary.
 The separate 1,000 m `QS_client_inBaseArea` check, vehicle-restricted infantry
 spawn polygon, and speed-limit polygons keep their existing definitions.
 
+## Firing inside base
+
+Place an **area marker** in Eden named `QS_marker_base_firing_area` (the marker's
+Name field, not its displayed text). Use a rectangle or ellipse and set its
+position, size, and rotation to cover the desired area inside the main base.
+No marker is placed automatically.
+
+The base weapon-safety action allows shooting while the player is inside this
+marker and `(getPosATL player) # 2` is **5 meters or less**. Height is measured
+above terrain, including on slopes; standing on a roof does not reset it to zero.
+The condition is checked each frame, so leaving the marker or rising above 5 m
+restores the firing restriction. Exactly 5 m is allowed. Missing markers and
+icon markers do not grant an exception.
+
+Base damage protection, grenade/explosive restrictions, and vehicle manual-fire
+restrictions retain their existing behavior. This does not change the main base
+boundary or grant a firing exception at other protected locations. See
+`tests/base-firing-area/README.md` for in-game acceptance checks.
+
 ## Halo Jump
 
 Place a dedicated Halo Jump object (for example, a sign) in the Arma 3 Editor and
