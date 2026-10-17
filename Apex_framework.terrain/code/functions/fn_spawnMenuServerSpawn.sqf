@@ -1,6 +1,6 @@
 /*
 	Server-authoritative Spawn Menu request handler.
-	Revalidates the caller, role, vehicle class, spawn point, cooldown, and
+	Revalidates the caller, role, vehicle class, spawn point, limits, cooldown, and
 	clearance before creating a global vehicle.
 */
 if (!isServer) exitWith {};
@@ -119,6 +119,14 @@ private _isVehicle = (
 );
 private _vehicleLimit = 5;
 private _unitUID = getPlayerUID _unit;
+private _artilleryClasses = [
+	'b_mbt_01_arty_f',
+	'b_mbt_01_mlrs_f',
+	'o_mbt_02_arty_f',
+	'i_truck_02_mrl_f'
+];
+private _isArtillery = (toLowerANSI _vehicleClass) in _artilleryClasses;
+private _artilleryReservationKey = format ['QS_spawnMenu_artilleryPending_%1',_unitUID];
 private _spawnedVehicleCount = if (_isVehicle) then {
 	{
 		private _spawnedEntity = _x;
@@ -201,6 +209,30 @@ if (_blockingObjects isNotEqualTo []) exitWith {
 	[_unit,'Spawn Menu: the spawn area is blocked.'] call _notify;
 };
 
+private _artillerySlotGranted = !_isArtillery;
+if (_isArtillery) then {
+	// Check and reserve without scheduler interruption. Creation remains scheduled.
+	isNil {
+		private _hasActiveArtillery = (
+			(missionNamespace getVariable ['QS_spawnMenu_spawnedEntities',[]]) findIf {
+				alive _x &&
+				{(_x getVariable ['QS_spawnMenu_spawnedBy','']) isEqualTo _unitUID} &&
+				{(toLowerANSI (typeOf _x)) in _artilleryClasses}
+			}
+		) isNotEqualTo -1;
+		if (
+			!_hasActiveArtillery &&
+			{!(serverNamespace getVariable [_artilleryReservationKey,FALSE])}
+		) then {
+			serverNamespace setVariable [_artilleryReservationKey,TRUE];
+			_artillerySlotGranted = TRUE;
+		};
+	};
+};
+if (!_artillerySlotGranted) exitWith {
+	[_unit,'Spawn Menu: you already have an active artillery vehicle. Destroy or remove it before spawning another.'] call _notify;
+};
+
 _unit setVariable ['QS_spawnMenu_nextSpawn',serverTime + 10,FALSE];
 
 private _entity = objNull;
@@ -223,6 +255,9 @@ if (_isAI) then {
 };
 
 if (isNull _entity) exitWith {
+	if (_isArtillery) then {
+		serverNamespace setVariable [_artilleryReservationKey,nil];
+	};
 	if (!isNull _spawnGroup) then {
 		deleteGroup _spawnGroup;
 	};
@@ -237,6 +272,10 @@ if (_isBoat) then {
 };
 _entity setVariable ['QS_spawnMenu_spawnedBy',getPlayerUID _unit,TRUE];
 (missionNamespace getVariable ['QS_spawnMenu_spawnedEntities',[]]) pushBackUnique _entity;
+if (_isArtillery) then {
+	// The registered vehicle now occupies the slot until destroyed or deleted.
+	serverNamespace setVariable [_artilleryReservationKey,nil];
+};
 if (_isVehicle) then {
 	[_entity,_unitUID,side (group _unit)] call QS_fnc_spawnMenuManagedVehicleInit;
 };

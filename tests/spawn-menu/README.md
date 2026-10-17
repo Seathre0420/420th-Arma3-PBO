@@ -25,3 +25,22 @@ player who spawned the vehicle.
 | Owner disconnects, vehicle is destroyed, or manual Respawn Vehicle completes | Existing deletion behavior still works without automatic replacement. |
 | Vehicle spawned by the normal mission vehicle system | Existing abandonment rules still apply. |
 | Mission started with invalid/missing base-polygon markers | Existing `BASE_HIGHSEC_0` circular fallback selects the inside/outside threshold. |
+
+## Shared artillery limit acceptance checks
+
+The restricted classes are `B_MBT_01_arty_F`, `B_MBT_01_mlrs_F`,
+`O_MBT_02_arty_F`, and `I_Truck_02_MRL_F`. Run with clear spawn points and
+allow the existing 10-second spawn cooldown between normal requests. Keep the
+owner nearby so abandonment cleanup does not remove the test vehicle.
+
+| Scenario | Expected result |
+| --- | --- |
+| For each restricted class, spawn it and then request each of the four classes | First request succeeds; all four subsequent artillery choices are rejected with the active-artillery message. |
+| Spawn artillery at `ground1`, then request artillery at `ground2` | Rejected; both terminals share the same allowance. |
+| Two players each request artillery | Each player can own one active artillery vehicle. |
+| Own artillery, then spawn an ordinary vehicle, recruit AI as a group leader, or spawn a supply object | Normal requests succeed subject to existing limits and cooldowns. |
+| Own artillery and reach the existing five-active-vehicle total | Additional vehicle requests remain blocked by the existing total limit; objects and AI retain their existing rules. |
+| Destroy the artillery or complete its manual Respawn Vehicle deletion, then request any restricted class | A replacement can be spawned once the previous artillery is destroyed or deleted. |
+| Die and respawn, change roles, or let another player drive the artillery while it remains alive | Further artillery requests remain blocked for the original owner's UID, including when that owner is staff. |
+| Submit two artillery requests for one UID in the same server scheduling interval, with clear separate spawn points | At most one artillery vehicle is created; the pending reservation prevents duplicate admission. |
+| Request artillery with a blocked spawn point, or force vehicle creation to return `objNull` in a controlled server test | No artillery slot remains reserved; a later valid request can succeed after the normal cooldown. |
