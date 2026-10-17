@@ -295,12 +295,9 @@ if ((_this param [0,[]]) isEqualTo 'TARU_DELIVER') exitWith {
         // Primary's controller assigns its objective role after this signal.
         if (_activity isEqualTo 'DEFENSE' && {call _fn_current}) then {
             _cargo setVariable ['QS_AI_GRP_HC_EXCLUDED',FALSE,TRUE];
-            _cargo setSpeedMode 'FULL'; _cargo setBehaviour 'AWARE';
-            {
-                _x enableAIFeature ['TARGET',TRUE]; _x enableAIFeature ['AUTOTARGET',TRUE];
-                _x setUnitPos 'UP'; _x doFollow (leader _cargo);
-            } forEach (units _cargo);
-            _cargo move _goal;
+            // The same distance gate applies after rappel/parachute delivery.
+            // Never unlock targeting or regroup the cargo merely on landing.
+            ['TICK',units _cargo,_epoch,_goal] call QS_fnc_defendAssault;
         };
         _heli setVariable ['QS_taruDelivery_landed',TRUE];
     };

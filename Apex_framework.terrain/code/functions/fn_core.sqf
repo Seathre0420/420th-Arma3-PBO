@@ -1449,6 +1449,8 @@ _fpsMarkerText = localize 'STR_QS_Marker_005';
 _zeusMarkerText = localize 'STR_QS_Marker_006';
 
 private _miscDelay5 = -1;
+// Start enabled; announce an initial disabled state or later pilot-limit crossings once.
+private _haloJumpAvailable = TRUE;
 
 diag_log '***** Saving Profile *****';
 saveMissionProfileNamespace;
@@ -1608,6 +1610,14 @@ for '_x' from 0 to 1 step 0 do {
 		_miscDelay5 = _QS_diagTickTimeNow + 5;
 		_serverTime = serverTime;
 		_allPlayers = allPlayers - (entities 'HeadlessClient_F');
+		/*/===== Halo Jump availability announcements/*/
+		private _haloJumpPilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count _allPlayers;
+		private _haloJumpNowAvailable = _haloJumpPilotCount < 3;
+		if (isServer && {_haloJumpNowAvailable isNotEqualTo _haloJumpAvailable}) then {
+			_haloJumpAvailable = _haloJumpNowAvailable;
+			private _haloJumpMessage = ['Halo Jump is unavailable','Halo Jump is available'] select _haloJumpAvailable;
+			['sideChat',[WEST,'HQ'],_haloJumpMessage] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
+		};
 		_allUnits = allUnits;
 		_allUnitsUav = allUnitsUav;
 		_allGroups = allGroups;

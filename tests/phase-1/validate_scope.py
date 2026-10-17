@@ -47,7 +47,7 @@ def main() -> int:
     ):
         required(ai, token, "fn_AI.sqf")
     required(fire, "private _primaryMortar", "fn_AIFireMission.sqf")
-    for token in ("DEFENSE_FLANK_CONTROLLER_BEGIN", "MEGA_DEFENSE_ENTRY_BEGIN"):
+    for token in ("DEFENSE_ASSAULT_CONTROLLER_BEGIN", "MEGA_DEFENSE_ENTRY_BEGIN"):
         required(defend, token, "fn_aoDefend.sqf")
     for token in ("HOUSEKEEPING_HELPERS_BEGIN", "HOUSEKEEPING_TICK_BEGIN", "RUIN_ROTATION_BEGIN"):
         required(core, token, "fn_core.sqf")

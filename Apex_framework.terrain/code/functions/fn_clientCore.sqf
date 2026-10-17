@@ -2638,7 +2638,7 @@ for '_z' from 0 to 1 step 0 do {
 				_QS_haloJump_terminal = _haloJumpTerminal;
 				_QS_haloJump_player = player;
 				if (!isNull _haloJumpTerminal) then {
-					// Player count is checked on selection so the action remains visible when blocked.
+					// Transport Pilot count is checked on selection so the action remains visible when blocked.
 					_QS_action_haloJump = player addAction [
 						'Halo Jump',
 						{_this call (missionNamespace getVariable 'QS_fnc_clientInteractHaloJump')},

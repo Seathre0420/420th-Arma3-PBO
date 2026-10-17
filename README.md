@@ -1,5 +1,19 @@
 Mission file for 420th Delta Invade & Annex.
 
+## Defend infantry assault
+
+During Defend and Mega Defend, assault infantry run toward HQ with targeting
+and firing disabled until each soldier reaches within 100 m horizontally.
+Combat then stays enabled for that soldier for the rest of the defense.
+Paratroopers and transport passengers follow the same rule after landing or
+dismounting. Pilots and vehicle crews retain their existing tasks.
+
+Defense flanking, scripted covering fire and regroup diversions are disabled
+for these attackers. A shared one-second controller checks the boundary on
+the current AI owner, with movement retries paced separately. The old
+`QS_defend_propulsion` modes are superseded for defense infantry.
+See `tests/defend-assault/README.md` for validation and performance checks.
+
 ## Pilot roles
 
 `Attack Pilot (Whitelisted)` (`pilot_attack_WL`) and
@@ -115,13 +129,25 @@ above terrain. Moving during the countdown cancels the jump and shows
 not start overlapping countdowns. Use the existing `Open Parachute` action during
 freefall; the player's backpack and equipment are preserved.
 
-Halo Jump is available with fewer than 30 connected human players in the mission,
-regardless of role. At 30 or more, the action remains visible, but selecting it
-leaves the player in place and displays:
-`Halo Jump is unavailable when there are 30 or more players online.`
-The count includes dead players and players outside base, excludes AI and headless
-clients, and is checked when selected and again before teleportation. A missing
+Halo Jump is available with fewer than three connected Transport Pilots, counting
+both regular (`pilot_heli`) and whitelisted (`pilot_heli_WL`) roles. At three or
+more, the action remains visible, but selecting it leaves the player in place
+and displays both a hint and a private system chat message to that player:
+`Halo Jump is unavailable when there are 3 or more Transport Pilots`
+The count includes pilots who are dead or outside base, excludes AI and players
+only queued for the role, and is checked when selected and again before
+teleportation. Total player population does not affect availability. A missing
 AO center also prevents teleportation.
+
+The server checks the Transport Pilot count approximately every five seconds.
+When it reaches three or more, CROSSROAD announces `Halo Jump is unavailable`
+in BLUFOR side chat. When it drops below three, CROSSROAD announces
+`Halo Jump is available`. Each announcement is sent once per availability change,
+including to a player hosting the server. Counts that stay on the same side of
+the limit do not repeat the message. If the first check already finds three or
+more pilots, it announces unavailability once; starting below three is silent.
+These announcements are not replayed to joining players. Attempting a blocked
+jump still shows the private explanatory chat message and hint above.
 
 ## Spawn Menu vehicle abandonment
 

@@ -33,6 +33,10 @@ if (
 		};
 	};
 };
+// Rushing troops cannot receive scripted combat orders. After unlocking, retain
+// housekeeping (rearm/heal/support) while excluding movement/cover diversions.
+private _defendAssault = ['MANAGED',_unit,missionNamespace getVariable ['QS_defendControl_epoch',-1]] call QS_fnc_defendAssault;
+if (_defendAssault && {!(_unit getVariable ['QS_defendAssault_released',FALSE])}) exitWith {};
 private _grp = group _unit;
 _objectParent = objectParent _unit;
 
@@ -50,7 +54,8 @@ if (_primaryAO) then {
 	if (_primarySniper && {isNull _objectParent}) then {_unit setUnitPos 'AUTO';};
 };
 if (
-	(isNull _objectParent) &&
+	(!_defendAssault) &&
+	{(isNull _objectParent)} &&
 	{(!isPlayer _unit)} &&
 	{((side _unit) in [EAST,RESISTANCE])} &&
 	{(_unit isKindOf 'CAManBase')} &&
@@ -191,7 +196,7 @@ if (
 	!scriptDone (_grp getVariable ['QS_AI_GRP_SCRIPT',scriptNull])
 ) exitWith {};
 //=========== DELAYED INSTRUCTIONS
-if ((_unit getVariable ['QS_AI_UNIT_delayedInstructions',[]]) isNotEqualTo []) then {
+if (!_defendAssault && {(_unit getVariable ['QS_AI_UNIT_delayedInstructions',[]]) isNotEqualTo []}) then {
 	_delayedInstructions = _unit getVariable ['QS_AI_UNIT_delayedInstructions',[-1,-1]];
 	if (_uiTime > (_delayedInstructions # 0)) then {
 		[_unit,(_delayedInstructions # 1)] call (missionNamespace getVariable 'QS_fnc_AIXDelayedInstruction');
@@ -216,7 +221,7 @@ if (isNull _objectParent) then {
 	};
 
 	//=============================== UNSTUCK CHECK
-	if (_uiTime > (_unit getVariable ['QS_AI_unstuckInterval',-1])) then {
+	if (!_defendAssault && {_uiTime > (_unit getVariable ['QS_AI_unstuckInterval',-1])}) then {
 		_unit setVariable ['QS_AI_unstuckInterval',(_uiTime + (180 + (random 600))),FALSE];
 		[_unit,group _unit,'CAManBase'] call (missionNamespace getVariable 'QS_fnc_AIXVehicleUnstuck');
 	};
@@ -297,7 +302,7 @@ if (isNull _objectParent) then {
 	
 	//================================== VEHICLE DEMOLITION
 	
-	if (_fps > 10) then {
+	if (!_defendAssault && {_fps > 10}) then {
 		if (_aiPath) then {
 			if ((random 1) > 0.75) then {
 				if (_uiTime > (_unit getVariable ['QS_AI_UNIT_LastGesture',-1])) then {
@@ -398,7 +403,7 @@ if (isNull _objectParent) then {
 		};
 	};
 	//================================== Vehicle Repair
-	if (_aiPath) then {
+	if (!_defendAssault && {_aiPath}) then {
 		if (_unit getUnitTrait 'engineer') then {
 			if ((count (missionNamespace getVariable 'QS_AI_scripts_support')) < 2) then {
 				if (isNil {_grp getVariable 'QS_AI_engineer_vehicles'}) then {
@@ -465,7 +470,7 @@ private _coverManaged = isNull _objectParent && {!isPlayer _unit} &&
 	{(_unit distance2D (missionNamespace getVariable ['QS_HQpos',[0,0,0]])) < 2500}}};
 _unit setVariable ['QS_AI_coverManaged',_coverManaged,FALSE];
 //======================================================================= SUPPRESSIVE FIRE (UNIT)
-if (_coverManaged || {_fps > 10}) then {
+if (!_defendAssault && {_coverManaged || {_fps > 10}}) then {
 	private _isSuppressing = _currentCommand isEqualTo 'Suppress';
 	if (_coverManaged && {!_isSuppressing} && {!captive _unit} &&
 		{isNull (_unit getVariable ['bis_fnc_moduleRemoteControl_owner',objNull])} &&
@@ -752,7 +757,8 @@ if (isNull _objectParent) then {
 	};
 };
 if (
-	(_fps >= 15) &&
+	(!_defendAssault) &&
+	{(_fps >= 15)} &&
 	{((random 1) > 0.666)} &&
 	{(isNull _objectParent)} &&
 	{(!_isLeader)} &&

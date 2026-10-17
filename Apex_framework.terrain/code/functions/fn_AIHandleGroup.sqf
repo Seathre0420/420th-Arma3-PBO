@@ -56,9 +56,11 @@ if (
 	_primaryMovement = (_pressureTask # 4) isNotEqualTo 'PATROL';
 };
 if (_primaryMovement) exitWith {};
-// Defense's existing loop owns a borrowed squad's movement for this activity.
+// Assault squads keep HQ orders; native handlers must not assign patrols,
+// regrouping or target pursuit, including after a squad leader dies.
 if (local _grp && {missionNamespace getVariable ['QS_defendControl_active',FALSE]} &&
-	{(_grp getVariable ['QS_defendFlank_epoch',-1]) isEqualTo (missionNamespace getVariable ['QS_defendControl_epoch',0])}) exitWith {};
+    {(_grp getVariable ['QS_defendAssault_epoch',-1]) isEqualTo (missionNamespace getVariable ['QS_defendControl_epoch',0])} &&
+    {((units _grp) findIf {isPlayer _x || {captive _x} || {!isNull (remoteControlled _x)} || {!isNull (_x getVariable ['bis_fnc_moduleRemoteControl_owner',objNull])}}) < 0}) exitWith {};
 // End Updated Code
 if (!(_grp getVariable ['QS_AI_GRP_SETUP',FALSE])) then {
 	_grp setVariable ['QS_AI_GRP_SETUP',TRUE,FALSE];

@@ -22,10 +22,12 @@ if (
 private _baseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'};
 if ((['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []) exitWith {};
 
-// Count connected human players in every role, including dead players; exclude headless clients.
-private _playerCount = {!(_x isKindOf 'HeadlessClient_F')} count allPlayers;
-if (_playerCount >= 30) exitWith {
-	hint 'Halo Jump is unavailable when there are 30 or more players online.';
+// Count regular and whitelisted Transport Pilots, including dead players and those away from base.
+private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
+if (_pilotCount >= 3) exitWith {
+	private _message = 'Halo Jump is unavailable when there are 3 or more Transport Pilots';
+	systemChat _message;
+	hint _message;
 };
 
 private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
@@ -91,9 +93,11 @@ systemChat 'Halo Jumping in 10';
 			{(_caller distance _terminal) >= 20} ||
 			{(['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []}
 		) exitWith {};
-		private _playerCount = {!(_x isKindOf 'HeadlessClient_F')} count allPlayers;
-		if (_playerCount >= 30) exitWith {
-			hint 'Halo Jump is unavailable when there are 30 or more players online.';
+		private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
+		if (_pilotCount >= 3) exitWith {
+			private _message = 'Halo Jump is unavailable when there are 3 or more Transport Pilots';
+			systemChat _message;
+			hint _message;
 		};
 		private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
 		if (_aoCenter isEqualTo [0,0,0]) exitWith {
