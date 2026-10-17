@@ -74,10 +74,10 @@ ReviveRequiredItemsFakConsumed = 1;						// Apex Framework Notes: If set as 0, F
 ReviveDelay = 6;										// Apex Framework Notes: Not used (we link to animation speed instead)										//time needed to revive someone (in secs)
 ReviveMedicSpeedMultiplier = 2;							// Apex Framework Notes: Not used																			//speed multiplier for revive performed by medic
 ReviveForceRespawnDelay = 3;							// Apex Framework Notes: Not used																			//time needed to perform force respawn (in secs)
-ReviveBleedOutDelay = 600;								// Apex Framework Notes: General bleedout time. default: 600 seconds (10 minutes)							//unconscious state duration (in secs)
+ReviveBleedOutDelay = 300;								// Apex Framework Notes: General bleedout time. default: 600 seconds (10 minutes)							//unconscious state duration (in secs)
 
 respawn = 3;											/*/ 0 = none. 1 = bird. 2 = instant where died. 3 = base or respawn_west marker. 4 = respawn with team, or bird. 5 = into AI or bird./*/
-respawnDelay = 5;										/*/ Delay prior to respawn/*/
+respawnDelay = 0;										/*/ Delay prior to respawn/*/
 respawnDialog = 0;										/*/ default = 1. show respawn timer and scoreboard when killed./*/
 respawnOnStart = 0;
 
