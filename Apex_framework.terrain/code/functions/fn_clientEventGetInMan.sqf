@@ -14,6 +14,7 @@ Description:
 __________________________________________________*/
 
 params ['_unit','_position','_vehicle','_turretPath'];
+[_vehicle] call QS_fnc_restrictPilotPylons;
 ['CHECK',_unit,_position,_vehicle,_turretPath] call QS_fnc_clientVehicleAccess;
 ['ACTIONS',_vehicle] call QS_fnc_clientVehicleAccess;
 if (!simulationEnabled _vehicle) then {

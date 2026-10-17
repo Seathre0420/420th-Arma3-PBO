@@ -20,6 +20,9 @@ ___________________________________________*/
 	[
 		'AHA_25mmGLMG',
 		'AHA_CZ57Avenger',
+		'AHA_T24E2_MG',
+		'AHA_Commi_Vindi',
+		'OSS_TKB059',
 		'apersminedispenser_mag'
 	],
 	
@@ -34,9 +37,6 @@ ___________________________________________*/
 		'1rnd_20mmCarlG_HET',
 		'1rnd_37mmCarlG_HE',
 		'1rnd_37mmCarlG_HET',
-		'AHA_T24E2_MG',
-		'AHA_Commi_Vindi',
-		'OSS_TKB059',
 		'apersminedispenser_mag'
 	],
 	

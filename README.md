@@ -9,6 +9,21 @@ and aircraft/logistics/AI terminal access. All three require the existing S3
 whitelist through the role menu. Each role has its own 5–15 slots, with the same
 population scaling, and its own queue and saved loadouts.
 
+Transport Pilot (`pilot_heli` and `pilot_heli_WL`) and Logistics Pilot
+(`pilot_logistics_WL`) can carry compatible air-to-air missiles and the four
+UH-80 external fuel tanks (default, Green, Tropic, and Sand) on pylons
+while occupying the pilot seat. Other pylon weapons are removed on entry, seat
+switches, service, and hangar changes, with a half-second crew-client check for
+role/locality changes. Unsupported pylons stay empty; native guns and
+countermeasures are retained. Attack Pilot and Fighter Pilot are unaffected.
+Removed ordnance is not automatically restored when the pilot leaves or changes
+role. See `tests/pilot-pylons/README.md` for validation.
+
+When these roles use the Spawn Menu, aircraft start with their default pylon
+weapons removed, including air-to-air missiles, before boarding. Compatible
+external fuel tanks remain. The normal role restriction permits compatible AA
+missiles to be fitted afterward.
+
 Deploy the updated root `@Apex_cfg/roles.sqf` and `@Apex_cfg/arsenal.sqf` alongside
 the updated mission. Terrain-specific role or arsenal overrides, if used on the
 server, must include the same additions. See `tests/pilot-roles/README.md` for

@@ -14,6 +14,7 @@ Description:
 __________________________________________________/*/
 
 params ['_u1','_u2','_v'];
+[_v] call QS_fnc_restrictPilotPylons;
 private _newRole = assignedVehicleRole player;
 if (_newRole isNotEqualTo []) then {
 	['CHECK',player,(_newRole # 0),_v,(_newRole param [1,[]])] call QS_fnc_clientVehicleAccess;

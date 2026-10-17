@@ -1,5 +1,8 @@
 # Spawn Menu abandonment acceptance checks
 
+For Transport/Logistics Pilot default pylon removal and fuel-tank retention,
+also run the spawn checks in `../pilot-pylons/README.md` before boarding.
+
 Run these in multiplayer against the updated mission, using a vehicle created
 through the Spawn Menu. Allow at least one vehicle-manager pass (approximately
 five seconds) after each change. Distances are horizontal and the owner is the

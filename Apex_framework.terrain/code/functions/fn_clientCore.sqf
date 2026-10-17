@@ -1729,6 +1729,7 @@ for '_z' from 0 to 1 step 0 do {
 	if (_QS_uiTime > _QS_miscDelay1) then {
 		_QS_miscDelay1 = _QS_uiTime + 0.5;
 		[] call QS_fnc_clientArtilleryAccess;
+		[objectParent player] call QS_fnc_restrictPilotPylons;
 		_serverTime = serverTime;
 		if (_QS_player isNotEqualTo player) then {
 			_QS_player = player;

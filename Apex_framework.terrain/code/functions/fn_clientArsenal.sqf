@@ -270,6 +270,12 @@ if (_unitSide in [EAST,RESISTANCE]) then {
 	];
 };
 
+// Runtime gear checks compare lowercase classnames against both blacklist forms.
+_QS_restrictedItems = _QS_restrictedItems apply {toLowerANSI _x};
+_QS_restrictedWeapons = _QS_restrictedWeapons apply {toLowerANSI _x};
+_QS_restrictedMagazines = _QS_restrictedMagazines apply {toLowerANSI _x};
+_QS_restrictedBackpacks = _QS_restrictedBackpacks apply {toLowerANSI _x};
+
 _combinedRestrictions = [];
 _combinedRestrictions append _QS_restrictedItems;
 _combinedRestrictions append _QS_restrictedWeapons;

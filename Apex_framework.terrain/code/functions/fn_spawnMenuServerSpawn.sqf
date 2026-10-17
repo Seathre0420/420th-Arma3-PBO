@@ -414,6 +414,10 @@ if (_vehicleClass in ['O_T_VTOL_02_infantry_dynamicLoadout_F','O_T_VTOL_02_vehic
 	];
 };
 
+// Strip default pylon weapons after setup, while the new aircraft and its
+// turrets are still server-local. The requester's role applies before boarding.
+[_entity,_unitRole] call QS_fnc_restrictPilotPylons;
+
 if (_isVehicle) then {
 	if (isNil {serverNamespace getVariable 'QS_v_Monitor'}) then {
 		serverNamespace setVariable ['QS_v_Monitor',[]];

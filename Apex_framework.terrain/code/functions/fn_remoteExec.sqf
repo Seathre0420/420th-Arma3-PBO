@@ -2607,6 +2607,7 @@ if (_case < 110) exitWith {
 					_vehicle setPylonLoadout [_x # 0,_x # 3,TRUE,_x # 2];
 				};
 			} forEach _pylonData;
+			[_vehicle] call QS_fnc_restrictPilotPylons;
 			
 			// Laser
 			if (local _vehicle) then {

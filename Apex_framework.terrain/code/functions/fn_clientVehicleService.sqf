@@ -370,10 +370,11 @@ if (
 		if (_cancelled) exitWith {};
 	} forEach (magazinesAllTurrets [_vehicle,TRUE]);
 	if ((getAllPylonsInfo _vehicle) isNotEqualTo []) then {
+		[_vehicle] call QS_fnc_restrictPilotPylons;
 		_rearmInterval = 0.1;
 		{
 			_x params ['_pIndex','_pName','_turret','_magazineClass','_count'];
-			if (_vehicle turretLocal _turret) then {
+			if ((_magazineClass isNotEqualTo '') && {_vehicle turretLocal _turret}) then {
 				_fullCount = QS_hashmap_configfile getOrDefaultCall [
 					format ['cfgmagazines_%1_count',_magazineClass],
 					{getNumber (configFile >> 'CfgMagazines' >> _magazineClass >> 'count')},
