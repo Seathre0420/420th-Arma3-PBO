@@ -167,7 +167,7 @@ if ((random 1) > 0.666) then {
 
 //comment 'Create other objectives';
 if (!(worldName in ['Stratis'])) then {
-	_subObj = (selectRandomWeighted [[1,'INTEL'],0.5,[1,'GEAR'],0.5]) call (missionNamespace getVariable 'QS_fnc_scSubObjective');
+	_subObj = ((selectRandomWeighted [[1,'INTEL'],0.5,[1,'GEAR'],0.5]) + [[],TRUE]) call (missionNamespace getVariable 'QS_fnc_scSubObjective');
 	(missionNamespace getVariable 'QS_classic_subObjectives') pushBack _subObj;
 };
 

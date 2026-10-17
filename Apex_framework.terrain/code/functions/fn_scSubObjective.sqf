@@ -37,7 +37,7 @@ Types:
 19:20:49 "***** onPlayerConnected ***** [1.55618e+009,""76561198084065754"",""Quiksilver"",true,5
 ____________________________________________________________________________/*/
 
-params ['_type','_subType','_data'];
+params ['_type','_subType','_data',['_classicAO',FALSE]];
 private _return = [];
 if (_type isEqualTo 0) exitWith {
 	diag_log '***** SC SUB OBJ ***** DELETE *****';
@@ -167,6 +167,15 @@ if (_type isEqualTo 1) exitWith {
 				'Land_Cargo_House_V4_F'
 			] select (worldName in ['Tanoa','Enoch']);
 			_position set [2,0];
+			if (_classicAO && {worldName isEqualTo 'Altis'}) then {
+				// Clear around the actual Datalink center before spawning its composition.
+				{
+					if (!isObjectHidden _x) then {
+						_x hideObjectGlobal TRUE;
+						(missionNamespace getVariable 'QS_virtualSectors_hiddenTerrainObjects') pushBackUnique _x;
+					};
+				} forEach (nearestTerrainObjects [_position,[],10,FALSE,TRUE]);
+			};
 			_house = createVehicle [_houseType,_position,[],0,'CAN_COLLIDE'];
 			_house allowDamage FALSE;
 			_house setDir ([random 360,_dir] select _usedSettlementPosition);

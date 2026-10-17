@@ -24,6 +24,41 @@ for '_x' from 0 to 1 step 0 do {
 };
 diag_log format ['***** DEBUG * Finding HQ position * %1 *',_position1];
 missionNamespace setVariable ['QS_HQpos',_position1,TRUE];
+if (worldName isEqualTo 'Altis') then {
+	// Clear the HQ footprint and restore newly hidden terrain during AO cleanup.
+	{
+		if (!isObjectHidden _x) then {
+			_x hideObjectGlobal TRUE;
+			(missionNamespace getVariable 'QS_virtualSectors_hiddenTerrainObjects') pushBackUnique _x;
+		};
+	} forEach (nearestTerrainObjects [_position1,[],40,FALSE,TRUE]);
+	// Keep the full 30 m core level, including vertices of cells crossing its edge.
+	private _hqHeight = getTerrainHeightASL _position1;
+	private _cellSize = getTerrainInfo # 2;
+	private _flatRadius = 30;
+	private _blendRadius = 50;
+	private _terrainPositions = [];
+	_position1 params ['_hqX','_hqY'];
+	for '_gridX' from (floor ((_hqX - _blendRadius) / _cellSize)) to (ceil ((_hqX + _blendRadius) / _cellSize)) do {
+		for '_gridY' from (floor ((_hqY - _blendRadius) / _cellSize)) to (ceil ((_hqY + _blendRadius) / _cellSize)) do {
+			private _terrainPos = [_gridX * _cellSize,_gridY * _cellSize,0];
+			private _distance = _terrainPos distance2D _position1;
+			if (_distance < _blendRadius) then {
+				private _originalHeight = getTerrainHeightASL _terrainPos;
+				private _cellDX = ((abs ((_terrainPos # 0) - _hqX)) - _cellSize) max 0;
+				private _cellDY = ((abs ((_terrainPos # 1) - _hqY)) - _cellSize) max 0;
+				private _flatDistance = ((sqrt ((_cellDX * _cellDX) + (_cellDY * _cellDY))) - _flatRadius) max 0;
+				// Smoothstep between the boundary-cell footprint and the outer radius.
+				private _blend = _flatDistance / (_flatDistance + _blendRadius - _distance);
+				_blend = _blend * _blend * (3 - (2 * _blend));
+				_terrainPos set [2,_hqHeight + ((_originalHeight - _hqHeight) * _blend)];
+				_terrainPositions pushBack _terrainPos;
+			};
+		};
+	};
+	// Persist until restart; do not move existing objects when changing the ground.
+	setTerrainHeight [_terrainPositions,FALSE];
+};
 private _roughPos1 = [(((missionNamespace getVariable 'QS_HQpos') # 0) - 150) + (random 300),(((missionNamespace getVariable 'QS_HQpos') # 1) - 150) + (random 300),0];
 {
 	_x setMarkerPosLocal _roughPos1;
