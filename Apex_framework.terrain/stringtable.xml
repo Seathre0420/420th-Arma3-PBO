@@ -7748,12 +7748,12 @@ _____________________________________________________________-->
             <Chinese>簡報</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_149">
-            <Original>Seize</Original>
+            <Original>Defend</Original>
             <Chinesesimp>完成主线和支线任务，夺取敌人在</Chinesesimp>
             <Chinese>完成主線和支線任務，奪取敵人在</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_150">
-            <Original>from opposing forces.</Original>
+            <Original>from opposing forces. Read your Tasks for more info.</Original>
             <Chinesesimp>上的主动权！</Chinesesimp>
             <Chinese>上的主動權！</Chinese>
         </Key>
@@ -7763,7 +7763,7 @@ _____________________________________________________________-->
             <Chinese>規則</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_152">
-            <Original>Team</Original>
+            <Original>Staff</Original>
             <Chinesesimp>团队</Chinesesimp>
             <Chinese>團隊</Chinese>
         </Key>
