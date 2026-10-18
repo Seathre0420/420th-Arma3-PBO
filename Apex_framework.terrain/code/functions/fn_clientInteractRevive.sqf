@@ -127,28 +127,6 @@ if (_player getVariable 'QS_client_animCancel') exitWith {
 	_player setVariable ['QS_client_animCancel',FALSE,FALSE];
 	50 cutText [localize 'STR_QS_Text_128','PLAIN DOWN',0.333];
 };
-if (_stance isEqualTo 'PRONE') then {
-	private _time2 = diag_tickTime + 0.5;
-	waitUntil {
-		uiSleep 0.1;
-		(diag_tickTime > _time2)
-	};
-	if (((lifeState _t) isNotEqualTo 'INCAPACITATED') || {(!(isNull (attachedTo _t)))} || {(!((lifeState _player) in ['HEALTHY','INJURED']))} || {(_player getVariable 'QS_client_animCancel')}) exitWith {
-		_exit = TRUE;
-	};
-	_player playMoveNow _animation;
-	waitUntil {
-		uiSleep 0.1;
-		((animationState _player) in [
-			'ainvppnemstpslaywrfldnon_medicother','ainvppnemstpslaywnondnon_medicother','ainvppnemstpslaywpstdnon_medicother'
-		])
-	};
-	_player setVariable ['QS_animDone',FALSE,FALSE];
-	waitUntil {
-		uiSleep 0.1;
-		((!alive _player) || {(_player getVariable 'QS_animDone')} || {(!((lifeState _player) in ['HEALTHY','INJURED']))} || {(_player getVariable 'QS_client_animCancel')})
-	};
-};
 if (_player getVariable 'QS_client_animCancel') exitWith {
 	_player setVariable ['QS_client_animCancel',FALSE,FALSE];
 	50 cutText [localize 'STR_QS_Text_128','PLAIN DOWN',0.333];
