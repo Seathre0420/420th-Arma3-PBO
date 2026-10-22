@@ -6410,7 +6410,7 @@ for '_z' from 0 to 1 step 0 do {
 			_QS_side = _QS_player getVariable ['QS_unit_side',_west];
 			_enemysides = _QS_side call _fn_enemySides;
 			_QS_player setVariable ['QS_unit_enemySides',_enemysides,_false];
-			setPlayerRespawnTime ([5,0] select (_QS_side isEqualTo _west));
+			setPlayerRespawnTime ([3,3] select (_QS_side isEqualTo _west));
 		};
 		if (_playerRole isNotEqualTo (_QS_player getVariable ['QS_unit_role','rifleman'])) then {
 			['UPDATE_UI',_QS_player] call _fn_roles;

@@ -90,7 +90,7 @@ if (_isAdmin) then {
 	};
 	missionNamespace setVariable ['QS_fnc_actionEjectSuspect',compileFinal _code,FALSE];
 };
-setPlayerRespawnTime 0;
+setPlayerRespawnTime 3;
 
 /*/=========================== PLAYER JOIN TOKEN/*/
 
