@@ -290,6 +290,9 @@ class CfgFunctions {
 			class clientHeartbeat {file = "code\functions\fn_clientHeartbeat.sqf";};
 			class clientHintPresets {file = "code\functions\fn_clientHintPresets.sqf";};
 			class clientHolster {file = "code\functions\fn_clientHolster.sqf";};
+			class clientEngineerRefuel {file = "code\functions\fn_clientEngineerRefuel.sqf";};
+			class engineerRefuelEligible {file = "code\functions\fn_engineerRefuelEligible.sqf";};
+			class engineerRefuelOwner {file = "code\functions\fn_engineerRefuelOwner.sqf";};
 			class clientEngineerRepair {file = "code\functions\fn_clientEngineerRepair.sqf";};
 			class engineerRepairEligible {file = "code\functions\fn_engineerRepairEligible.sqf";};
 			class engineerRepairOwner {file = "code\functions\fn_engineerRepairOwner.sqf";};

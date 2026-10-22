@@ -3193,6 +3193,15 @@ for '_z' from 0 to 1 step 0 do {
                 },nil,24,FALSE,TRUE,'',
                     '! (missionNamespace getVariable ["QS_repairing_vehicle",FALSE]) && {[QS_player,cursorObject] call QS_fnc_engineerRepairEligible} && {damage cursorObject > 0 || {(((getAllHitPointsDamage cursorObject) param [2,[]]) findIf {_x > 0}) != -1} || {waterDamaged cursorObject}}'];
             };
+            /*/===== Engineer refueling /*/
+            if ((localNamespace getVariable ['QS_engineerRefuel_actionUnit',objNull]) isNotEqualTo _QS_player) then {
+                localNamespace setVariable ['QS_engineerRefuel_actionUnit',_QS_player];
+                _QS_player addAction ['Refuel',{
+                    private _vehicle = cursorObject;
+                    [_vehicle] spawn QS_fnc_clientEngineerRefuel;
+                },nil,23,FALSE,TRUE,'',
+                    '!(missionNamespace getVariable ["QS_repairing_vehicle",FALSE]) && {[QS_player,cursorObject] call QS_fnc_engineerRefuelEligible} && {fuel cursorObject < 1}'];
+            };
             /*/===== Action Create Boat/*/
 			
 			if (
