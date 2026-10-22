@@ -807,6 +807,7 @@ class CfgFunctions {
             file = "TGC\Functions\Damage";
             class addEmptyVehicleHandlers {};
             class addFriendlyAIHandlers {};
+            class friendlyAICasualty {};
             class addSpawnMenuVehicleHandlers {};
             class initFriendlyAIProtection { postInit = 1; };
             class isFriendlyAI {};

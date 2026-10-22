@@ -1637,8 +1637,12 @@ if (_case < 70) exitWith {
 			{(_state isEqualType FALSE)} &&
 			{(_unit isKindOf 'CAManBase')}
 		) then {
-			_unit setUnconscious _state;
-			_unit setCaptive _captiveState;
+			if (!_state && {(_unit getVariable ['TGC_aiCasualty',[]]) isNotEqualTo []}) then {
+				['REVIVE',_unit] call TGC_fnc_friendlyAICasualty;
+			} else {
+				_unit setUnconscious _state;
+				_unit setCaptive _captiveState;
+			};
 			if (!isPlayer _unit) then {
 				['switchMove',_unit,'AmovPpneMstpSnonWnonDnon'] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
 			};

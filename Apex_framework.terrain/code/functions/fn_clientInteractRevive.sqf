@@ -163,8 +163,12 @@ if (!(_player getVariable ['QS_client_animCancel',FALSE])) then {
 						if ((lifeState _t) isEqualTo 'INCAPACITATED') then {
 						
 							if (local _t) then {
+								if ((_t getVariable ['TGC_aiCasualty',[]]) isNotEqualTo []) then {
+									['REVIVE',_t] call TGC_fnc_friendlyAICasualty;
+								} else {
 								_t setUnconscious FALSE;
 								_t setCaptive FALSE;
+								};
 							} else {
 								[68,_t,FALSE,FALSE] remoteExec ['QS_fnc_remoteExec',_t,FALSE];
 							};

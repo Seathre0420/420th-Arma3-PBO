@@ -71,6 +71,10 @@ localNamespace setVariable ["TGC_friendlyAIProtection_createdEH", _createdEH];
 
 private _respawnedEH = addMissionEventHandler ["EntityRespawned", {
     params ["_newEntity"];
+    // Respawn can copy the old casualty namespace; it is a new life.
+    if (local _newEntity && {!isPlayer _newEntity}) then {
+        ['CLEAR',_newEntity] call TGC_fnc_friendlyAICasualty;
+    };
     // Respawn copies the entity namespace and persistent object handlers.
     // Validate the copied IDs and add only anything that is missing.
     [_newEntity] call TGC_fnc_addFriendlyAIHandlers;
@@ -88,3 +92,18 @@ private _units = allUnits + (agents apply {agent _x});
         [_x] call TGC_fnc_addFriendlyAIHandlers;
     };
 } forEach (_units arrayIntersect _units);
+
+// One monitor per machine, no per-casualty timer scripts. Every owner observes
+// the same public deadline, including after disconnects and headless transfers.
+[] spawn {
+    while {TRUE} do {
+        private _units = allUnits + allDeadMen + (agents apply {agent _x});
+        {
+            if (local _x && {!isPlayer _x} &&
+                {(_x getVariable ['TGC_aiCasualty',[]]) isNotEqualTo []}) then {
+                ['TICK',_x] call TGC_fnc_friendlyAICasualty;
+            };
+        } forEach (_units arrayIntersect _units);
+        uiSleep 0.5;
+    };
+};

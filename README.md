@@ -1,5 +1,17 @@
 Mission file for 420th Delta Invade & Annex.
 
+## Friendly AI revival
+
+Friendly military infantry become unconscious at the player vital-damage
+threshold and can be revived through the existing medic interaction. Their
+bleed-out deadline uses `ReviveBleedOutDelay` (300 seconds), with no transport
+extensions. Casualties are protected from further combat damage. Successful
+revival restores health and starts no lingering timer; another incapacitation
+gets a fresh deadline. Existing player/friendly-AI damage immunity and recruited
+AI damage reduction are retained. Virtual UAV crew and scripted mission
+patients keep their existing behavior. Scripted deaths/deletion still bypass
+combat damage interception. See `tests/friendly-ai-revive/README.md`.
+
 ## Defend rotation
 
 After a Classic AO starts a Defend, the following AO cannot automatically end
