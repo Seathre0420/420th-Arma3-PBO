@@ -177,7 +177,7 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
             {!(_unit getVariable ['AR_Is_Rappelling',FALSE])} &&
             {((getPosATL _unit) # 2) < 3 || {isTouchingGround _unit}};
         if (_grounded && {lifeState _unit in ['HEALTHY','INJURED']}) then {
-            if (!_released && {(_unit distance2D _hq) <= 100}) then {
+            if (!_released && {(_unit distance2D _hq) <= 150}) then {
                 _released = TRUE;
                 _unit setVariable ['QS_defendAssault_released',TRUE,TRUE];
                 _fresh = TRUE;
@@ -205,7 +205,7 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
             // positional progress or a lost order. Combat inside HQ can pause.
             private _retry = _now >= (_state # 5) &&
                 {(_now - (_state # 4)) >= 6 || {currentCommand _unit in ['','STOP','WAIT']}};
-            if (!(_state # 2) || {_distance > ([25,100] select _released) && {_retry}}) then {
+            if (!(_state # 2) || {_distance > ([25,150] select _released) && {_retry}}) then {
                 _unit doMove _hq;
                 _state set [2,TRUE];
                 _state set [3,_position];
