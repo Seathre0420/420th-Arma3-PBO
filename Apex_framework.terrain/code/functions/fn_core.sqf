@@ -201,6 +201,10 @@ _regionMasterList = call (compileScript ['code\config\QS_data_ao.sqf']);
 private _classicLowPopulationRegions = _regionMasterList select {(_x # 0) isEqualTo 0};
 private _classicRegionRestricted = FALSE;
 private _classicLastAOId = '';
+// DEFEND_ROTATION_INIT_BEGIN
+private _classicDefendCountAtAOStart = missionNamespace getVariable ['QS_defendCount',0];
+private _classicPreviousAOHadDefend = FALSE;
+// DEFEND_ROTATION_INIT_END
 _defendAOActive = FALSE;
 // Added Code
 // MEGA_CORE_INIT_BEGIN
@@ -1738,6 +1742,13 @@ for '_x' from 0 to 1 step 0 do {
 								};
 							};
 							_ao = selectRandom _aoList;
+							// Only advance history when a new Classic AO is actually selected.
+							// Defend increments this counter after all entry checks pass, even if it later fails.
+							// DEFEND_ROTATION_ADVANCE_BEGIN
+							private _classicDefendCountNow = missionNamespace getVariable ['QS_defendCount',0];
+							_classicPreviousAOHadDefend = _classicDefendCountNow > _classicDefendCountAtAOStart;
+							_classicDefendCountAtAOStart = _classicDefendCountNow;
+							// DEFEND_ROTATION_ADVANCE_END
 							_classicLastAOId = _ao # 0;
 							diag_log str _ao;
 							_aoList deleteAt (_aoList find _ao);
@@ -2326,10 +2337,18 @@ for '_x' from 0 to 1 step 0 do {
 						// MEGA_CORE_BRIEFING_END
 // End Updated Code
 						private _normalAO_defendScript = scriptNull;
+						// Staff requests and existing positive force controls bypass the rotation restriction.
+						// DEFEND_ROTATION_DECISION_BEGIN
+						private _normalAO_shouldDefend = _normalAO_manualDefense || {_normalAO_staffDefense} || {
+							((_ao # 8) isNotEqualTo 0) && {
+								!_classicPreviousAOHadDefend || {(missionNamespace getVariable ['QS_forceDefend',0]) in [1,2]}
+							}
+						};
+						// DEFEND_ROTATION_DECISION_END
 /* Legacy Code as of 9.9.2026 */
 //|						if ((_ao # 8) isNotEqualTo 0) then {
 // Updated Code
-						if (((_ao # 8) isNotEqualTo 0) || {_normalAO_manualDefense} || {_normalAO_staffDefense}) then {
+						if (_normalAO_shouldDefend) then {
 // End Updated Code
 							_defendAO = _true;
 							_defendAOActive = _true;
@@ -2378,7 +2397,7 @@ for '_x' from 0 to 1 step 0 do {
 /* Legacy Code as of 9.9.2026 */
 //|							((_ao # 8) isNotEqualTo 0),
 // Updated Code
-							(((_ao # 8) isNotEqualTo 0) || {_normalAO_manualDefense} || {_normalAO_staffDefense}),
+							_normalAO_shouldDefend,
 // End Updated Code
 							_normalAO_defendScript
 						] spawn {

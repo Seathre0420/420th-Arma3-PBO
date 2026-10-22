@@ -1,5 +1,15 @@
 Mission file for 420th Delta Invade & Annex.
 
+## Defend rotation
+
+After a Classic AO starts a Defend, the following AO cannot automatically end
+in Defend. One AO without Defend restores normal eligibility. Queue Defend,
+Force Defend, Mega Defense and existing positive force controls bypass this
+restriction. Any Defend that actually starts counts, even if it fails; rejected
+attempts do not. Cycled AOs and AOs with Defend disabled still consume the
+intervening AO. History resets when the mission restarts.
+See `tests/defend-rotation/README.md` for validation.
+
 ## Defend infantry assault
 
 During Defend and Mega Defend, assault infantry run toward HQ with targeting
