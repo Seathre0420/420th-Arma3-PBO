@@ -14,6 +14,59 @@ Description:
 ________________________________________/*/
 
 params ['_type'];
+// Snapshot layout: unit, UID, connection token, revision, side, role.
+if (_type isEqualTo 'PUBLISH') exitWith {
+ params ['','_unit',['_reason','selection']];
+ if (!isServer || {isNull _unit}) exitWith {};
+ private _revision = (missionNamespace getVariable ['QS_roleRevision',0]) + 1;
+ missionNamespace setVariable ['QS_roleRevision',_revision];
+ private _state = [_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1],_revision,_unit getVariable ['QS_unit_side',WEST],_unit getVariable ['QS_unit_role','rifleman']];
+ _unit setVariable ['QS_roleState',_state,TRUE];
+ [16,_state,_reason] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+};
+if (_type isEqualTo 'CLIENT_SYNC') exitWith {
+ params ['','_state',['_reason','sync']];
+ if (!hasInterface || {!(_state isEqualType [])} || {count _state != 6}) exitWith {};
+ _state params ['_unit','_uid','_session','_revision','_side','_role'];
+ if (!(_unit isEqualType objNull) || {!(_uid isEqualType '')} || {!(_session isEqualType 0)} || {!(_revision isEqualType 0)} || {!(_side isEqualType WEST)} || {!(_role isEqualType '')}) exitWith {};
+ if (isNull _unit || {_unit isNotEqualTo player} || {getPlayerUID player isNotEqualTo _uid}) exitWith {};
+ private _accepted = localNamespace getVariable ['QS_roleAccepted',[]];
+ if (_accepted isNotEqualTo [] && {(_accepted # 3) >= _revision}) exitWith {
+  if ((_accepted # 3) > _revision && {diag_tickTime > (localNamespace getVariable ['QS_roleStaleLogAt',-1])}) then {
+   localNamespace setVariable ['QS_roleStaleLogAt',diag_tickTime + 10];
+   diag_log format ['ROLE REJECT revision=%1 current=%2 reason=stale',_revision,_accepted # 3];
+  };
+ };
+ localNamespace setVariable ['QS_roleAccepted',_state];
+ // Only this server-authenticated snapshot may repair the local compatibility fields.
+ player setVariable ['QS_unit_role',_role,FALSE];
+ player setVariable ['QS_unit_side',_side,FALSE];
+ ['INIT_ROLE',_role,_state,_reason] call QS_fnc_roles;
+ if (_reason isEqualTo 'cas') then {
+  [_unit,_state] spawn {
+   params ['_unit','_state'];
+   if (_unit isNotEqualTo player || {(localNamespace getVariable ['QS_roleAccepted',[]]) isNotEqualTo _state}) exitWith {};
+   moveOut _unit;
+   uiSleep 0.5;
+   if (_unit isEqualTo player && {(localNamespace getVariable ['QS_roleAccepted',[]]) isEqualTo _state}) then {[] call QS_fnc_clientEventRespawn;};
+  };
+ };
+ ['UPDATE_UI',player] call QS_fnc_roles;
+};
+if (_type isEqualTo 'CLIENT_REPAIR') exitWith {
+ if (!hasInterface) exitWith {};
+ private _state = localNamespace getVariable ['QS_roleAccepted',[]];
+ if (_state isNotEqualTo [] && {(_state # 0) isEqualTo player}) then {
+  if ((player getVariable ['QS_unit_role','']) isNotEqualTo (_state # 5)) then {
+   player setVariable ['QS_unit_role',_state # 5,FALSE];
+   ['UPDATE_UI',player] call QS_fnc_roles;
+  };
+ };
+ if (diag_tickTime > (localNamespace getVariable ['QS_roleSyncAt',-1])) then {
+  localNamespace setVariable ['QS_roleSyncAt',diag_tickTime + 10];
+  [127,player] remoteExecCall ['QS_fnc_remoteExec',2,FALSE];
+ };
+};
 if (_type isEqualTo 'HANDLE') exitWith {
 	(uiNamespace getVariable ['QS_roles_handler',[]]) pushBack (_this # 1);
 	if ((uiNamespace getVariable ['QS_roles_PFH',0]) isEqualTo 0) then {
@@ -256,16 +309,17 @@ if (_type isEqualTo 'QUEUE_NOTIFY_POSITIONS') exitWith {
 			private _queueUID = _x # 0;
 			_queuedUnit = (allPlayers select {((getPlayerUID _x) isEqualTo _queueUID)}) param [0,objNull];
 			if (!isNull _queuedUnit) then {
-				[121,'HINT',format ['You are now number %1 in queue for %2.',_position,_roleName]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+				[121,[121,'HINT',format ['You are now number %1 in queue for %2.',_position,_roleName]],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 			};
 		};
 	} forEach _queue;
 };
 if (_type isEqualTo 'CLIENT_QUEUE_EVENT') exitWith {
-	params ['','_event',['_role',''],['_side',WEST],['_text',''],['_offerDuration',90]];
+	params ['','_event',['_role',''],['_side',WEST],['_text',''],['_offerDuration',90],['_state',[]]];
 	if (_event isEqualTo 'HINT') exitWith {
 		[_text,TRUE] call (missionNamespace getVariable 'QS_fnc_hint');
 	};
+	if (_event isEqualTo 'ASSIGNED' && {_state isEqualTo [] || {_state isNotEqualTo (localNamespace getVariable ['QS_roleAccepted',[]])} || {(_state # 0) isNotEqualTo player}}) exitWith {};
 	if (_event in ['CLEAR','ASSIGNED']) then {
 		{
 			if (_x in (actionIDs player)) then {
@@ -321,6 +375,9 @@ if (_type isEqualTo 'CLIENT_QUEUE_EVENT') exitWith {
 		[format ['%1 slot available! Use the Action menu to Accept or Reject the role. Offer expires in %2.',_roleName,_offerDurationText],TRUE] call (missionNamespace getVariable 'QS_fnc_hint');
 	};
 	if (_event isEqualTo 'ASSIGNED') exitWith {
+		if (_state isEqualTo [] || {_state isNotEqualTo (localNamespace getVariable ['QS_roleAccepted',[]])} || {(_state # 0) isNotEqualTo player}) exitWith {};
+		if ((localNamespace getVariable ['QS_roleQueue_moved',-1]) >= (_state # 3)) exitWith {};
+		localNamespace setVariable ['QS_roleQueue_moved',_state # 3];
 		if (!isNull (attachedTo player)) then {
 			[0,player] call (missionNamespace getVariable 'QS_fnc_eventAttach');
 		};
@@ -332,7 +389,7 @@ if (_type isEqualTo 'CLIENT_QUEUE_EVENT') exitWith {
 				player setCaptive FALSE;
 			};
 		};
-		['INIT_ROLE',_role] call (missionNamespace getVariable 'QS_fnc_roles');
+		// Traits and loadout were applied once by CLIENT_SYNC.
 		if (!isNull (objectParent player)) then {
 			moveOut player;
 			unassignVehicle player;
@@ -390,8 +447,8 @@ if (_type isEqualTo 'QUEUE_PROCESS') exitWith {
 				private _roleName = ['GET_ROLE_DISPLAYNAME',_role] call (missionNamespace getVariable 'QS_fnc_roles');
 				if ((_expires > 0) && {(_availableIndex isEqualTo -1)}) then {
 					if (!isNull _queuedUnit) then {
-						[121,'CLEAR'] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
-						[121,'HINT',format ['The %1 slot is no longer available. You remain first in queue.',_roleName]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+						[121,[121,'CLEAR'],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+						[121,[121,'HINT',format ['The %1 slot is no longer available. You remain first in queue.',_roleName]],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 					};
 					_entry = [_uid,-1,0];
 					_roleQueue set [_firstIndex,_entry];
@@ -400,8 +457,8 @@ if (_type isEqualTo 'QUEUE_PROCESS') exitWith {
 				};
 				if ((_expires > 0) && {(_now >= _expires)}) then {
 					if (!isNull _queuedUnit) then {
-						[121,'CLEAR'] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
-						[121,'HINT',format ['You have been removed from the %1 queue.',_roleName]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+						[121,[121,'CLEAR'],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+						[121,[121,'HINT',format ['You have been removed from the %1 queue.',_roleName]],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 					};
 					_roleQueue set [_firstIndex,['',-1,0]];
 					_roleQueue = ['COMPACT_QUEUE',_roleQueue] call (missionNamespace getVariable 'QS_fnc_roles');
@@ -422,7 +479,7 @@ if (_type isEqualTo 'QUEUE_PROCESS') exitWith {
 						if ((lifeState _queuedUnit) isEqualTo 'INCAPACITATED') then {
 							_autoAccepts pushBack [_uid,(_roleData # 1),_role,_queuedUnit];
 						} else {
-							[121,'OFFER',_role,(_roleData # 1),_offerDuration] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+							[121,[121,'OFFER',_role,(_roleData # 1),_offerDuration],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 						};
 						_changed = TRUE;
 					} else {
@@ -434,12 +491,12 @@ if (_type isEqualTo 'QUEUE_PROCESS') exitWith {
 							private _firstReminderText = ['1 minute','2 minutes'] select (_offerDuration isEqualTo 180);
 							private _secondReminderText = ['30 seconds','1 minute'] select (_offerDuration isEqualTo 180);
 							if ((_remaining <= _firstReminderAt) && {(_warnings < 1)}) then {
-								[121,'HINT',format ['%1 role offer expires in %2. Use the Action menu to Accept or Reject.',_roleName,_firstReminderText]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+								[121,[121,'HINT',format ['%1 role offer expires in %2. Use the Action menu to Accept or Reject.',_roleName,_firstReminderText]],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 								_warnings = 1;
 								_changed = TRUE;
 							};
 							if ((_remaining <= _secondReminderAt) && {(_warnings < 2)}) then {
-								[121,'HINT',format ['%1 role offer expires in %2. Use the Action menu to Accept or Reject.',_roleName,_secondReminderText]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
+								[121,[121,'HINT',format ['%1 role offer expires in %2. Use the Action menu to Accept or Reject.',_roleName,_secondReminderText]],_queuedUnit,getPlayerUID _queuedUnit,_queuedUnit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_queuedUnit,FALSE];
 								_warnings = 2;
 								_changed = TRUE;
 							};
@@ -488,12 +545,12 @@ if (_type isEqualTo 'QUEUE_RESPONSE') exitWith {
 			{((driver _vehicle) isEqualTo _unit)} &&
 			{(({(isPlayer _x) && {(_x isNotEqualTo _unit)}} count (crew _vehicle)) > 0)}
 		) then {
-			[121,'HINT','You must drop off your passengers before accepting a role change.'] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+			[121,[121,'HINT','You must drop off your passengers before accepting a role change.'],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 			_acceptBlocked = TRUE;
 		};
 		private _availableIndex = _roleUnits findIf {(((_x # 0) isEqualTo '') && (((_x # 1) isEqualTo -1) || ((count allPlayers) > (_x # 1))))};
 		if ((!(_acceptBlocked)) && {(_availableIndex isEqualTo -1)}) then {
-			[121,'HINT',format ['The %1 slot is no longer available. Your queue offer remains active.',_roleName]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+			[121,[121,'HINT',format ['The %1 slot is no longer available. Your queue offer remains active.',_roleName]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 			_acceptBlocked = TRUE;
 		};
 	};
@@ -503,9 +560,9 @@ if (_type isEqualTo 'QUEUE_RESPONSE') exitWith {
 	_rolesSide set [_roleIndex,[_roleData,_roleUnits,_roleQueue]];
 	_roles set [_sideID,_rolesSide];
 	missionNamespace setVariable ['QS_unit_roles',_roles,FALSE];
-	[121,'CLEAR'] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+	[121,[121,'CLEAR'],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	if (_response isEqualTo 'REJECT') then {
-		[121,'HINT',format ['You have been removed from the %1 queue.',_roleName]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'HINT',format ['You have been removed from the %1 queue.',_roleName]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	};
 	if (_response isEqualTo 'ACCEPT') then {
 		['HANDLE_REQUEST_ROLE',_uid,_side,_role,_unit,TRUE] call (missionNamespace getVariable 'QS_fnc_roles');
@@ -555,7 +612,8 @@ if (_type isEqualTo 'QUEUE_REISSUE') exitWith {
 if (_type isEqualTo 'HANDLE_CONNECT') exitWith {
 	params ['','_data'];
 	_data params ['_unit','_jip','_cid','_uid','_profileName'];
-	(uiNamespace getVariable ['QS_roles_handler',[]]) pushBack ['HANDLE_REQUEST_ROLE',_uid,(missionNamespace getVariable ['QS_roles_defaultSide',WEST]),(missionNamespace getVariable ['QS_roles_defaultRole','rifleman']),_unit,FALSE,TRUE];
+	if (!isServer || {isNull _unit} || {getPlayerUID _unit isNotEqualTo _uid}) exitWith {};
+	(uiNamespace getVariable ['QS_roles_handler',[]]) pushBack ['HANDLE_REQUEST_ROLE',_uid,(missionNamespace getVariable ['QS_roles_defaultSide',WEST]),(missionNamespace getVariable ['QS_roles_defaultRole','rifleman']),_unit,FALSE,TRUE,'initial'];
 };
 if (_type isEqualTo 'HANDLE_DISCONNECT') exitWith {
 	params ['','_data'];
@@ -689,12 +747,17 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 		['_role','rifleman'],
 		['_unit',objNull],
 		['_fromQueue',FALSE],
-		['_bypassQueue',FALSE]
+		['_bypassQueue',FALSE],
+		['_reason','selection'],
+		['_expected',[]]
 	];
-	if (!isServer || {isNull _unit}) exitWith {};
-	if (_uid isEqualTo '') then {
+	if (!isServer || {isNull _unit} || {!isPlayer _unit}) exitWith {};
+ if (_expected isNotEqualTo [] && {(_unit getVariable ['QS_roleState',[]]) isNotEqualTo _expected}) exitWith {};
+ if (_reason isEqualTo 'initial' && {(_unit getVariable ['QS_roleState',[]]) isNotEqualTo []}) exitWith {};
+ if (_uid isEqualTo '') then {
 		_uid = getPlayerUID _unit;
 	};
+	if (_uid isNotEqualTo getPlayerUID _unit) exitWith {};
 	private _previousRole = _unit getVariable ['QS_unit_role','rifleman'];
 	private _pCnt = count allPlayers;
 	private _roles = missionNamespace getVariable 'QS_unit_roles';
@@ -722,11 +785,11 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 		};
 	} forEach _roles;
 	if ((!(_fromQueue)) && {!(_bypassQueue)} && {(_sameQueuePosition isNotEqualTo -1)}) exitWith {
-		[121,'HINT',format ['You are already in queue for this role. You are number %1 in the queue.',_sameQueuePosition]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'HINT',format ['You are already in queue for this role. You are number %1 in the queue.',_sameQueuePosition]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	};
 	private _requestedCurrentRole = ((_unit getVariable ['QS_unit_role','rifleman']) isEqualTo _role) && {((_unit getVariable ['QS_unit_side',WEST]) isEqualTo _side)};
 	if ((!(_fromQueue)) && {!(_bypassQueue)} && {_requestedCurrentRole} && {(_queuedRole isEqualTo '')}) exitWith {
-		[121,'HINT','You already have this role.'] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'HINT','You already have this role.'],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	};
 	// Selecting a different role cancels the player's previous queue entry.
 	if ((!(_fromQueue)) && {(_queuedRole isNotEqualTo '')}) then {
@@ -746,8 +809,8 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 			} forEach _rolesSideRemove;
 			_roles set [_removeSideID,_rolesSideRemove];
 		} forEach _roles;
-		[121,'CLEAR'] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
-		[121,'HINT',format ['You have been removed from the queue for %1.',_queuedRoleName]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'CLEAR'],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'HINT',format ['You have been removed from the queue for %1.',_queuedRoleName]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 	};
 	if ((!(_fromQueue)) && {!(_bypassQueue)} && {_requestedCurrentRole}) exitWith {
 		missionNamespace setVariable ['QS_unit_roles',_roles,FALSE];
@@ -792,7 +855,7 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 		_roles set [_side_ID,_roles_side];
 		missionNamespace setVariable ['QS_unit_roles',_roles,FALSE];
 		private _position = 1 + ({((_x # 0) isNotEqualTo '')} count (_role_queue select [0,_emptyQueueIndex]));
-		[121,'HINT',format ['You have been added to the queue for %1. You are number %2 in queue.',_roleName,_position]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+		[121,[121,'HINT',format ['You have been added to the queue for %1. You are number %2 in queue.',_roleName,_position]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
 		['PROPAGATE'] call (missionNamespace getVariable 'QS_fnc_roles');
 		['QUEUE_PROCESS'] call (missionNamespace getVariable 'QS_fnc_roles');
 	};
@@ -856,13 +919,18 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 			{(_x getVariable ['QS_spawnMenu_spawnedBy','']) isEqualTo _uid}
 		});
 	};
+ if (_role isNotEqualTo 'pilot_plane' && {_unit isEqualTo (missionNamespace getVariable ['QS_fighterPilot',objNull])}) then {
+  missionNamespace setVariable ['QS_fighterPilot',objNull,TRUE];
+  missionNamespace setVariable ['QS_CAS_jetAllowance_gameover',FALSE];
+ };
 	_unit setVariable ['QS_unit_role',_role,TRUE];
 	_unit setVariable ['QS_unit_role_netUpdate',TRUE,TRUE];
-	if (_fromQueue) then {
-		[121,'ASSIGNED',_role,_side] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
-	} else {
-		[16,_role] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
-	};
+ if (_fromQueue) then {_reason = 'queue';};
+ ['PUBLISH',_unit,_reason] call QS_fnc_roles;
+ diag_log format ['ROLE ASSIGN uid=%1 old=%2 new=%3 reason=%4 revision=%5',_uid,_previousRole,_role,_reason,(_unit getVariable ['QS_roleState',[]]) # 3];
+ if (_fromQueue) then {
+  [121,[121,'ASSIGNED',_role,_side,90,_unit getVariable ['QS_roleState',[]]],_unit,getPlayerUID _unit,_unit getVariable ['QS_roleSession',-1]] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+ };
 	if (_role isEqualTo 'pilot_plane') then {
 		if ((missionNamespace getVariable ['QS_missionConfig_CAS',2]) isNotEqualTo 0) then {
 			missionNamespace setVariable ['QS_fighterPilot',_unit,TRUE];
@@ -870,9 +938,9 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 	};
 };
 if (_type isEqualTo 'INIT_ROLE') exitWith {
-	params ['','_role'];
+	params ['','_role','_state',['_reason','selection']];
+ if ((localNamespace getVariable ['QS_roleAccepted',[]]) isNotEqualTo _state || {(_state # 0) isNotEqualTo player}) exitWith {};
 	playSoundUI ['OMLightSwitch',0.5,1.5,FALSE];
-	player setVariable ['QS_unit_role',_role,FALSE];
 	private _medic = (getMissionConfigValue ['ReviveRequiredTrait',1]) isEqualTo 0;
 	private _traitsData = [
 		[['medic',_medic,FALSE]],
@@ -1223,14 +1291,18 @@ if (_type isEqualTo 'INIT_ROLE') exitWith {
 			};
 		};
 	} forEach _traitsData;
-	_role spawn {
+	[_role,_state] spawn {
+		params ['_role','_state'];
 		uiSleep 0.1;
+		if ((localNamespace getVariable ['QS_roleAccepted',[]]) isNotEqualTo _state || {(_state # 0) isNotEqualTo player}) exitWith {};
 		[player] call (missionNamespace getVariable 'QS_fnc_clientArsenal');
 		uiSleep 0.1;
-		missionNamespace setVariable ['QS_client_arsenalData',([(player getVariable ['QS_unit_side',WEST]),_this] call (missionNamespace getVariable 'QS_data_arsenal')),FALSE];
+		if ((localNamespace getVariable ['QS_roleAccepted',[]]) isNotEqualTo _state || {(_state # 0) isNotEqualTo player}) exitWith {};
+		missionNamespace setVariable ['QS_client_arsenalData',([(player getVariable ['QS_unit_side',WEST]),_role] call (missionNamespace getVariable 'QS_data_arsenal')),FALSE];
 	};
 	['SET_SAVED_LOADOUT',_role] call (missionNamespace getVariable 'QS_fnc_roles');
 	uiNamespace setVariable ['QS_client_respawnCooldown',diag_tickTime + 30];
+	if (_reason in ['sync','respawn']) exitWith {};
 	(missionNamespace getVariable 'QS_managed_hints') pushBack [5,TRUE,5,-1,(format ['%2 %1',(['GET_ROLE_DISPLAYNAME',_role] call (missionNamespace getVariable 'QS_fnc_roles')),localize 'STR_QS_Role_011']),[],-1,TRUE,localize 'STR_QS_Role_001',FALSE];
 };
 if (_type isEqualTo 'SET_DEFAULT_LOADOUT') exitWith {

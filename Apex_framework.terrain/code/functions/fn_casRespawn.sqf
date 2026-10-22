@@ -62,13 +62,8 @@ if (_missionConfig_CAS isEqualTo 3) then {
 	private _aircraftPool = ((missionNamespace getVariable 'QS_CAS_jetAllowance') # _airIndex) # 1;
 	if (_aircraftPool >= (missionNamespace getVariable ['QS_CAS_jetAllowance_value',3])) exitWith {
 		if (isPlayer _pilot) then {
-			if (_pilot getUnitTrait 'QS_trait_fighterPilot') then {
-				['HANDLE',['HANDLE_REQUEST_ROLE','',(_pilot getVariable ['QS_unit_side',WEST]),'rifleman',_pilot,FALSE,TRUE]] call (missionNamespace getVariable 'QS_fnc_roles');
-				_pilot spawn {
-					moveOut _this;
-					uiSleep 0.5;
-					remoteExec ['QS_fnc_clientEventRespawn',_this,FALSE];
-				};
+			if ((_pilot getVariable ['QS_unit_role','']) isEqualTo 'pilot_plane') then {
+				['HANDLE',['HANDLE_REQUEST_ROLE','',(_pilot getVariable ['QS_unit_side',WEST]),'rifleman',_pilot,FALSE,TRUE,'cas',_pilot getVariable ['QS_roleState',[]]]] call (missionNamespace getVariable 'QS_fnc_roles');
 			};
 		};
 		_exit = TRUE;
@@ -244,6 +239,7 @@ if ((missionNamespace getVariable ['QS_missionConfig_carrierEnabled',0]) isEqual
 		_casJet setPos _pos;
 	};
 	_casJet setVariable ['QS_casJet_ownerUID',(getPlayerUID (missionNamespace getVariable 'QS_fighterPilot')),FALSE];
+	_casJet setVariable ['QS_casAssignment',(missionNamespace getVariable ['QS_fighterPilot',objNull]) getVariable ['QS_roleState',[]]];
 	_casJet disableTIEquipment TRUE;
 	_casJet flyInHeight 500;
 	_casJet flyInHeightASL [500,500,500];
@@ -265,7 +261,11 @@ if ((missionNamespace getVariable ['QS_missionConfig_carrierEnabled',0]) isEqual
 			} else {
 				if ((missionNamespace getVariable ['QS_missionConfig_CAS',2]) isEqualTo 3) then {
 					if ((missionNamespace getVariable ['QS_CAS_jetAllowance_current',0]) >= (missionNamespace getVariable ['QS_CAS_jetAllowance_value',3])) then {
-						missionNamespace setVariable ['QS_CAS_jetAllowance_gameover',TRUE,FALSE];
+						private _pilot = missionNamespace getVariable ['QS_fighterPilot',objNull];
+						if (!isNull _pilot && {(_pilot getVariable ['QS_roleState',[]]) isEqualTo (_jet getVariable ['QS_casAssignment',[]])}) then {
+						 missionNamespace setVariable ['QS_CAS_exhaustedAssignment',_jet getVariable ['QS_casAssignment',[]]];
+						 missionNamespace setVariable ['QS_CAS_jetAllowance_gameover',TRUE,FALSE];
+						};
 					};
 				};
 			};

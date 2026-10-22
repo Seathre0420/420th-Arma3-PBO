@@ -3512,14 +3512,9 @@ for '_x' from 0 to 1 step 0 do {
 					if (_casUID isNotEqualTo '') then {
 						_casPilot = missionNamespace getVariable ['QS_fighterPilot',_objNull];
 						if (isPlayer _casPilot) then {
-							if (_casPilot getUnitTrait 'QS_trait_fighterPilot') then {
+							if (((_casPilot getVariable ['QS_unit_role','']) isEqualTo 'pilot_plane') && {(_casPilot getVariable ['QS_roleState',[]]) isEqualTo (missionNamespace getVariable ['QS_CAS_exhaustedAssignment',[]])}) then {
 								missionNamespace setVariable ['QS_CAS_jetAllowance_gameover',_false,_false];
-								['HANDLE',['HANDLE_REQUEST_ROLE','',(_casPilot getVariable ['QS_unit_side',WEST]),'rifleman',_casPilot,FALSE,TRUE]] call (missionNamespace getVariable 'QS_fnc_roles');
-								_casPilot spawn {
-									moveOut _this;
-									uiSleep 0.5;
-									remoteExec ['QS_fnc_clientEventRespawn',_this,FALSE];
-								};
+								['HANDLE',['HANDLE_REQUEST_ROLE','',(_casPilot getVariable ['QS_unit_side',WEST]),'rifleman',_casPilot,FALSE,TRUE,'cas',_casPilot getVariable ['QS_roleState',[]]]] call (missionNamespace getVariable 'QS_fnc_roles');
 							};
 						};
 					};

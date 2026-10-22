@@ -235,6 +235,12 @@ if (_clientToServer) then {
 	};
 };
 if (_rejectRequest) exitWith {};
+if (_case in [16,121] && {hasInterface} && {(!_isRx) || {_isRxJ} || {_rxID isNotEqualTo 2}}) exitWith {
+ if (diag_tickTime > (localNamespace getVariable ['QS_roleRejectLogAt',-1])) then {
+  localNamespace setVariable ['QS_roleRejectLogAt',diag_tickTime + 10];
+  diag_log format ['ROLE REJECT case=%1 sender=%2 reason=origin',_case,_rxID];
+ };
+};
 if (_case < 10) exitWith {
 	if (_case isEqualTo -2) then {
 		_build = getMissionConfigValue ['missionProductStatus','Stable'];
@@ -262,9 +268,9 @@ if (_case < 10) exitWith {
 			if (
 				(_client isEqualType objNull) &&
 				{(isPlayer _client)} &&
-				{(_didJIP isEqualType TRUE)}
+				{(_didJIP isEqualType TRUE)} && {_isRx} && {!_isRxJ} && {_rxID > 2} && {_clientOwner isEqualTo _rxID} && {owner _client isEqualTo _rxID} && {getPlayerUID _client isEqualTo _puid}
 			) then {
-				[_client,_didJIP,_clientOwner,_puid] spawn (missionNamespace getVariable 'QS_fnc_initPlayerServer');
+				[_client,_didJIP,_clientOwner,_puid,_this param [5,'']] spawn (missionNamespace getVariable 'QS_fnc_initPlayerServer');
 			};
 		};
 	};
@@ -518,8 +524,8 @@ if (_case < 20) exitWith {
 	};
 	/*/ Role Set/*/
 	if (_case isEqualTo 16) exitWith {
-		params ['','_role'];
-		['INIT_ROLE',_role] call (missionNamespace getVariable ['QS_fnc_roles',{}]);
+		if (!hasInterface || {!_isRx} || {_isRxJ} || {_rxID isNotEqualTo 2}) exitWith {};
+		['CLIENT_SYNC',_this param [1,[]],_this param [2,'selection']] call QS_fnc_roles;
 	};
 	/*/ Remote Delete/*/
 	if (_case isEqualTo 17) exitWith {
@@ -2735,6 +2741,17 @@ if (_case < 120) exitWith {
 	};
 };
 if (_case < 130) exitWith {
+// Recovery never assigns a role or resets equipment. Return only the current snapshot.
+if (_case isEqualTo 127 && {isServer} && {_isRx} && {!_isRxJ}) then {
+ private _unit = _this param [1,objNull,[objNull]];
+ if (!isNull _unit && {isPlayer _unit} && {owner _unit isEqualTo _rxID}) then {
+  if (diag_tickTime > (_unit getVariable ['QS_roleSyncAt',-1])) then {
+   _unit setVariable ['QS_roleSyncAt',diag_tickTime + 5];
+   [16,_unit getVariable ['QS_roleState',[]],'sync'] remoteExec ['QS_fnc_remoteExec',_unit,FALSE];
+  };
+ };
+};
+
 	if (_case isEqualTo 120) then {
 		if (isDedicated) then {
 			params ['','_mode','_args'];
@@ -2743,12 +2760,17 @@ if (_case < 130) exitWith {
 	};
 	/*/ Role queue client event /*/
 	if (_case isEqualTo 121) then {
-		if (hasInterface) then {
+		if (hasInterface && {_isRx} && {!_isRxJ} && {_rxID isEqualTo 2}) then {
+            if (count _this != 5) exitWith {};
+            _this params ['','_payload','_target','_uid','_session'];
+            if (!(_payload isEqualType []) || {count _payload < 2} || {_target isNotEqualTo player} || {_uid isNotEqualTo getPlayerUID player} || {_session isNotEqualTo (localNamespace getVariable ['QS_loginSession',-1])}) exitWith {};
+            _this = _payload;
+			if ((_this # 1) isEqualTo 'ASSIGNED') then {['CLIENT_SYNC',_this param [5,[]],'queue'] call QS_fnc_roles;};
 			private _event = _this # 1;
 			if (_event isEqualTo 'HINT') then {
 				['CLIENT_QUEUE_EVENT','HINT','',WEST,(_this # 2)] call (missionNamespace getVariable 'QS_fnc_roles');
 			} else {
-				['CLIENT_QUEUE_EVENT',_event,(_this param [2,'']),(_this param [3,WEST]),'',(_this param [4,90])] call (missionNamespace getVariable 'QS_fnc_roles');
+				['CLIENT_QUEUE_EVENT',_event,(_this param [2,'']),(_this param [3,WEST]),'',(_this param [4,90]),(_this param [5,[]])] call (missionNamespace getVariable 'QS_fnc_roles');
 			};
 		};
 	};
@@ -2777,7 +2799,9 @@ if (_case < 130) exitWith {
 	if (_case isEqualTo 125) then {
 		if (hasInterface && {_isRx} && {_rxID isEqualTo 2}) then {
 			params ['','_args'];
-			_args params ['_atClientMisc','_supporterLevel','_loginVal','_notifyWhitelist'];
+			_args params ['_atClientMisc','_supporterLevel','_loginVal','_notifyWhitelist','_unit','_session'];
+			if (_unit isNotEqualTo player || {(localNamespace getVariable ['QS_loginSession',-1]) isEqualTo _session}) exitWith {};
+			localNamespace setVariable ['QS_loginSession',_session];
 			missionNamespace setVariable ['QS_atClientMisc',_atClientMisc,FALSE];
 			player setVariable ['QS_ClientSupporterLevel',_supporterLevel,FALSE];
 			player setVariable ['QS_5551212',_loginVal,FALSE];

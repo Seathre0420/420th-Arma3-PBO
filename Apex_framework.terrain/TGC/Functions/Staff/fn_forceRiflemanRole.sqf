@@ -24,7 +24,7 @@ if (_uid isEqualTo "" || {isNull _unit}) exitWith {
 // Rifleman belongs to WEST in the role configuration. The normal handler also
 // releases the previous slot/queue, removes role-owned UAVs, and initializes
 // the player's Rifleman traits, arsenal, and saved/default loadout on their PC.
-["HANDLE_REQUEST_ROLE", _uid, WEST, "rifleman", _unit, false, true] call QS_fnc_roles;
+["HANDLE_REQUEST_ROLE", _uid, WEST, "rifleman", _unit, false, true, format ["staff:%1", getPlayerUID _requester]] call QS_fnc_roles;
 if ((_unit getVariable ["QS_unit_role", ""]) isNotEqualTo "rifleman" || {
     (_unit getVariable ["QS_unit_side", WEST]) isNotEqualTo WEST
 }) exitWith {

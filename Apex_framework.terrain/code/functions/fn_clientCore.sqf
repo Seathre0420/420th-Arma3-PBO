@@ -6415,9 +6415,16 @@ for '_z' from 0 to 1 step 0 do {
 		};
 	};
 	if (_QS_module_roleAssignment) then {
+		['CLIENT_REPAIR'] call _fn_roles;
 		if (_QS_uiTime > _QS_module_roleAssignment_updateDelay) then {
 			{
-				if (_x getVariable ['QS_unit_role_netUpdate',_false]) then {
+				private _state = _x getVariable ['QS_roleState',[]];
+                private _accepted = localNamespace getVariable ['QS_roleAccepted',[]];
+                if (_x isEqualTo player && {_accepted isNotEqualTo []} && {(_accepted # 0) isEqualTo player} && {_state isEqualTo [] || {(_accepted # 3) > (_state # 3)}}) then {_state = _accepted;};
+                private _revision = if (_state isEqualTo []) then {-1} else {_state # 3};
+                if ((_x getVariable ['QS_roleUIRevision',-2]) isNotEqualTo _revision || {_x getVariable ['QS_unit_role_netUpdate',_false]}) then {
+                    if (_state isNotEqualTo []) then {_x setVariable ['QS_unit_role',_state # 5,FALSE];};
+                    _x setVariable ['QS_roleUIRevision',_revision];
 					['UPDATE_UI',_x] call _fn_roles;
 				};
 			} forEach _allPlayers;
