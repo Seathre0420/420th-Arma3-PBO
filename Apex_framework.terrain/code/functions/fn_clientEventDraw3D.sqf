@@ -707,6 +707,7 @@ if (!isStreamFriendlyUIEnabled) then {
 				_unit = _x;
 				if (
 					(!isNull (group _unit)) &&
+					{!(_unit isKindOf 'HeadlessClient_F')} &&
 					{((side (group _unit)) isEqualTo (_player getVariable ['QS_unit_side',WEST]))} &&
 					{(_unit isNotEqualTo _player)} &&
 					{(!(_unit getVariable ['QS_hidden',FALSE]))} &&

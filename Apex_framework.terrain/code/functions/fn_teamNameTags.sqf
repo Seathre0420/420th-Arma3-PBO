@@ -36,6 +36,7 @@ SLT_fnc_enableScript = {
 			params ['_vehicle'];
 			(crew _vehicle) select {
 				(isPlayer _x) &&
+				{!(_x isKindOf 'HeadlessClient_F')} &&
 				{(side (group _x)) isEqualTo (_player getVariable ['QS_unit_side',WEST])} &&
 				{!(_x getVariable ['QS_hidden',FALSE])}
 			};
@@ -69,6 +70,7 @@ SLT_fnc_enableScript = {
 			private _ai = _x;
 			if (
 				(!isNull _ai) &&
+				{!(_ai isKindOf 'HeadlessClient_F')} &&
 				{!isPlayer _ai} &&
 				{_ai isNotEqualTo _player} &&
 				{(side (group _ai)) isEqualTo (side (group _player))} &&
@@ -131,6 +133,7 @@ SLT_fnc_enableScript = {
 		if (
 			(!isNull _cursorTarget) &&
 			{(!(_cursorTarget in [_player,_cameraOn]))} &&
+			{!(_cursorTarget isKindOf 'HeadlessClient_F')} &&
 			{(
 				(
 					((_cursorTarget isKindOf 'CAManBase') || {((effectiveCommander _cursorTarget) isKindOf 'CAManBase')}) &&
@@ -159,7 +162,7 @@ SLT_fnc_enableScript = {
 				QS_teamNameTagTargets pushBack [_cursorTarget,0.01];
 			};
 		};
-		QS_teamNameTagTargets = QS_teamNameTagTargets select { (!isNull (_x # 0)) && {((_x # 1) > 0)} && {!((_x # 0) in [_player,_cameraOn])} };
+		QS_teamNameTagTargets = QS_teamNameTagTargets select { (!isNull (_x # 0)) && {((_x # 1) > 0)} && {!((_x # 0) in [_player,_cameraOn])} && {!((_x # 0) isKindOf 'HeadlessClient_F')} };
 		if (QS_teamNameTagTargets isNotEqualTo []) then {
 			private _cursorColor = [_r,_g,_b,1];
 			{
