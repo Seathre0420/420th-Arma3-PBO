@@ -229,50 +229,12 @@ if (
 	TRUE
 };
 if (_QS_actionName isEqualTo 'RepairVehicle') exitWith {
-	if (((crew _QS_actionTarget) findIf {(alive _x)}) isNotEqualTo -1) then {
-		{
-			if ((side _x) in ([QS_player] call (missionNamespace getVariable 'QS_fnc_enemySides'))) exitWith {
-				_QS_c = TRUE;
-				50 cutText [localize 'STR_QS_Text_058','PLAIN',0.5];
-			};
-		} count (crew _QS_actionTarget);
+	if (QS_player getUnitTrait 'engineer') then {
+		[_QS_actionTarget] spawn QS_fnc_clientEngineerRepair;
+		TRUE
+	} else {
+		FALSE
 	};
-	if (!(_QS_c)) then {
-		if (!isNil {_QS_actionTarget getVariable 'QS_RD_noRepair'}) then {
-			_QS_c = TRUE;
-			50 cutText [localize 'STR_QS_Text_059','PLAIN DOWN'];
-		} else {
-			if (
-				(!isNull (effectiveCommander _QS_actionTarget)) &&
-				{(alive _QS_actionTarget)} &&
-				{(isPlayer _QS_actionTarget)} &&
-				{(_QS_actionTarget isNotEqualTo (vehicle QS_player))}
-			) then {
-				[63,[5,[(format [localize 'STR_QS_Text_261',profileName]),'PLAIN DOWN',0.5]]] remoteExec ['QS_fnc_remoteExec',(effectiveCommander _QS_actionTarget),FALSE];
-			};
-			if ((fuel (_this # 0)) isEqualTo 0) then {
-				0 = [_this # 0] spawn {
-					_v = _this # 0;
-					uiSleep 5;
-					if (local _v) then {
-						_v setFuel (0.03 + (random 0.03));
-					} else {
-						['setFuel',_v,(0.03 + (random 0.03))] remoteExec ['QS_fnc_remoteExecCmd',_v,FALSE];
-					};
-					_dn = QS_hashmap_configfile getOrDefaultCall [
-						format ['cfgvehicles_%1_displayname',toLowerANSI (typeOf _QS_actionTarget)],
-						{getText ((configOf _QS_actionTarget) >> 'displayName')},
-						TRUE
-					];
-					50 cutText [(format ['%1 %2',_dn,localize 'STR_QS_Text_060']),'PLAIN DOWN',0.75];
-				};
-			};
-			if ((_this # 0) isKindOf 'Helicopter') then {
-				(_this # 0) setHit ['tail_rotor_hit',0];
-			};
-		};
-	};
-	_QS_c;
 };
 if (_QS_actionName isEqualTo 'UseMagazine') exitWith {
 	if (_inSafezone && _safezoneActive && (_safezoneLevel > 1)) then {

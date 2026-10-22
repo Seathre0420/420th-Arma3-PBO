@@ -3185,7 +3185,15 @@ for '_z' from 0 to 1 step 0 do {
 				};
 			};
 			
-			/*/===== Action Create Boat/*/
+			/*/===== Engineer repair (also available below vanilla repair thresholds) /*/
+            if ((localNamespace getVariable ['QS_engineerRepair_actionUnit',objNull]) isNotEqualTo _QS_player) then {
+                localNamespace setVariable ['QS_engineerRepair_actionUnit',_QS_player];
+                _QS_player addAction ['Repair vehicle',{
+                    [cursorObject] spawn QS_fnc_clientEngineerRepair;
+                },nil,24,FALSE,TRUE,'',
+                    '! (missionNamespace getVariable ["QS_repairing_vehicle",FALSE]) && {[QS_player,cursorObject] call QS_fnc_engineerRepairEligible} && {damage cursorObject > 0 || {(((getAllHitPointsDamage cursorObject) param [2,[]]) findIf {_x > 0}) != -1} || {waterDamaged cursorObject}}'];
+            };
+            /*/===== Action Create Boat/*/
 			
 			if (
 				(_noObjectParent) &&
