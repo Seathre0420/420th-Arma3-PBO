@@ -15,6 +15,7 @@ __________________________________________________/*/
 
 params ['_unit','_weapon','','','','','_projectile'];
 _unit removeEventHandler [_thisEvent,_thisEventHandler];
+if (['COVER_BLOCKED',_unit] call QS_fnc_defendAssault) exitWith {FALSE};
 // Added Code
 // FiredMan has its own scope; resolve its actual group locally.
 private _grp = group _unit;
@@ -32,6 +33,7 @@ if ((random 1) > 0.5) exitWith {
 		{
 			params ['_projectile','','_shooter','_pos'];
 			_projectile removeEventHandler [_thisEvent,_thisEventHandler];
+			if (['COVER_BLOCKED',_shooter] call QS_fnc_defendAssault) exitWith {};
 			if ((_pos distance2D _shooter) > 500) then {
 				_pos = _pos vectorAdd [0,0,2];
 			};

@@ -470,7 +470,10 @@ private _coverManaged = isNull _objectParent && {!isPlayer _unit} &&
 	{(_unit distance2D (missionNamespace getVariable ['QS_HQpos',[0,0,0]])) < 2500}}};
 _unit setVariable ['QS_AI_coverManaged',_coverManaged,FALSE];
 //======================================================================= SUPPRESSIVE FIRE (UNIT)
-if (!_defendAssault && {_coverManaged || {_fps > 10}}) then {
+private _defendCoverEligible = _defendAssault && {
+    ['COVER_ELIGIBLE',_unit,missionNamespace getVariable ['QS_defendControl_epoch',-1]] call QS_fnc_defendAssault
+};
+if ((!_defendAssault || {_defendCoverEligible}) && {_coverManaged || {_fps > 10}}) then {
 	private _isSuppressing = _currentCommand isEqualTo 'Suppress';
 	if (_coverManaged && {!_isSuppressing} && {!captive _unit} &&
 		{isNull (_unit getVariable ['bis_fnc_moduleRemoteControl_owner',objNull])} &&
@@ -479,7 +482,8 @@ if (!_defendAssault && {_coverManaged || {_fps > 10}}) then {
 		{serverTime >= (_unit getVariable ['QS_AI_coverAfter',0])} &&
 		{(_unit ammo (primaryWeapon _unit)) >= 8}) then {
 		private _members = (units _grp) select {alive _x && {!isPlayer _x} && {isNull (objectParent _x)}};
-		private _candidates = _members select {_x isNotEqualTo leader _grp && {lifeState _x in ['HEALTHY','INJURED']}};
+		private _candidates = _members select {_x isNotEqualTo leader _grp && {lifeState _x in ['HEALTHY','INJURED']} &&
+            {!_defendAssault || {['COVER_ELIGIBLE',_x,missionNamespace getVariable ['QS_defendControl_epoch',-1]] call QS_fnc_defendAssault}}};
 		private _machineGunners = _candidates select {
 			_x getVariable ['QS_AI_UNIT_isMG',FALSE] ||
 			{(toLowerANSI (primaryWeapon _x)) in (missionNamespace getVariable ['QS_AI_weapons_MG',[]])}
@@ -513,12 +517,13 @@ if (!_defendAssault && {_coverManaged || {_fps > 10}}) then {
 						private _along = ((_position vectorDiff _start) vectorDotProduct _ray) / (1 max _length2);
 						_along > 0 && {_along <= 1.03} && {(_position distance (_start vectorAdd (_ray vectorMultiply _along))) < 5}
 					};
-					if (_blocked < 0 && {!terrainIntersectASL [_start,_point]}) then {
+					if (_blocked < 0 && {!terrainIntersectASL [_start,_point]} &&
+                        {!_defendAssault || {['COVER_ELIGIBLE',_unit,missionNamespace getVariable ['QS_defendControl_epoch',-1]] call QS_fnc_defendAssault}}) then {
 						private _duration = _burstMin + random (_burstMax - _burstMin);
 						_unit doSuppressiveFire _point;
 						_unit suppressFor _duration;
-						_unit setVariable ['QS_AI_coverUntil',serverTime + _duration,FALSE];
-						_unit setVariable ['QS_AI_coverAfter',serverTime + _coolMin + random (_coolMax - _coolMin),FALSE];
+						_unit setVariable ['QS_AI_coverUntil',serverTime + _duration,_defendAssault];
+						_unit setVariable ['QS_AI_coverAfter',serverTime + _coolMin + random (_coolMax - _coolMin),_defendAssault];
 						_unit setVariable ['QS_AI_UNIT_lastSuppressiveFire',serverTime + 24,FALSE];
 						_grp setVariable ['QS_AI_coverUntil',(serverTime + _duration) max (_grp getVariable ['QS_AI_coverUntil',0]),FALSE];
 						_ordered = TRUE;

@@ -16,6 +16,8 @@ ___________________________________________/*/
 params [['_grp',grpNull],['_newMode','']];
 _grp setVariable ['QS_AI_GRP_EH_CMC_cooldown',serverTime + 180,FALSE];
 _grp removeEventHandler [_thisEvent,_thisEventHandler];
+if (missionNamespace getVariable ['QS_defendControl_active',FALSE] &&
+    {(_grp getVariable ['QS_defendAssault_epoch',-2]) isEqualTo (missionNamespace getVariable ['QS_defendControl_epoch',-1])}) exitWith {};
 if (_newMode isEqualTo 'COMBAT') then {
 	if (isNull (objectParent (leader _grp))) then {
 		_grp setFormation (selectRandomWeighted ['WEDGE',1,'LINE',2]);

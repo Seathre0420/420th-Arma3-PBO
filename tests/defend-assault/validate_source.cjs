@@ -34,7 +34,7 @@ function balanced(source, name) {
   }
   assert.equal(stack.length, 0, `${name}: unclosed delimiter`);
 }
-for (const name of ['defendAssault', 'aoDefend', 'AIHandleUnit', 'AIHandleGroup', 'AIXHeliInsert']) balanced(fn(name), name);
+for (const name of ['defendAssault', 'aoDefend', 'AIHandleUnit', 'AIHandleGroup', 'AIXHeliInsert', 'AIDoSuppressiveFire', 'AIXSuppressiveFire', 'AIGroupEventEnemyDetected', 'AIGroupEventCombatModeChanged']) balanced(fn(name), name);
 balanced(read('tests/defend-assault/validate_engine.sqf'), 'engine harness');
 const defend = fn('aoDefend');
 const controller = fn('defendAssault');
@@ -59,3 +59,14 @@ assert(!/enableAIFeature|doFollow| move /.test(handoff), 'Delivery cannot unlock
 assert(read('Apex_framework.terrain/description.ext').includes('class defendAssault {file = "code\\functions\\fn_defendAssault.sqf";};'));
 assert(read('Apex_framework.terrain/code/config/security.hpp').includes('class QS_fnc_defendAssault {allowedTargets = 0; jip = 0;};'));
 console.log('PASS: Defense assault structural, arrival coverage, locality, cleanup and competing-order integration checks.');
+
+assert.equal((controller.match(/\b150\b/g) || []).length, 1, 'One default radius only');
+assert(controller.includes("_mode isEqualTo 'COVER_ELIGIBLE'"));
+assert(controller.includes('_coverUntil > serverTime && {_coverEligible}'));
+assert(controller.includes('if (!_coverActive &&'));
+assert(fn('AIHandleUnit').includes("['COVER_ELIGIBLE',_unit"));
+assert(fn('AIHandleUnit').includes("['COVER_ELIGIBLE',_x"));
+for (const name of ['AIDoSuppressiveFire','AIXSuppressiveFire']) {
+ assert(fn(name).includes("['COVER_BLOCKED',_unit]"));
+ assert(fn(name).includes("['COVER_BLOCKED',_shooter]"), 'Deferred callback must recheck shooter');
+}

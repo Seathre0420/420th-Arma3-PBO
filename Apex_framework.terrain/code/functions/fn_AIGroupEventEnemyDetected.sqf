@@ -37,6 +37,8 @@ if (
 		)
 	}
 ) exitWith {};
+if (missionNamespace getVariable ['QS_defendControl_active',FALSE] &&
+    {(_grp getVariable ['QS_defendAssault_epoch',-2]) isEqualTo (missionNamespace getVariable ['QS_defendControl_epoch',-1])}) exitWith {};
 //===== Analyze target
 _isVehicle = _target isKindOf 'LandVehicle';
 _isTank = _target isKindOf 'Tank';

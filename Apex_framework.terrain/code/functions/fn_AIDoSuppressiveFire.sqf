@@ -24,6 +24,7 @@ params [
 	['_checkTerrain',FALSE],
 	['_checkVisibility',-1]
 ];
+if (['COVER_BLOCKED',_unit] call QS_fnc_defendAssault) exitWith {FALSE};
 _objectParent = objectParent _unit;
 _unitOnFoot = isNull _objectParent;
 _targetIsObject = _target isEqualType objNull;
@@ -40,7 +41,8 @@ if (_type isEqualTo 0) exitWith {
 				{
 					params ['_projectile','','_shooter','_pos'];
 					_projectile removeEventHandler [_thisEvent,_thisEventHandler];
-					if ((_pos distance2D _shooter) > 50) then {
+					if (['COVER_BLOCKED',_shooter] call QS_fnc_defendAssault) exitWith {};
+			if ((_pos distance2D _shooter) > 50) then {
 						_shooter doSuppressiveFire (_pos vectorAdd [0,0,1]);
 					};
 				}

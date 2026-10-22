@@ -5,12 +5,19 @@ assault infantry participate: ordinary spawns, both parachute waves, helicopter
 parajumpers, Taru cargo, ground-transport passengers, and vehicle-paradrop cargo.
 Pilots, drivers and combat-vehicle crews retain their existing tasks.
 
-Before reaching 100 m horizontally from HQ, soldiers keep targeting, automatic
+The shared distance is `QS_defendAssault_radius` in the mission namespace,
+defaulting to 150 in `fn_defendAssault.sqf`. Unlock, movement retries and
+covering-fire eligibility all use that setting.
+
+Before reaching 150 m horizontally from HQ, soldiers keep targeting, automatic
 combat, cover and suppression reactions disabled, never-fire mode, standing
 stance, full movement speed, and zero fleeing. Navigation stays enabled. Each
 soldier permanently unlocks targeting/fire and normal combat reactions upon
 entering the radius on the ground. Squads retain HQ as their objective and do
-not receive flank, regroup, demolition/repair, or covering-fire diversions.
+not receive flank, regroup or demolition/repair diversions. Unlocked infantry
+may provide paced covering fire only while currently within the shared radius;
+leaving aborts the burst and resumes the HQ order. Legacy suppression callbacks
+are blocked for registered assault infantry.
 Unlocked soldiers retain the normal unit-handler rearm, heal and support work.
 
 One server worker checks the bounded roster every second and batches commands
@@ -41,9 +48,9 @@ This harness simulates owner reinitialization; it does not replace real HC tests
 
 Before deployment, verify these multiplayer cases in both Defend and Mega Defend:
 
-1. Fire near and wound attackers outside 100 m: they keep advancing without
+1. Fire near and wound attackers outside 150 m: they keep advancing without
    firing. Outside infantry must also stay locked when their leader is inside.
-2. Run units across 101/100/99 m. Each unlocks independently at <=100 m and keeps
+2. Run units across 151/150/149 m. Each unlocks independently at <=150 m and keeps
    combat enabled if pushed back outside. Observe actual rifle/launcher fire.
 3. Kill the leader during the approach. The remaining soldiers keep moving to
    HQ without waiting for a regroup or following targets away from HQ.
@@ -60,3 +67,9 @@ Before deployment, verify these multiplayer cases in both Defend and Mega Defend
 8. Compare equal-population/AI-count runs: server/HC FPS, controller execution
    time and traffic, and progress into HQ. Actual combat and pathfinding cost
    must be measured in engine; offline checks cannot establish an FPS gain.
+
+9. Start covering fire inside 150 m, move the shooter outside, and re-enter.
+   The burst must cancel outside, HQ movement must resume, normal combat must
+   stay unlocked, and re-entry must respect the original cooldown. Repeat with
+   a squad straddling the boundary, delayed suppression callbacks, and an HC
+   transfer during a burst. Other missions retain their suppression behavior.

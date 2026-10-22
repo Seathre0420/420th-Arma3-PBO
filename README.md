@@ -25,13 +25,14 @@ See `tests/defend-rotation/README.md` for validation.
 ## Defend infantry assault
 
 During Defend and Mega Defend, assault infantry run toward HQ with targeting
-and firing disabled until each soldier reaches within 100 m horizontally.
+and firing disabled until each soldier reaches within 150 m horizontally.
 Combat then stays enabled for that soldier for the rest of the defense.
 Paratroopers and transport passengers follow the same rule after landing or
 dismounting. Pilots and vehicle crews retain their existing tasks.
 
-Defense flanking, scripted covering fire and regroup diversions are disabled
-for these attackers. A shared one-second controller checks the boundary on
+Defense flanking and regroup diversions are disabled for these attackers.
+Paced covering fire is allowed only while an unlocked soldier is currently
+within the same 150 m radius. Leaving cancels the burst and resumes HQ movement. A shared one-second controller checks the boundary on
 the current AI owner, with movement retries paced separately. The old
 `QS_defend_propulsion` modes are superseded for defense infantry.
 See `tests/defend-assault/README.md` for validation and performance checks.

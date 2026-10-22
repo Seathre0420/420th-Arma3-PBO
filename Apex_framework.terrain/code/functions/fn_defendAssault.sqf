@@ -8,6 +8,13 @@ params [['_mode',''],['_units',[]],['_epoch',-1],['_hq',[]]];
 if (isRemoteExecuted && {remoteExecutedOwner isNotEqualTo 2}) exitWith {FALSE};
 private _current = missionNamespace getVariable ['QS_defendControl_active',FALSE] &&
     {(missionNamespace getVariable ['QS_defendControl_epoch',-2]) isEqualTo _epoch};
+// One setting supplies unlock, movement and covering-fire boundaries.
+private _radius = missionNamespace getVariable ['QS_defendAssault_radius',150];
+if (_mode isEqualTo 'RADIUS') exitWith {_radius};
+if (_mode isEqualTo 'COVER_BLOCKED') exitWith {
+    // Registered attackers use only the paced covering-fire routine.
+    (_units getVariable ['QS_defendAssault_epoch',-1]) >= 0
+};
 private _features = ['TARGET','AUTOTARGET','AUTOCOMBAT','COVER','SUPPRESSION'];
 private _fn_exempt = {
     params ['_unit'];
@@ -19,6 +26,14 @@ private _fn_exempt = {
 if (_mode isEqualTo 'MANAGED') exitWith {
     _current && {(_units getVariable ['QS_defendAssault_epoch',-3]) isEqualTo _epoch} &&
     {!([_units] call _fn_exempt)}
+};
+if (_mode isEqualTo 'COVER_ELIGIBLE') exitWith {
+    (['MANAGED',_units,_epoch] call QS_fnc_defendAssault) &&
+    {local _units} && {alive _units} && {lifeState _units in ['HEALTHY','INJURED']} &&
+    {_units getVariable ['QS_defendAssault_released',FALSE]} &&
+    {isNull (objectParent _units)} && {!((group _units) getVariable ['QS_taruDelivery_busy',FALSE])} &&
+    {!(_units getVariable ['AR_Is_Rappelling',FALSE])} &&
+    {(_units distance2D (_units getVariable ['QS_defendAssault_hq',[0,0,0]])) <= _radius}
 };
 if (_mode isEqualTo 'REGISTER') exitWith {
     if (!isServer || {!_current} || {count _hq < 2}) exitWith {FALSE};
@@ -36,6 +51,7 @@ if (_mode isEqualTo 'REGISTER') exitWith {
             _unit setVariable ['QS_defendAssault_restore',
                 [_features apply {_unit checkAIFeature _x},unitCombatMode _unit,unitPos _unit,
                  getForcedSpeed _unit,_unit getVariable ['QS_AI_UNIT_regroup_disable',FALSE]],TRUE];
+            _unit setVariable ['QS_defendAssault_hq',+_hq,TRUE];
             _unit setVariable ['QS_defendAssault_epoch',_epoch,TRUE];
             _unit setVariable ['QS_defendAssault_released',FALSE,TRUE];
             _added pushBackUnique _unit;
@@ -54,8 +70,16 @@ if (_mode isEqualTo 'REGISTER') exitWith {
 };
 if (_mode isEqualTo 'RUN') exitWith {
     if (!isServer || {!canSuspend}) exitWith {};
+    private _censusAt = 0;
     while {missionNamespace getVariable ['QS_defendControl_active',FALSE] &&
         {(missionNamespace getVariable ['QS_defendControl_epoch',-2]) isEqualTo _epoch}} do {
+        if (diag_tickTime >= _censusAt) then {
+            private _count = {isPlayer _x && {alive _x} && {!captive _x} &&
+                {side (group _x) isEqualTo WEST} && {!((vehicle _x) isKindOf 'Air')} &&
+                {(_x distance2D _hq) <= 2500}} count allPlayers;
+            missionNamespace setVariable ['QS_defendControl_groundCount',_count,TRUE];
+            _censusAt = diag_tickTime + 15;
+        };
         private _batches = createHashMap;
         private _roster = [];
         isNil {
@@ -104,6 +128,9 @@ if (_mode isEqualTo 'RELEASE') exitWith {
             };
             _unit setVariable ['QS_defendAssault_epoch',nil,TRUE];
             _unit setVariable ['QS_defendAssault_restore',nil,TRUE];
+            _unit suppressFor 0;
+            _unit setVariable ['QS_AI_coverUntil',0,TRUE];
+            _unit setVariable ['QS_defendAssault_hq',nil,TRUE];
             _unit setVariable ['QS_defendAssault_local',nil,FALSE];
             _unit removeEventHandler ['Local',_unit getVariable ['QS_defendAssault_localEH',-1]];
             _unit setVariable ['QS_defendAssault_localEH',nil,FALSE];
@@ -177,7 +204,7 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
             {!(_unit getVariable ['AR_Is_Rappelling',FALSE])} &&
             {((getPosATL _unit) # 2) < 3 || {isTouchingGround _unit}};
         if (_grounded && {lifeState _unit in ['HEALTHY','INJURED']}) then {
-            if (!_released && {(_unit distance2D _hq) <= 150}) then {
+            if (!_released && {(_unit distance2D _hq) <= _radius}) then {
                 _released = TRUE;
                 _unit setVariable ['QS_defendAssault_released',TRUE,TRUE];
                 _fresh = TRUE;
@@ -194,6 +221,15 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
                 _unit setUnitPos 'UP';
                 _unit forceSpeed 24;
             };
+            private _coverUntil = _unit getVariable ['QS_AI_coverUntil',0];
+            private _coverEligible = ['COVER_ELIGIBLE',_unit,_epoch] call QS_fnc_defendAssault;
+            private _coverActive = _coverUntil > serverTime && {_coverEligible};
+            if (_coverUntil > 0 && {!_coverActive}) then {
+                // End/abort a burst once, then restore the HQ destination.
+                _unit suppressFor 0;
+                _unit setVariable ['QS_AI_coverUntil',0,TRUE];
+                _state set [2,FALSE];
+            };
             private _now = diag_tickTime;
             private _position = getPosATL _unit;
             if ((_position distance2D (_state # 3)) >= 3) then {
@@ -205,7 +241,7 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
             // positional progress or a lost order. Combat inside HQ can pause.
             private _retry = _now >= (_state # 5) &&
                 {(_now - (_state # 4)) >= 6 || {currentCommand _unit in ['','STOP','WAIT']}};
-            if (!(_state # 2) || {_distance > ([25,150] select _released) && {_retry}}) then {
+            if (!_coverActive && {!(_state # 2) || {_distance > ([25,_radius] select _released) && {_retry}}}) then {
                 _unit doMove _hq;
                 _state set [2,TRUE];
                 _state set [3,_position];
@@ -214,6 +250,10 @@ if (_mode isNotEqualTo 'TICK' || {!_current} || {count _hq < 2}) exitWith {FALSE
             };
         } else {
             // A new order is needed when passengers actually dismount/land.
+            if ((_unit getVariable ['QS_AI_coverUntil',0]) > 0) then {
+                _unit suppressFor 0;
+                _unit setVariable ['QS_AI_coverUntil',0,TRUE];
+            };
             _state set [2,FALSE];
         };
         _unit setVariable ['QS_defendAssault_local',_state,FALSE];
