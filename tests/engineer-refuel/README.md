@@ -1,8 +1,9 @@
 # Engineer Refuel validation
 
 Run `node tests/engineer-refuel/validate_source.cjs` from the repository root.
-This checks source integration, delimiters and timing contracts; it is not an
-SQF interpreter or an Arma multiplayer test.
+This checks source integration and delimiters; it is not an SQF interpreter or
+an Arma multiplayer test. See [shared service validation](../engineer-service/README.md)
+for the dedicated-server test script, handshake checks, and diagnostic logs.
 
 In a disposable mission, use an engineer without a toolkit or nearby fuel source:
 

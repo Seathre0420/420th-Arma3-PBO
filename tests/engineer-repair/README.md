@@ -1,7 +1,9 @@
 # Engineer repair validation
 
 Run `node tests/engineer-repair/validate_source.cjs` from the repository root.
-This checks integration boundaries and the timing contract, not SQF execution.
+This runs the shared source integration checks, not SQF execution.
+See [shared service validation](../engineer-service/README.md) for the dedicated-server
+test script, handshake checks, and diagnostic log instructions.
 
 In a disposable Arma mission with an engineer player carrying a toolkit:
 
