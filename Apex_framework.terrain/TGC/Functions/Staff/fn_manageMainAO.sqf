@@ -25,7 +25,7 @@ if (missionNamespace getVariable ["QS_customAO_active", false]) exitWith {
     ["systemChat", "The Main AO cannot be managed while a custom AO is active."] remoteExec ["QS_fnc_remoteExecCmd", _owner, false];
 };
 
-private _defendLogAO = missionNamespace getVariable ["QS_defendLogAO", ["UNKNOWN",-1,false,-1]];
+private _defendLogAO = missionNamespace getVariable ["QS_defendLogAO", ["UNKNOWN",-1,false]];
 private _logCancelledDefend = {
     private _pendingRequest = missionNamespace getVariable ["QS_staffDefendRequest", 0];
     if (_pendingRequest > 0) then {

@@ -19,11 +19,14 @@ in Defend. One AO without Defend restores normal eligibility. Queue Defend,
 Force Defend, Mega Defense and existing positive force controls bypass this
 restriction. Any Defend that actually starts counts, even if it fails; rejected
 attempts do not. Cycled AOs and AOs with Defend disabled still consume the
-intervening AO. History resets when the mission restarts.
+intervening AO. A server-only `QS_defend_blockNext` flag is set when Defend
+actually starts and captured/cleared once at the next Classic AO ending,
+before checking overrides. An override that starts Defend sets the flag again.
+The Defend counter is a statistic. The flag resets when the mission restarts.
 See `tests/defend-rotation/README.md` for validation.
 
 The server RPT includes `[Defend]` diagnostics for counter history, the
-previous-AO restriction, force settings, launch decisions and actual starts or
+previous-AO restriction and flag transitions, force settings, launch decisions and actual starts or
 rejections. Accepted 420th Staff Menu requests record the action, staff name/UID
 and AO epoch, with follow-up handoff or cancellation events. Force changes log
 only when observed or explicitly written; unchanged server ticks stay quiet.

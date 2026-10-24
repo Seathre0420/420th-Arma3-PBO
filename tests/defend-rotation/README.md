@@ -1,8 +1,10 @@
 # Defend rotation validation
 
 Run `node tests/defend-rotation/validate_source.cjs` for source integration checks.
-The engine harness compiles the marked production blocks from `fn_core.sqf`;
-it checks rotation sequences and overrides without spawning combat units.
+The engine harness compiles the marked production blocks from `fn_core.sqf`
+and `fn_aoDefend.sqf`; it checks consumption, actual-admission arming, rotation
+sequences and overrides without spawning combat units. Counter changes and
+resets are also checked to ensure the counter is now only a statistic.
 Run `validate_engine.sqf` server-locally in a standalone editor mission with
 the repository's `Apex_framework.terrain` folder available. Expect
 `[Defend rotation test] COMPLETE failures=0` and no script errors in the RPT.
@@ -17,7 +19,8 @@ On an Arma test server, verify:
   Defense. Each should start and block automatic Defend after the next AO.
 - A rejected Defend attempt or cancelled Mega Defense request must not block
   the next AO. A cycled AO or AO with Defend disabled consumes the intervening AO.
-- Pause/resume without selecting another AO must not advance rotation history.
+- Waiting while paused must not consume the pending block. Staff Pause closes
+  an active AO through the cycle path; that committed ending consumes it.
 - Restart the mission: the first AO has no inherited restriction.
 
 ## Server RPT diagnostics
@@ -26,23 +29,27 @@ Filter the server RPT for `[Defend]`. These transition logs are always enabled:
 
 | Event | Meaning |
 | --- | --- |
-| `INIT schema=1` | Confirms this logging version is loaded; records initial counter, restriction and force value. |
-| `AO_START` | Identifies the new and previous AO, epoch, counter baseline before it changes, current counter and resulting restriction. |
-| `DECISION` | Records counter/baseline, restriction, AO eligibility, force, staff/Mega requests and whether the core launches an attempt. `launch=true` does not yet mean Defend started. |
+| `INIT schema=2` | Confirms single-flag rotation is loaded; records initial counter, force and `blockPending=false`. |
+| `AO_START` | Identifies the new and previous AO, epoch, current counter and pending block. Starting an AO does not consume the flag. |
+| `DECISION` | Records the consumed restriction as `blockBefore`/`previousRestricted`, the cleared flag as `blockAfter`, counter, AO eligibility, force, staff/Mega requests and whether the core launches an attempt. `launch=true` does not yet mean Defend started. |
 | `STAFF_REQUEST` | An authorized 420th Staff Menu queue/force request was accepted, with staff name/UID and target epoch. |
 | `STAFF_HANDOFF` | The core consumed that request for the current AO. |
 | `STAFF_CANCEL` | Cycle/pause cleared a pending request; includes original staff metadata and cancelling staff identity. |
 | `FORCE_CHANGE` | Records observed force changes and explicit staff handoff, pause, one-shot consumption or disable reset. |
-| `SKIP` | Entry rejected the attempt; includes reason, relevant measurement, counter, restriction and raw/effective force values. |
-| `START` | Entry passed and incremented the counter; includes before/after counts, restriction, raw/effective/remaining force values, FPS, nearby units, existing random roll and initiation source. |
+| `SKIP` | Entry rejected the attempt; includes reason, relevant measurement, counter, pending block, consumed restriction and raw/effective force values. Does not arm a block. |
+| `START` | Entry passed, incremented the counter and armed the next-AO block; includes before/after counts and block state, consumed restriction, raw/effective/remaining force values, FPS, nearby units, existing random roll and initiation source. |
 
 `source` is `AUTOMATIC`, `FORCE_SETTING`, `STAFF_QUEUE`, `STAFF_FORCE`, or
 `MEGA_DEFENSE`; `STAFF_REQUEST` is a fallback when a staff-start flag lacks menu
 metadata. Staff metadata arrays contain `[action, name, UID, requestedEpoch]`
-and are cleared on cancellation/consumption. The AO baseline in START/SKIP is
-the counter at that AO's start; `baselineBefore` in AO_START belongs to the
-preceding AO. The counter increments only at actual admission, including for
-Defends that subsequently fail.
+and are cleared on cancellation/consumption. `QS_defend_blockNext` is a
+server-only Boolean: actual Defend admission sets it true; the next committed
+Classic AO ending atomically captures and clears it before deciding whether to
+launch. The captured restriction still blocks that AO after the stored flag is
+cleared. A successful override admission sets it true again. Cycles and AOs
+with Defend disabled consume the restriction as intervening AOs. The counter
+increments only at actual admission, including for Defends that subsequently
+fail, and no longer controls rotation. Mission initialization resets the flag.
 
 External force changes are sampled by the existing three-second core loop;
 changes that occur and revert between samples may not be observed. Known
@@ -53,10 +60,14 @@ and START even when unchanged.
 
 Check these RPT sequences on an Arma test server:
 
-- Normal start: DECISION `launch=true`, then START with count incremented by one.
-- Restricted AO: DECISION `launch=false reason=PREVIOUS_AO_DEFEND`, no START.
+- Normal start: DECISION `launch=true`, then START with count incremented by one
+  and `blockAfter=true`.
+- Restricted AO: AO_START `blockPending=true`, then DECISION
+  `blockBefore=true blockAfter=false launch=false reason=PREVIOUS_AO_DEFEND`,
+  no START. The following AO is eligible normally.
 - Queue/force: STAFF_REQUEST, STAFF_HANDOFF, then START with the matching staff
-  metadata, AO epoch and STAFF_QUEUE/STAFF_FORCE source.
+  metadata, AO epoch and STAFF_QUEUE/STAFF_FORCE source. The ending clears the
+  previous block before START sets `blockAfter=true` for the following AO.
 - Queue then cycle/pause: STAFF_CANCEL, no stale identity on a later automatic
   START. A pause that sets force to -1 also records STAFF_PAUSE.
 - Rejected entry: SKIP with the applicable reason and no counter increment.

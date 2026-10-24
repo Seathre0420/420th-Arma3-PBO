@@ -4,22 +4,30 @@ const assert = require('node:assert/strict');
 const root = path.resolve(__dirname, '../..');
 const core = fs.readFileSync(path.join(root, 'Apex_framework.terrain/code/functions/fn_core.sqf'), 'utf8');
 const defend = fs.readFileSync(path.join(root, 'Apex_framework.terrain/code/functions/fn_aoDefend.sqf'), 'utf8');
-function block(name) {
+function block(name, source = core) {
   const start = `// DEFEND_ROTATION_${name}_BEGIN`;
   const end = `// DEFEND_ROTATION_${name}_END`;
-  assert.equal(core.split(start).length, 2);
-  assert.equal(core.split(end).length, 2);
-  return core.split(start)[1].split(end)[0];
+  assert.equal(source.split(start).length, 2);
+  assert.equal(source.split(end).length, 2);
+  return source.split(start)[1].split(end)[0];
 }
-for (const name of ['INIT', 'ADVANCE', 'DECISION']) assert(block(name).trim());
-const advance = core.indexOf('// DEFEND_ROTATION_ADVANCE_BEGIN');
-assert(advance > core.indexOf('_ao = selectRandom _aoList;'));
-assert(advance < core.indexOf('_classicLastAOId = _ao # 0;'));
+for (const name of ['INIT', 'CONSUME', 'DECISION']) assert(block(name).trim());
+assert(block('ARM', defend).trim());
+const consume = core.indexOf('// DEFEND_ROTATION_CONSUME_BEGIN');
+assert(consume > core.indexOf("diag_log 'Main AO deactivating'"), 'Consume only at a committed AO ending');
+assert(consume < core.indexOf('// DEFEND_ROTATION_DECISION_BEGIN'), 'Capture and clear before deciding to launch');
+assert(consume < core.indexOf('_defendAOScript = 0 spawn _fn_aoDefend;'), 'Clear before a new Defend can arm again');
+assert(!/classicDefendCountAtAOStart|classicPreviousAOHadDefend|DEFEND_ROTATION_ADVANCE/.test(core), 'Remove old counter comparison');
+assert(!block('CONSUME').includes('QS_defendCount'), 'Counter must be a statistic only');
+assert(block('CONSUME').includes('isNil {'), 'Read/clear must be atomic');
+assert.equal((core.match(/setVariable \['QS_defend_blockNext',FALSE,FALSE\]/g) || []).length, 2, 'Only initialization and committed ending may clear the flag');
 assert.equal((core.match(/if \(_normalAO_shouldDefend\) then/g) || []).length, 1);
 assert(core.includes('_QS_AOpos,\n') || core.includes('_QS_AOpos,\r\n'));
 assert(/_QS_AOpos,[\s\S]*?_normalAO_shouldDefend,[\s\S]*?_normalAO_defendScript\s*\] spawn/.test(core));
-// History must use actual admission, not the core's optimistic script-launch flags.
-assert(!block('ADVANCE').includes('_defendAOActive'));
+// Arm only at actual admission, not at the core's optimistic script launch.
+assert(defend.indexOf('// DEFEND_ROTATION_ARM_BEGIN') > defend.indexOf("['QS_defendActive',TRUE,TRUE]"));
+assert.equal((defend.match(/setVariable \['QS_defend_blockNext',TRUE,FALSE\]/g) || []).length, 1);
+assert(!core.includes("setVariable ['QS_defend_blockNext',TRUE"));
 const admission = defend.indexOf("['QS_defendCount',((missionNamespace getVariable 'QS_defendCount') + 1)");
 assert(admission > defend.indexOf('if (_defendForce isEqualTo -2) exitWith'));
 const randomGate = defend.indexOf('if ((_defendLogRoll > 0.666)');
@@ -38,6 +46,8 @@ for (const reason of ['MISSION_TIME', 'FPS', 'NEARBY_UNITS', 'RANDOM_ROLL', 'DIS
 assert(core.indexOf('[Defend] AO_START') < core.indexOf('_aoArray = [_ao] call _fn_aoPrepare;'));
 assert(core.indexOf('[Defend] DECISION') < core.indexOf('if (_normalAO_shouldDefend) then'));
 assert(core.includes('if (_defendLogForceNow isNotEqualTo _defendLogForceLast) then'), 'Force observer must be change-only');
+assert(core.includes('[Defend] INIT schema=2'), 'Deployment must identify new flag semantics');
+assert(!/baseline=|baselineBefore=/.test(core + defend), 'Remove obsolete diagnostic baseline fields');
 assert(staff.indexOf('[Defend] STAFF_REQUEST') > staff.indexOf('A Defend is already queued'), 'Audit only accepted, validated menu requests');
 assert.equal((staff.match(/call _logCancelledDefend;/g) || []).length, 2, 'Cycle and pause must both audit cancellation');
 assert(core.includes("setVariable ['QS_staffDefendLogRequest',[]]"), 'Consumed request metadata must be cleared');
@@ -81,5 +91,5 @@ function checkLogFormats(source) {
 assert(checkLogFormats(core) >= 5);
 assert(checkLogFormats(defend) >= 4);
 assert(checkLogFormats(staff) >= 3);
-console.log('PASS: Defend rotation history, admission accounting, launch and cleanup integration.');
+console.log('PASS: Single-flag consumption, admission-only arming, launch and cleanup integration.');
 console.log('PASS: Diagnostic format arguments, single-roll admission, accepted staff auditing and metadata consumption.');

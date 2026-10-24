@@ -54,8 +54,8 @@ diag_log 'Defend AO 0';
 private _megaDefense = missionNamespace getVariable ['QS_megaDefense_pending',FALSE];
 private _staffDefense = missionNamespace getVariable ['QS_staffDefendStarting',FALSE];
 if (_staffDefense) then {missionNamespace setVariable ['QS_staffDefendStarting',FALSE,FALSE];};
-private _defendLogAO = missionNamespace getVariable ['QS_defendLogAO',['UNKNOWN',-1,FALSE,-1]];
-_defendLogAO params ['_defendLogAOId','_defendLogEpoch','_defendLogRestricted','_defendLogBaseline'];
+private _defendLogAO = missionNamespace getVariable ['QS_defendLogAO',['UNKNOWN',-1,FALSE]];
+_defendLogAO params ['_defendLogAOId','_defendLogEpoch','_defendLogRestricted'];
 private _defendLogStaff = missionNamespace getVariable ['QS_staffDefendLogStarting',[]];
 missionNamespace setVariable ['QS_staffDefendLogStarting',[]];
 private _defendLogForceBefore = missionNamespace getVariable 'QS_forceDefend';
@@ -69,7 +69,7 @@ private _defendLogSource = if (_megaDefense) then {'MEGA_DEFENSE'} else {
 };
 private _fn_logDefendSkip = {
 	params ['_reason','_detail'];
-	diag_log format ['[Defend] SKIP missionTime=%1 ao=%2 epoch=%3 count=%4 baseline=%5 previousRestricted=%6 rawForce=%7 effectiveForce=%8 forceAfter=%9 source=%10 reason=%11 detail=%12 staff=%13',time,_defendLogAOId,_defendLogEpoch,missionNamespace getVariable ['QS_defendCount',0],_defendLogBaseline,_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_reason,_detail,_defendLogStaff];
+	diag_log format ['[Defend] SKIP missionTime=%1 ao=%2 epoch=%3 count=%4 blockPending=%5 previousRestricted=%6 rawForce=%7 effectiveForce=%8 forceAfter=%9 source=%10 reason=%11 detail=%12 staff=%13',time,_defendLogAOId,_defendLogEpoch,missionNamespace getVariable ['QS_defendCount',0],missionNamespace getVariable ['QS_defend_blockNext',FALSE],_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_reason,_detail,_defendLogStaff];
 };
 if ((time < 300) && {!_megaDefense} && {!_staffDefense}) exitWith {['MISSION_TIME',time] call _fn_logDefendSkip;};
 // End Updated Code
@@ -117,7 +117,12 @@ private _defendLogCountBefore = missionNamespace getVariable 'QS_defendCount';
 	['QS_defendActive',TRUE,TRUE],
 	['QS_system_restartEnabled',FALSE,FALSE]
 ];
-diag_log format ['[Defend] START missionTime=%1 ao=%2 epoch=%3 countBefore=%4 countAfter=%5 baseline=%6 previousRestricted=%7 rawForce=%8 effectiveForce=%9 forceAfter=%10 source=%11 fps=%12 nearbyUnits=%13 roll=%14 staff=%15',time,_defendLogAOId,_defendLogEpoch,_defendLogCountBefore,missionNamespace getVariable 'QS_defendCount',_defendLogBaseline,_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_defendLogFPS,_defendLogNearbyUnits,_defendLogRoll,_defendLogStaff];
+private _defendLogBlockBefore = missionNamespace getVariable ['QS_defend_blockNext',FALSE];
+// Only actual admission arms the next-AO block; requests and rejected attempts do not.
+// DEFEND_ROTATION_ARM_BEGIN
+missionNamespace setVariable ['QS_defend_blockNext',TRUE,FALSE];
+// DEFEND_ROTATION_ARM_END
+diag_log format ['[Defend] START missionTime=%1 ao=%2 epoch=%3 countBefore=%4 countAfter=%5 blockBefore=%6 blockAfter=%7 previousRestricted=%8 rawForce=%9 effectiveForce=%10 forceAfter=%11 source=%12 fps=%13 nearbyUnits=%14 roll=%15 staff=%16',time,_defendLogAOId,_defendLogEpoch,_defendLogCountBefore,missionNamespace getVariable 'QS_defendCount',_defendLogBlockBefore,missionNamespace getVariable ['QS_defend_blockNext',FALSE],_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_defendLogFPS,_defendLogNearbyUnits,_defendLogRoll,_defendLogStaff];
 _defendMessages = [
 	localize 'STR_QS_Chat_010',
 	localize 'STR_QS_Chat_011',
