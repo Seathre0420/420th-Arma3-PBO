@@ -205,6 +205,11 @@ private _classicLastAOId = '';
 private _classicDefendCountAtAOStart = missionNamespace getVariable ['QS_defendCount',0];
 private _classicPreviousAOHadDefend = FALSE;
 // DEFEND_ROTATION_INIT_END
+// Server-only diagnostics; schema identifies deployments with Defend logging.
+missionNamespace setVariable ['QS_defendLogForceLast',missionNamespace getVariable ['QS_forceDefend',0]];
+missionNamespace setVariable ['QS_staffDefendLogRequest',[]];
+missionNamespace setVariable ['QS_staffDefendLogStarting',[]];
+diag_log format ['[Defend] INIT schema=1 missionTime=%1 count=%2 force=%3 previousRestricted=%4',time,_classicDefendCountAtAOStart,missionNamespace getVariable ['QS_forceDefend',0],_classicPreviousAOHadDefend];
 _defendAOActive = FALSE;
 // Added Code
 // MEGA_CORE_INIT_BEGIN
@@ -1509,6 +1514,14 @@ _fn_eventAttach = missionNamespace getVariable 'QS_fnc_eventAttach';
 /*/============================================================================= LOOP/*/
 for '_x' from 0 to 1 step 0 do {
 	_timeNow = time;
+	// Observe external force changes without logging unchanged server ticks.
+	private _defendLogForceNow = missionNamespace getVariable ['QS_forceDefend',0];
+	private _defendLogForceLast = missionNamespace getVariable ['QS_defendLogForceLast',_defendLogForceNow];
+	if (_defendLogForceNow isNotEqualTo _defendLogForceLast) then {
+		private _defendLogAO = missionNamespace getVariable ['QS_defendLogAO',['UNKNOWN',-1,FALSE,-1]];
+		diag_log format ['[Defend] FORCE_CHANGE missionTime=%1 ao=%2 epoch=%3 forceBefore=%4 forceAfter=%5 reason=OBSERVED',time,_defendLogAO # 0,_defendLogAO # 1,_defendLogForceLast,_defendLogForceNow];
+		missionNamespace setVariable ['QS_defendLogForceLast',_defendLogForceNow];
+	};
 	_QS_diagTickTimeNow = diag_tickTime;
 // Added Code
 	// HOUSEKEEPING_TICK_BEGIN
@@ -1742,6 +1755,8 @@ for '_x' from 0 to 1 step 0 do {
 								};
 							};
 							_ao = selectRandom _aoList;
+							private _defendLogPreviousAO = _classicLastAOId;
+							private _defendLogBaselineBefore = _classicDefendCountAtAOStart;
 							// Only advance history when a new Classic AO is actually selected.
 							// Defend increments this counter after all entry checks pass, even if it later fails.
 							// DEFEND_ROTATION_ADVANCE_BEGIN
@@ -1772,6 +1787,8 @@ for '_x' from 0 to 1 step 0 do {
 // Added Code
 							// MEGA_CORE_PREPARE_BEGIN
 							_megaDefenseEpoch = _megaDefenseEpoch + 1;
+							missionNamespace setVariable ['QS_defendLogAO',[_ao # 0,_megaDefenseEpoch,_classicPreviousAOHadDefend,_classicDefendCountAtAOStart]];
+							diag_log format ['[Defend] AO_START missionTime=%1 ao=%2 epoch=%3 previousAO=%4 baselineBefore=%5 count=%6 previousRestricted=%7 force=%8',time,_ao # 0,_megaDefenseEpoch,_defendLogPreviousAO,_defendLogBaselineBefore,_classicDefendCountNow,_classicPreviousAOHadDefend,missionNamespace getVariable ['QS_forceDefend',0]];
 							missionNamespace setVariable ['QS_megaDefense_core',['IDLE',_megaDefenseEpoch,[]],FALSE];
 							missionNamespace setVariable ['QS_megaDefense_pending',FALSE,FALSE];
 							missionNamespace setVariable ['QS_megaDefense_targetEpoch',-1,FALSE];
@@ -2018,9 +2035,18 @@ for '_x' from 0 to 1 step 0 do {
 						private _normalAO_manualDefense = _megaDefenseRequest;
 						private _normalAO_staffDefense = _staffDefendRequest > 0;
 						if (_normalAO_staffDefense) then {
+							private _defendLogStaffRequest = missionNamespace getVariable ['QS_staffDefendLogRequest',[]];
+							missionNamespace setVariable ['QS_staffDefendLogStarting',_defendLogStaffRequest];
+							missionNamespace setVariable ['QS_staffDefendLogRequest',[]];
+							diag_log format ['[Defend] STAFF_HANDOFF missionTime=%1 ao=%2 epoch=%3 request=%4 staff=%5',time,_ao # 0,_megaDefenseEpoch,_staffDefendRequest,_defendLogStaffRequest];
 							missionNamespace setVariable ['QS_staffDefendRequest',0,_false];
 							missionNamespace setVariable ['QS_staffDefendStarting',_true,_false];
+							private _defendLogForceBefore = missionNamespace getVariable ['QS_forceDefend',0];
 							missionNamespace setVariable ['QS_forceDefend',1,_true];
+							if (_defendLogForceBefore isNotEqualTo 1) then {
+								diag_log format ['[Defend] FORCE_CHANGE missionTime=%1 ao=%2 epoch=%3 forceBefore=%4 forceAfter=1 reason=STAFF_HANDOFF',time,_ao # 0,_megaDefenseEpoch,_defendLogForceBefore];
+							};
+							missionNamespace setVariable ['QS_defendLogForceLast',1];
 						};
 						missionNamespace setVariable ['QS_megaDefense_core',[[ 'IDLE','TRANSITION' ] select _normalAO_manualDefense,_megaDefenseEpoch,+(missionNamespace getVariable ['QS_HQpos',[]])],FALSE];
 						if (_normalAO_manualDefense) then {
@@ -2345,6 +2371,17 @@ for '_x' from 0 to 1 step 0 do {
 							}
 						};
 						// DEFEND_ROTATION_DECISION_END
+						private _defendLogForce = missionNamespace getVariable ['QS_forceDefend',0];
+						private _defendLogReason = if (_normalAO_manualDefense) then {'MEGA_DEFENSE'} else {
+							if (_normalAO_staffDefense) then {'STAFF_REQUEST'} else {
+								if ((_ao # 8) isEqualTo 0) then {'AO_DISABLED'} else {
+									if (_defendLogForce in [1,2]) then {'FORCE_SETTING'} else {
+										if (_classicPreviousAOHadDefend) then {'PREVIOUS_AO_DEFEND'} else {'AUTOMATIC'}
+									}
+								}
+							}
+						};
+						diag_log format ['[Defend] DECISION missionTime=%1 ao=%2 epoch=%3 count=%4 baseline=%5 previousRestricted=%6 aoEnabled=%7 force=%8 staffRequest=%9 megaRequest=%10 launch=%11 reason=%12 staff=%13',time,_ao # 0,_megaDefenseEpoch,missionNamespace getVariable ['QS_defendCount',0],_classicDefendCountAtAOStart,_classicPreviousAOHadDefend,(_ao # 8) isNotEqualTo 0,_defendLogForce,_staffDefendRequest,_normalAO_manualDefense,_normalAO_shouldDefend,_defendLogReason,missionNamespace getVariable ['QS_staffDefendLogStarting',[]]];
 /* Legacy Code as of 9.9.2026 */
 //|						if ((_ao # 8) isNotEqualTo 0) then {
 // Updated Code

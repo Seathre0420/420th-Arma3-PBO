@@ -54,8 +54,24 @@ diag_log 'Defend AO 0';
 private _megaDefense = missionNamespace getVariable ['QS_megaDefense_pending',FALSE];
 private _staffDefense = missionNamespace getVariable ['QS_staffDefendStarting',FALSE];
 if (_staffDefense) then {missionNamespace setVariable ['QS_staffDefendStarting',FALSE,FALSE];};
-if ((time < 300) && {!_megaDefense} && {!_staffDefense}) exitWith {};
-private _defendForce = [missionNamespace getVariable 'QS_forceDefend',1] select _megaDefense;
+private _defendLogAO = missionNamespace getVariable ['QS_defendLogAO',['UNKNOWN',-1,FALSE,-1]];
+_defendLogAO params ['_defendLogAOId','_defendLogEpoch','_defendLogRestricted','_defendLogBaseline'];
+private _defendLogStaff = missionNamespace getVariable ['QS_staffDefendLogStarting',[]];
+missionNamespace setVariable ['QS_staffDefendLogStarting',[]];
+private _defendLogForceBefore = missionNamespace getVariable 'QS_forceDefend';
+private _defendForce = [_defendLogForceBefore,1] select _megaDefense;
+private _defendLogSource = if (_megaDefense) then {'MEGA_DEFENSE'} else {
+	if (_staffDefense) then {
+		if (_defendLogStaff isEqualTo []) then {'STAFF_REQUEST'} else {
+			['STAFF_QUEUE','STAFF_FORCE'] select ((_defendLogStaff # 0) isEqualTo 'FORCE_DEFEND')
+		}
+	} else {['AUTOMATIC','FORCE_SETTING'] select (_defendForce in [1,2])}
+};
+private _fn_logDefendSkip = {
+	params ['_reason','_detail'];
+	diag_log format ['[Defend] SKIP missionTime=%1 ao=%2 epoch=%3 count=%4 baseline=%5 previousRestricted=%6 rawForce=%7 effectiveForce=%8 forceAfter=%9 source=%10 reason=%11 detail=%12 staff=%13',time,_defendLogAOId,_defendLogEpoch,missionNamespace getVariable ['QS_defendCount',0],_defendLogBaseline,_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_reason,_detail,_defendLogStaff];
+};
+if ((time < 300) && {!_megaDefense} && {!_staffDefense}) exitWith {['MISSION_TIME',time] call _fn_logDefendSkip;};
 // End Updated Code
 _allPlayersCount = count allPlayers;
 /* Legacy Code as of 9.9.2026 */
@@ -68,19 +84,32 @@ _allPlayersCount = count allPlayers;
 //|if ((missionNamespace getVariable 'QS_forceDefend') isEqualTo -2) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
 //|if ((_allPlayersCount > 60) && ((missionNamespace getVariable 'QS_defendCount') > 3) && ((missionNamespace getVariable 'QS_forceDefend') isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
 // Updated Code
-if ((diag_fps < 13) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
-if (((count ((units WEST) inAreaArray [(missionNamespace getVariable 'QS_HQpos'),500,500,0,FALSE,-1])) < 4) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
+private _defendLogFPS = diag_fps;
+if ((_defendLogFPS < 13) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE]; ['FPS',_defendLogFPS] call _fn_logDefendSkip;};
+private _defendLogNearbyUnits = count ((units WEST) inAreaArray [(missionNamespace getVariable 'QS_HQpos'),500,500,0,FALSE,-1]);
+if ((_defendLogNearbyUnits < 4) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE]; ['NEARBY_UNITS',_defendLogNearbyUnits] call _fn_logDefendSkip;};
 // More eligible AO completions lead into Defense; force controls and safety gates remain.
-if (((random 1) > 0.666) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
+private _defendLogRoll = random 1;
+if ((_defendLogRoll > 0.666) && (_defendForce isEqualTo 0)) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE]; ['RANDOM_ROLL',_defendLogRoll] call _fn_logDefendSkip;};
 if (_defendForce isEqualTo 2) then {};
-if ((_defendForce isEqualTo 1) && {!_megaDefense}) then {missionNamespace setVariable ['QS_forceDefend',0,TRUE];};
-if (_defendForce isEqualTo -1) exitWith {missionNamespace setVariable ['QS_forceDefend',0,TRUE];missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
-if (_defendForce isEqualTo -2) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];};
+if ((_defendForce isEqualTo 1) && {!_megaDefense}) then {
+	missionNamespace setVariable ['QS_forceDefend',0,TRUE];
+	missionNamespace setVariable ['QS_defendLogForceLast',0];
+	diag_log format ['[Defend] FORCE_CHANGE missionTime=%1 ao=%2 epoch=%3 forceBefore=%4 forceAfter=0 reason=ONE_SHOT_CONSUMED',time,_defendLogAOId,_defendLogEpoch,_defendLogForceBefore];
+};
+if (_defendForce isEqualTo -1) exitWith {
+	missionNamespace setVariable ['QS_forceDefend',0,TRUE];missionNamespace setVariable ['QS_defendActive',FALSE,TRUE];
+	missionNamespace setVariable ['QS_defendLogForceLast',0];
+	diag_log format ['[Defend] FORCE_CHANGE missionTime=%1 ao=%2 epoch=%3 forceBefore=%4 forceAfter=0 reason=DISABLE_RESET',time,_defendLogAOId,_defendLogEpoch,_defendLogForceBefore];
+	['DISABLED_ONCE',-1] call _fn_logDefendSkip;
+};
+if (_defendForce isEqualTo -2) exitWith {missionNamespace setVariable ['QS_defendActive',FALSE,TRUE]; ['DISABLED_PERSISTENT',-2] call _fn_logDefendSkip;};
 if (_megaDefense) then {missionNamespace setVariable ['QS_megaDefense_pending',FALSE,FALSE];};
 // MEGA_DEFENSE_ENTRY_END
 // QS_defendCount remains a statistic, not a high-population lifetime cutoff.
 // End Updated Code
 diag_log 'Defend AO 0.5';
+private _defendLogCountBefore = missionNamespace getVariable 'QS_defendCount';
 {
 	missionNamespace setVariable _x;
 } forEach [
@@ -88,6 +117,7 @@ diag_log 'Defend AO 0.5';
 	['QS_defendActive',TRUE,TRUE],
 	['QS_system_restartEnabled',FALSE,FALSE]
 ];
+diag_log format ['[Defend] START missionTime=%1 ao=%2 epoch=%3 countBefore=%4 countAfter=%5 baseline=%6 previousRestricted=%7 rawForce=%8 effectiveForce=%9 forceAfter=%10 source=%11 fps=%12 nearbyUnits=%13 roll=%14 staff=%15',time,_defendLogAOId,_defendLogEpoch,_defendLogCountBefore,missionNamespace getVariable 'QS_defendCount',_defendLogBaseline,_defendLogRestricted,_defendLogForceBefore,_defendForce,missionNamespace getVariable 'QS_forceDefend',_defendLogSource,_defendLogFPS,_defendLogNearbyUnits,_defendLogRoll,_defendLogStaff];
 _defendMessages = [
 	localize 'STR_QS_Chat_010',
 	localize 'STR_QS_Chat_011',
