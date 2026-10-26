@@ -2400,8 +2400,7 @@ for '_z' from 0 to 1 step 0 do {
 			/*/===== Action Respawn Vehicle/*/
 			
 			if (
-				_extendedContext &&
-				{_noObjectParent} &&
+				_noObjectParent &&
 				{(alive _cursorObject)} &&
 				{
 					(local _cursorObject) ||

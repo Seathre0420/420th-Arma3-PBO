@@ -116,9 +116,9 @@ _____________________________________________________________-->
             <Chinese>釋放</Chinese>
         </Key>
         <Key ID="STR_QS_Interact_011">
-            <Original>Respawn vehicle</Original>
-            <Chinesesimp>重生载具</Chinesesimp>
-            <Chinese>重生載具</Chinese>
+            <Original>Despawn</Original>
+            <Chinesesimp>移除载具</Chinesesimp>
+            <Chinese>移除載具</Chinese>
         </Key>
         <Key ID="STR_QS_Interact_012">
             <Original>Open cargo doors</Original>
@@ -1371,9 +1371,9 @@ _____________________________________________________________-->
             <Chinese>載具正被拖曳</Chinese>
         </Key>
         <Key ID="STR_QS_Text_126">
-            <Original>Respawning vehicle</Original>
-            <Chinesesimp>重生载具</Chinesesimp>
-            <Chinese>重生載具</Chinese>
+            <Original>Despawning vehicle</Original>
+            <Chinesesimp>正在移除载具</Chinesesimp>
+            <Chinese>正在移除載具</Chinese>
         </Key>
         <Key ID="STR_QS_Text_127">
             <Original>%1 deflated (toolkit added)</Original>
@@ -4117,9 +4117,9 @@ _____________________________________________________________-->
             <Chinese>將一名戰俘關押在了監獄。</Chinese>
         </Key>
         <Key ID="STR_QS_Chat_093">
-            <Original>%1 has respawned a(n) %2 at grid %3</Original>
-            <Chinesesimp>%1 在坐标 %3 将一个 %2 重生了</Chinesesimp>
-            <Chinese>%1 在坐標 %3 將一個 %2 重生了</Chinese>
+            <Original>%1 has despawned a(n) %2 at grid %3</Original>
+            <Chinesesimp>%1 在坐标 %3 移除了一个 %2</Chinesesimp>
+            <Chinese>%1 在坐標 %3 移除了一個 %2</Chinese>
         </Key>
         <Key ID="STR_QS_Chat_094">
             <Original>%1 has captured a unit at grid %2</Original>
@@ -7608,9 +7608,9 @@ _____________________________________________________________-->
             <Chinese>彈射</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_121">
-            <Original>Are you sure you want to respawn this</Original>
-            <Chinesesimp>你确定你要重生这个吗？</Chinesesimp>
-            <Chinese>你確定你要重生這個嗎？</Chinese>
+            <Original>Are you sure you want to despawn this</Original>
+            <Chinesesimp>你确定你要移除这个吗？</Chinesesimp>
+            <Chinese>你確定你要移除這個嗎？</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_122">
             <Original>Warning</Original>
@@ -7618,9 +7618,9 @@ _____________________________________________________________-->
             <Chinese>警告</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_123">
-            <Original>Respawn vehicle</Original>
-            <Chinesesimp>重生载具</Chinesesimp>
-            <Chinese>重生載具</Chinese>
+            <Original>Despawn</Original>
+            <Chinesesimp>移除载具</Chinesesimp>
+            <Chinese>移除載具</Chinese>
         </Key>
         <Key ID="STR_QS_Menu_124">
             <Original>Destroy</Original>
