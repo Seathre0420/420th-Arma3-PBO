@@ -13,8 +13,7 @@ for '_axis' from 0 to 2 do {
     _nearest set [_axis,((_point # _axis) max ((_box # 0) # _axis)) min ((_box # 1) # _axis)];
 };
 if ((_point vectorDistance _nearest) >= 5) exitWith {'Move within five metres of the vehicle.'};
-if (isEngineOn _vehicle) exitWith {'Turn the vehicle engine off.'};
-if (vectorMagnitude (velocity _vehicle) >= 0.3) exitWith {'Vehicle must be stationary.'};
+if (vectorMagnitude (velocity _vehicle) >= 1.0) exitWith {'Vehicle must be stationary.'};
 if (((crew _vehicle) findIf {alive _x && {(side _x) in ([_unit] call QS_fnc_enemySides)}}) != -1) exitWith {'Enemy occupants prevent servicing.'};
 private _disabled = format ['QS_services_%1_disabled',_mode];
 if (_vehicle getVariable [_disabled,FALSE] || {missionNamespace getVariable [_disabled,FALSE]}) exitWith {'This service is disabled.'};

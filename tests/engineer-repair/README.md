@@ -7,7 +7,7 @@ test script, handshake checks, and diagnostic log instructions.
 
 In a disposable Arma mission with an engineer player carrying a toolkit:
 
-1. Damage a stationary, engine-off vehicle to 5%, 25%, 50%, and 90%.
+1. Damage a stationary vehicle to 5%, 25%, 50%, and 90%.
    Repair times should be approximately 1, 15, 42, and 102 seconds (scheduler
    and network latency can add time). Confirm individual damage values fall
    gradually and all damage is zero on completion.
@@ -22,8 +22,10 @@ In a disposable Arma mission with an engineer player carrying a toolkit:
    it must remain unchanged. Repeat with a damaged fuel tank; normal leakage is
    allowed, but repair must never add fuel or restore a saved fuel amount.
 5. Walk away, enter a vehicle, remove the toolkit, change role, become
-   incapacitated, start the vehicle engine, move it, or shoot the vehicle.
+   incapacitated, move the vehicle, or shoot it.
    Each must stop repairs and retain applied work. Destroying it must not revive it.
+   Confirm repairs can start with the engine running, and toggling the engine
+   during repair does not stop work while the vehicle remains stationary.
 6. Verify slight component damage still offers the custom Repair vehicle action.
    Check non-engineers, missing toolkits, enemy occupants and QS_RD_noRepair.
 7. On a dedicated server with two clients, repair server-owned empty vehicles

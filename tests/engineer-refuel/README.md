@@ -7,7 +7,8 @@ for the dedicated-server test script, handshake checks, and diagnostic logs.
 
 In a disposable mission, use an engineer without a toolkit or nearby fuel source:
 
-1. Look at a stationary engine-off car, tracked vehicle, helicopter and boat.
+1. Look at a stationary car, tracked vehicle, helicopter and boat with the engine
+   either off or running.
    Refuel should appear within five metres of its bounding box when fuel < 1.
    Look at terrain, infantry, props, a destroyed vehicle or a full tank: hide it.
    Non-engineers and mounted/incapacitated players must not receive the action.
@@ -19,9 +20,12 @@ In a disposable mission, use an engineer without a toolkit or nearby fuel source
 4. Look at a second vehicle after starting: the original target must continue
    receiving fuel, and Cancel Refuel must remain available. The second vehicle's
    fuel must remain unchanged. Confirm percentage and seconds remaining display.
-5. Walk away, mount a vehicle, change role, become incapacitated, start/move the
+5. Walk away, mount a vehicle, change role, become incapacitated, move the
    target, or shoot it: stop fueling and keep added fuel. Destroying it must not
    revive it. Check vehicle/mission QS_services_refuel_disabled and enemy occupants.
+   Confirm toggling the engine during fueling does not stop work while stationary.
+   Use the engine off for exact timing and retained-fuel checks; a running engine
+   consumes fuel normally.
 6. While fueling, attempt Repair; while repairing, attempt Refuel. One player
    must never run both. Existing toolkit repairs must never add fuel.
 7. On a dedicated server with two clients, test server-owned empty vehicles and

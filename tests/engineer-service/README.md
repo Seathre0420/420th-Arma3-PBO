@@ -14,7 +14,7 @@ Source checks reject client/worker uses of the server-only `owner` command.
 
 Copy validate_engine.sqf into `tests/engineer-service/` in a disposable copy of
 the mission before packaging it. Use an Engineer with a toolkit for repair.
-Prepare an engine-off, stationary vehicle with at least 15% damage or missing
+Prepare a stationary vehicle with at least 15% damage or missing
 fuel, then point at it and run locally:
 
 ```sqf
@@ -26,7 +26,9 @@ fuel, then point at it and run locally:
 The script exercises the real RPC handshake, waits for running, checks actual
 work, cancels, checks retained/stable progress, and resumes to completion. It
 changes the selected vehicle. Use an undamaged fuel tank for the fuel-retention
-check; normal leakage would invalidate that assertion. Allow up to five minutes.
+check; normal leakage would invalidate that assertion. Keep the engine off for
+the automated fuel-retention check so normal consumption cannot affect it.
+Allow up to five minutes.
 Look for `[QS ENGINEER TEST] PASS` and `completion=true` in the client RPT.
 
 Repeat with a server-owned vehicle and one owned by another player. Also test:
@@ -34,7 +36,9 @@ Repeat with a server-owned vehicle and one owned by another player. Also test:
 - Cancel during Requesting, including delayed acceptance. No work may happen
   without the client's ready message. Retry immediately after cleanup.
 - Two engineers start the same vehicle: one accepted, one explicit busy reply.
-- Remove toolkit/role, move away, start/move the vehicle or hit it: a reason is
+- Start either action with the engine running, and toggle the engine during
+  service: work continues while stationary. Normal fuel consumption still applies.
+- Remove toolkit/role, move away, move the vehicle or hit it: a reason is
   returned and progress retained. Rejection must not claim work was saved.
 - Disconnect the engineer or vehicle-owning client, or transfer locality: lock
   cleanup/expiry permits a new session; client does not hang on old progress.
