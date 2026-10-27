@@ -8,7 +8,7 @@ test script, handshake checks, and diagnostic log instructions.
 In a disposable Arma mission with an engineer player carrying a toolkit:
 
 1. Damage a stationary, engine-off vehicle to 5%, 25%, 50%, and 90%.
-   Repair times should be approximately 3, 30, 85, and 205 seconds (scheduler
+   Repair times should be approximately 1, 15, 42, and 102 seconds (scheduler
    and network latency can add time). Confirm individual damage values fall
    gradually and all damage is zero on completion.
 2. Test a single destroyed wheel, track, engine, main rotor and tail rotor,

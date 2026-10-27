@@ -35,16 +35,16 @@ while {!_done} do {
             private _hits = (getAllHitPointsDamage _vehicle) param [2,[]];
             private _severity = damage _vehicle;
             {_severity = _severity max _x;} forEach _hits;
-            _remaining = 240 * ((_severity max 0) ^ 1.5);
+            _remaining = 120 * ((_severity max 0) ^ 1.5);
             _level = 1 - _severity;
             if (_remaining <= 0.05) exitWith {
                 _vehicle setDamage 0;
                 _remaining = 0; _level = 1; _phase = 'complete'; _done = TRUE;
             };
-            private _hullWork = 240 * (((damage _vehicle) max 0) ^ 1.5);
-            _vehicle setDamage [((((_hullWork - _dt) max 0) / 240) ^ (2/3)),FALSE];
+            private _hullWork = 120 * (((damage _vehicle) max 0) ^ 1.5);
+            _vehicle setDamage [((((_hullWork - _dt) max 0) / 120) ^ (2/3)),FALSE];
             {
-                private _next = ((((240 * ((_x max 0) ^ 1.5) - _dt) max 0) / 240) ^ (2/3));
+                private _next = ((((120 * ((_x max 0) ^ 1.5) - _dt) max 0) / 120) ^ (2/3));
                 _vehicle setHitIndex [_forEachIndex,_next,FALSE];
             } forEach _hits;
         };
