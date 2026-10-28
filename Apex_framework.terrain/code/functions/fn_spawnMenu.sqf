@@ -356,9 +356,9 @@ if (_mode isEqualTo 'SPAWN') exitWith {
 	};
 	if (
 		(_class isKindOf 'CAManBase') &&
-		{({!isPlayer _x} count (units (group player))) >= 10}
+		{({!isPlayer _x} count (units (group player))) >= 5}
 	) exitWith {
-		['You cannot recruit more than 10 AI'] call QS_fnc_hint;
+		['You cannot recruit more than 5 AI'] call QS_fnc_hint;
 	};
 	if (isNull _terminal || {isNull _spawnPoint}) exitWith {
 		systemChat 'Spawn Menu: the configured terminal or spawn point is no longer available.';

@@ -109,9 +109,9 @@ if (
 };
 if (
 	_isAI &&
-	{({!isPlayer _x} count (units (group _unit))) >= 10}
+	{({!isPlayer _x} count (units (group _unit))) >= 5}
 ) exitWith {
-	[_unit,'You cannot recruit more than 10 AI'] call _hint;
+	[_unit,'You cannot recruit more than 5 AI'] call _hint;
 };
 
 private _isVehicle = (
