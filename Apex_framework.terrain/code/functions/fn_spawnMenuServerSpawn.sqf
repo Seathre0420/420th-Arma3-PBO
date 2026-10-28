@@ -299,7 +299,19 @@ if (_isAI) then {
 	_entity setVariable ['TGC_vehicle_side',side (group _unit),TRUE];
 };
 
-if (!_isAI && {!_isSupplyCrate} && {!isNil 'QS_fnc_vSetup'}) then {
+// Service-capable supply objects need full setup even outside the container families.
+private _entityConfig = configOf _entity;
+private _isServiceAsset = (
+	((getNumber (_entityConfig >> 'attendant')) isEqualTo 1) ||
+	{(['transportAmmo','transportFuel','transportRepair'] findIf {
+		(getNumber (_entityConfig >> _x)) > 0
+	}) isNotEqualTo -1}
+);
+if (
+	!_isAI &&
+	{!_isSupplyCrate || {_isLogisticsContainer} || {_isServiceAsset}} &&
+	{!isNil 'QS_fnc_vSetup'}
+) then {
 	[_entity] call QS_fnc_vSetup;
 };
 if ((typeOf _entity) isEqualTo 'B_CargoNet_01_ammo_F') then {

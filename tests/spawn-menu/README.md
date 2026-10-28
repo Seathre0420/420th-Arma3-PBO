@@ -26,6 +26,31 @@ player who spawned the vehicle.
 | Vehicle spawned by the normal mission vehicle system | Existing abandonment rules still apply. |
 | Mission started with invalid/missing base-polygon markers | Existing `BASE_HIGHSEC_0` circular fallback selects the inside/outside threshold. |
 
+## Logistics container and FOB medical acceptance checks
+
+Run against a dedicated multiplayer server with the regional FOB system enabled
+and an existing FOB. Use newly spawned containers; existing objects do not receive
+the updated initialization. Inspect variables on the server and record the FOB
+flag's `QS_deploy_tickets` before each delivery. Keep other medical assets away
+from the FOB during these checks.
+
+| Scenario | Expected result |
+| --- | --- |
+| Spawn `B_Slingload_01_Medevac_F` through the Spawn Menu outside the FOB's 75 m radius | `QS_services_medical` and `QS_logistics_deployable` are true, `QS_medicalVehicle_reviveTickets` is initialized, and `QS_vehicle_isSuppliedFOB` is unset. |
+| Bring that container within 75 m of the regional FOB centre while attached or sling-loaded | No tickets are added until the container is detached from both objects and ropes. |
+| Detach the container inside the radius and allow the FOB manager to process it | `QS_module_fob_respawnEnabled` becomes true, the flag gains exactly four `QS_deploy_tickets`, and the container receives `QS_vehicle_isSuppliedFOB = true`. |
+| Leave the supplied container in place through further FOB scans without rearming or reattaching it | No additional tickets are added. |
+| Deliver a second fresh Spawn Menu medical container under the same conditions | Exactly four more tickets are added. |
+| Repeat with a fresh Zeus medical container and an activated container created through `QS_fnc_registerVehicle` | The medical flag and FOB ticket contribution match the Spawn Menu container. |
+| Spawn `Box_B_UAV_06_medical_F` outside the FOB radius and inspect the packed box before assembling its drone | `QS_services_medical` and `QS_logistics_deployable` are true and `QS_medicalVehicle_reviveTickets` is initialized to four. |
+| Deliver that packed medical UAV box to the FOB, detached from objects and ropes, then leave it through further scans | The flag gains exactly four deployment tickets and the box receives `QS_vehicle_isSuppliedFOB = true`; subsequent scans add no more tickets. |
+| Spawn `FlexibleTank_01_forest_F` | `getFuelCargo` returns zero, `QS_logistics_deployable`, `QS_inventory_disabled`, and `QS_lockedInventory` are true, inventory access is blocked, and the `QS_vSetup_fuelKilledEH` handler is registered. An eligible player can use the deployment action outside restricted build zones. |
+| Spawn `Box_NATO_AmmoVeh_F` | `getAmmoCargo` returns zero and `QS_logistics_deployable` is true. An eligible player can use the deployment action outside restricted build zones. |
+| Spawn `Land_Pod_Heli_Transport_04_fuel_F` through a logistics pilot terminal | Server-side `getMass` returns 8500; fuel service setup and logistics interactions remain available. Check the black fuel-pod variant through shared vehicle setup as well when its class is available. |
+| Spawn Huron ammo, fuel, and repair containers, then deliver each to a fresh regional FOB | Each receives full service setup and enables its matching FOB service; logistics interactions and existing Spawn Menu drag/carry overrides still work. |
+| Spawn ordinary supply crates, including `B_CargoNet_01_ammo_F` | Crates retain their existing initialization and contents, including the Cargo Net's custom inventory. |
+| Spawn a normal vehicle and recruit an AI soldier | Vehicle setup and AI recruitment retain their existing behavior. |
+
 ## Shared artillery limit acceptance checks
 
 The restricted classes are `B_MBT_01_arty_F`, `B_MBT_01_mlrs_F`,

@@ -718,6 +718,7 @@ if (_t2 in ['flexibletank_01_sand_f','flexibletank_01_forest_f']) then {
 };
 if (_t2 in [
 	'land_pod_heli_transport_04_ammo_f','land_pod_heli_transport_04_ammo_black_f',
+	'land_pod_heli_transport_04_fuel_f','land_pod_heli_transport_04_fuel_black_f',
 	'land_pod_heli_transport_04_repair_f','land_pod_heli_transport_04_repair_black_f',
 	'land_pod_heli_transport_04_box_f','land_pod_heli_transport_04_box_black_f',
 	'land_pod_heli_transport_04_covered_f','land_pod_heli_transport_04_covered_black_f',
