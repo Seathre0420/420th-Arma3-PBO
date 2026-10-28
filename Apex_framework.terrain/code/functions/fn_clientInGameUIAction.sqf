@@ -15,7 +15,7 @@ ______________________________________________/*/
 
 if (
 	(_this isEqualTo []) ||
-	{(!(diag_tickTime > (uiNamespace getVariable ['QS_client_uiLastAction',-1])))}
+	{!(_this param [11,FALSE]) && {!(diag_tickTime > (uiNamespace getVariable ['QS_client_uiLastAction',-1]))}}
 ) exitWith {TRUE};
 uiNamespace setVariable ['QS_client_uiLastAction',(diag_tickTime + 0.5)];
 params [

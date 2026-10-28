@@ -818,6 +818,7 @@ if (isDedicated) then {
 			);
 			if (_isLocal) then {
 				[_vehicle] call QS_fnc_updateVehicleUnloadPolicy;
+				[_vehicle] call QS_fnc_vehicleAccessApply;
 				if ((_vehicle getVariable ['QS_spawnMenu_spawnedBy','']) isNotEqualTo '') then {
 					if (_damageEHActive) then {
 						_vehicle removeEventHandler ['HandleDamage',_damageEH];
@@ -832,6 +833,7 @@ if (isDedicated) then {
 				};
 				if (
 					(lockedDriver _vehicle) &&
+					{(_vehicle getVariable ['QS_vehicleAccess_ownerUID','']) isEqualTo ''} &&
 					(!(_vehicle getVariable ['QS_driver_disabled',FALSE]))
 				) then {
 					[_vehicle,FALSE] remoteExec ['lockDriver',0,FALSE];

@@ -77,6 +77,7 @@ if (
 							TRUE
 						];
 						_dn2 = QS_extendedContext_lockedDriver getVariable ['QS_ST_customDN',_dn];
+						if ((QS_extendedContext_lockedDriver getVariable ['QS_vehicleAccess_ownerUID','']) isNotEqualTo '') exitWith {systemChat 'Use Vehicle Access to manage this owned vehicle.';};
 						if (alive (driver QS_extendedContext_lockedDriver)) exitWith {
 							50 cutText [format ['%1 ( %2 )',localize 'STR_QS_Text_392',_dn2],'PLAIN DOWN',0.333];
 						};

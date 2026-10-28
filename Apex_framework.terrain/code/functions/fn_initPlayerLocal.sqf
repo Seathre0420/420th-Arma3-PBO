@@ -1039,3 +1039,5 @@ if (missionNamespace getVariable ['QS_missionConfig_introMusic',TRUE]) then {
 if (userInputDisabled) then {
 	disableUserInput FALSE;
 };
+
+['ACTIONS',objNull] call QS_fnc_clientVehicleAccess;

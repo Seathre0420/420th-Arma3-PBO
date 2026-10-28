@@ -218,6 +218,9 @@ class CfgRemoteExec {
 		class QS_fnc_engineerServiceServer {allowedTargets = 2; jip = 0;};
 		class QS_fnc_engineerServiceResponse {allowedTargets = 1; jip = 0;};
 		class QS_fnc_remoteExecCmd {allowedTargets = 0;};
+        class QS_fnc_vehicleAccessServer {allowedTargets = 2;};
+        class QS_fnc_vehicleAccessApply {allowedTargets = 0; jip = 1;};
+        class QS_fnc_vehicleAccessBoard {allowedTargets = 1;};
 		class QS_fnc_finishCargoChildUnload {allowedTargets = 0;};
 		class QS_fnc_finishCargoParentUnload {allowedTargets = 0;};
 		class QS_fnc_clientApplyEntityState {allowedTargets = 1; jip = 0;};

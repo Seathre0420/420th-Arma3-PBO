@@ -68,7 +68,7 @@ if (_mode isEqualTo 'INTERACT') exitWith {
 				_vehicle animateSource ['BenchL_Up',0];
 				_vehicle animateSource ['BenchR_Up',0];
 				{
-					_vehicle lockCargo [_x,FALSE];
+					if !([_vehicle,'CARGO',[_x,FALSE]] call QS_fnc_vehicleAccessExternalLock) then {_vehicle lockCargo [_x,FALSE];};
 				} forEach _benchSeats;
 				['lockCargo',_vehicle,[_benchSeats,FALSE]] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
 			} else {
@@ -101,7 +101,7 @@ if (_mode isEqualTo 'INTERACT') exitWith {
 				_vehicle animateSource ['BenchL_Up',1];
 				_vehicle animateSource ['BenchR_Up',1];
 				{
-					_vehicle lockCargo [_x,TRUE];
+					if !([_vehicle,'CARGO',[_x,TRUE]] call QS_fnc_vehicleAccessExternalLock) then {_vehicle lockCargo [_x,TRUE];};
 				} forEach _benchSeats;
 				['lockCargo',_vehicle,[_benchSeats,TRUE]] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
 				[_vehicle,_benchSeats] spawn {

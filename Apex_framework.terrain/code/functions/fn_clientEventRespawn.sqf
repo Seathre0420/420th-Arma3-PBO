@@ -284,3 +284,6 @@ if (
 if ((player getVariable ['QS_unit_side',WEST]) isNotEqualTo WEST) then {
 	[1,player] call QS_fnc_clientRespawnPosition;
 };
+
+localNamespace setVariable ['QS_vehicleAccess_actions',[]];
+['ACTIONS',objNull] call QS_fnc_clientVehicleAccess;

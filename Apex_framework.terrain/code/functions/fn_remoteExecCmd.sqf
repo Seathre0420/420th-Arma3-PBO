@@ -463,9 +463,11 @@ if (_type isEqualTo 'lock') exitWith {
 	_1 lock _2;
 };
 if (_type isEqualTo 'lockTurret') exitWith {
+	if ([_1,'TURRET',_2] call QS_fnc_vehicleAccessExternalLock) exitWith {};
 	_1 lockTurret _2;
 };
 if (_type isEqualTo 'lockCargo') exitWith {
+	if ([_1,'CARGO',_2] call QS_fnc_vehicleAccessExternalLock) exitWith {};
 	if (_2 isEqualType TRUE) then {
 		_1 lockCargo _2;
 	} else {
@@ -486,6 +488,7 @@ if (_type isEqualTo 'lockInventory') exitWith {
 	_1 lockInventory _2;
 };
 if (_type isEqualTo 'lockDriver') exitWith {
+	if ([_1,'DRIVER',_2] call QS_fnc_vehicleAccessExternalLock) exitWith {};
 	_1 lockDriver _2;
 };
 if (_type isEqualTo 'moveOut') exitWith {
