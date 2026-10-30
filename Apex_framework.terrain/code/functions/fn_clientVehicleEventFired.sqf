@@ -37,7 +37,7 @@ if (_vehicle isKindOf 'LandVehicle') then {
 			((isPlayer (effectiveCommander _cursorTarget)) || {(isPlayer (effectiveCommander _cursorObject))})
 		) then {
 			if (local _vehicle) then {
-				deleteVehicle _projectile;
+				deleteVehicle (['CONTEXT',_projectile,'REMOVED','fn_clientVehicleEventFired.sqf:40',[]] call QS_fnc_vehicleDespawnLog);
 			};
 			([QS_player,'SAFE'] call QS_fnc_inZone) params ['_inSafezone','_safezoneLevel','_safezoneActive'];
 			if (_inSafezone && _safezoneActive && (_safezoneLevel > 1)) then {
@@ -55,11 +55,11 @@ if (_vehicle isKindOf 'LandVehicle') then {
 			((isPlayer (effectiveCommander _cursorTarget)) || {(isPlayer (effectiveCommander _cursorObject))})
 		) then {
 			if (local _vehicle) then {
-				deleteVehicle _projectile;
+				deleteVehicle (['CONTEXT',_projectile,'REMOVED','fn_clientVehicleEventFired.sqf:58',[]] call QS_fnc_vehicleDespawnLog);
 			};
 			([QS_player,'SAFE'] call QS_fnc_inZone) params ['_inSafezone','_safezoneLevel','_safezoneActive'];
 			if (_inSafezone && _safezoneActive && (_safezoneLevel > 1)) then {
-				deleteVehicle _vehicle;
+				deleteVehicle (['CONTEXT',_vehicle,'REMOVED','fn_clientVehicleEventFired.sqf:62',[]] call QS_fnc_vehicleDespawnLog);
 				50 cutText [localize 'STR_QS_Text_199','PLAIN'];
 			};
 		};

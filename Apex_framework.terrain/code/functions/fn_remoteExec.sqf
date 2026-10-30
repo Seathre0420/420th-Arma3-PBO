@@ -284,7 +284,7 @@ if (_case < 10) exitWith {
 				if (isServer) then {
 					missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 				};
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:287',[]] call QS_fnc_vehicleDespawnLog);
 			} count (attachedObjects _POW);
 			_POW playAction 'Default';
 			['switchMove',_POW,''] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
@@ -564,11 +564,11 @@ if (_case < 20) exitWith {
 					{
 						missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 						[0,_x] call QS_fnc_eventAttach;
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:567',[]] call QS_fnc_vehicleDespawnLog);
 					} count (attachedObjects _object);
 				};
 				missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-				deleteVehicle _object;
+				deleteVehicle (['CONTEXT',_object,'MANUAL','fn_remoteExec.sqf:571',[]] call QS_fnc_vehicleDespawnLog);
 				if (
 					!isNull _spawnMenuUavGroup &&
 					{(units _spawnMenuUavGroup) isEqualTo []}
@@ -591,7 +591,7 @@ if (_case < 20) exitWith {
 								if (!isNull (attachedTo _x)) then {
 									[0,_x] call QS_fnc_eventAttach;
 								};
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:594',[]] call QS_fnc_vehicleDespawnLog);
 							} count (attachedObjects _obj);
 						};
 						missionNamespace setVariable [
@@ -602,7 +602,7 @@ if (_case < 20) exitWith {
 						if (!isNull (attachedTo _obj)) then {
 							[0,_obj] call QS_fnc_eventAttach;
 						};
-						deleteVehicle _obj;
+						deleteVehicle (['CONTEXT',_obj,'MANUAL','fn_remoteExec.sqf:605',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach _object;
 				};
 			};
@@ -806,7 +806,7 @@ if (_case < 30) exitWith {
 					((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 					FALSE
 				];
-				deleteVehicle _unit;
+				deleteVehicle (['CONTEXT',_unit,'MANUAL','fn_remoteExec.sqf:809',[]] call QS_fnc_vehicleDespawnLog);
 				_agent setPosWorld _unitPos;
 				if (isDedicated) then {
 					[141,_agent] remoteExec ['QS_fnc_remoteExec',(allPlayers inAreaArray [_agent,30,30,0,FALSE]),FALSE];
@@ -1314,7 +1314,7 @@ if (_case < 60) exitWith {
 					if (_isLocal) then {
 						_this allowDamage FALSE;
 						if ((allPlayers inAreaArray [_object,50,50,0,FALSE]) isEqualTo []) then {
-							deleteVehicle _object;
+							deleteVehicle (['CONTEXT',_object,'MANUAL','fn_remoteExec.sqf:1317',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} else {
 						[144,_object] remoteExec ['QS_fnc_remoteExec',_object,FALSE];
@@ -1332,7 +1332,7 @@ if (_case < 60) exitWith {
 				'Killed',
 				{
 					params ['_object'];
-					deleteVehicle _object;
+					deleteVehicle (['CONTEXT',_object,'MANUAL','fn_remoteExec.sqf:1335',[]] call QS_fnc_vehicleDespawnLog);
 				}
 			];
 			// To Do: Optimise this section
@@ -1360,7 +1360,7 @@ if (_case < 60) exitWith {
 										((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 										FALSE
 									];
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:1363',[]] call QS_fnc_vehicleDespawnLog);
 									uiSleep 0.01;
 								};
 							};
@@ -1414,7 +1414,7 @@ if (_case < 60) exitWith {
 				{
 					if (!isNull _x) then {
 						missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:1417',[]] call QS_fnc_vehicleDespawnLog);
 					};
 					uiSleep 0.025;
 				} count _toDelete;
@@ -2209,7 +2209,7 @@ if (_case < 100) exitWith {
 			{
 				if (local _x) then {
 					if (!(_x getVariable ['QS_missionObject_protected',FALSE])) then {
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'MANUAL','fn_remoteExec.sqf:2212',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				};
 			} forEach (allMissionObjects 'EmptyDetector');
@@ -2228,7 +2228,7 @@ if (_case < 100) exitWith {
 		_unitFace = face _unit;
 		_agent = createVehicle [_unitType,[0,0,0],[],0,'NONE'];
 		_agent enableAIFeature ['ALL',FALSE];
-		deleteVehicle _unit;
+		deleteVehicle (['CONTEXT',_unit,'MANUAL','fn_remoteExec.sqf:2231',[]] call QS_fnc_vehicleDespawnLog);
 		_agent setPosWorld _unitPos;
 		removeAllWeapons _agent;
 		removeGoggles _agent;

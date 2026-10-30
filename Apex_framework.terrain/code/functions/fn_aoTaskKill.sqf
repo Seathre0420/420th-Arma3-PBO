@@ -160,7 +160,7 @@ _array = [
 				private _c = FALSE;
 				if ((diag_tickTime > _taskTimeout) && (alive _entity)) then {
 					_entity setUnitPos 'Down';
-					_entity spawn {uiSleep 5;deleteVehicle _this;};
+					_entity spawn {uiSleep 5;deleteVehicle (['CONTEXT',_this,'MISSION_CLEANUP','fn_aoTaskKill.sqf:163',[]] call QS_fnc_vehicleDespawnLog);};
 					_c = TRUE;
 				};
 				_c;

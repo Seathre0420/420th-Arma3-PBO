@@ -135,7 +135,7 @@ if (_trait isEqualTo 'QS_trait_fighterPilot') then {
 			(missionNamespace getVariable 'QS_casJet') setDamage [1,FALSE];
 			(missionNamespace getVariable 'QS_casJet') spawn {
 				sleep 0.1;
-				deleteVehicle _this;
+				deleteVehicle (['CONTEXT',_this,'REMOVED','fn_initTrait.sqf:138',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		};
 		if (!isNull (missionNamespace getVariable ['QS_cas_laptop',objNull])) then {

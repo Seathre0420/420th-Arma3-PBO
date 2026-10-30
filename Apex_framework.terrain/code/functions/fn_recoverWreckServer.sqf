@@ -44,7 +44,7 @@ if (_vIndex isNotEqualTo -1) then {
 			} forEach (ropes (ropeAttachedTo _oldEntity));
 		};
 		{ropeDestroy _x} forEach (ropes _oldEntity);
-		{deleteVehicle _x} forEach (attachedObjects _oldEntity);
+		{deleteVehicle (['CONTEXT',_x,'REPLACED','fn_recoverWreckServer.sqf:47',[]] call QS_fnc_vehicleDespawnLog)} forEach (attachedObjects _oldEntity);
 		if (!isNull (isVehicleCargo _oldEntity)) then {
 			objNull setVehicleCargo _oldEntity;
 		};
@@ -54,7 +54,7 @@ if (_vIndex isNotEqualTo -1) then {
 			_element = (serverNamespace getVariable 'QS_v_Monitor') # _vIndex;
 			_element set [0,_entity];
 		};
-		deleteVehicle _oldEntity;
+		deleteVehicle (['CONTEXT',_oldEntity,'REPLACED','fn_recoverWreckServer.sqf:57',[]] call QS_fnc_vehicleDespawnLog);
 		[_entity,_entityPos] spawn {
 			params ['_entity','_entityPos'];
 			sleep 0.5;
@@ -95,7 +95,7 @@ if (_vIndex isNotEqualTo -1) then {
 			} forEach (ropes (ropeAttachedTo _oldEntity));
 		};
 		{ropeDestroy _x} forEach (ropes _oldEntity);
-		{deleteVehicle _x} forEach (attachedObjects _oldEntity);
+		{deleteVehicle (['CONTEXT',_x,'REPLACED','fn_recoverWreckServer.sqf:98',[]] call QS_fnc_vehicleDespawnLog)} forEach (attachedObjects _oldEntity);
 		if (!isNull (isVehicleCargo _oldEntity)) then {
 			objNull setVehicleCargo _oldEntity;
 		};
@@ -106,7 +106,7 @@ if (_vIndex isNotEqualTo -1) then {
 			_element set [0,_entity];
 		};
 		//(str [_oldEntity,_entity,_vehicleType]) remoteExec ['systemChat',-2];
-		deleteVehicle _oldEntity;
+		deleteVehicle (['CONTEXT',_oldEntity,'REPLACED','fn_recoverWreckServer.sqf:109',[]] call QS_fnc_vehicleDespawnLog);
 		[_entity,_entityPos] spawn {
 			params ['_entity','_entityPos'];
 			sleep 0.5;

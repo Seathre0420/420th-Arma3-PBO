@@ -52,7 +52,7 @@ if (
 					_entityGroup = group _entity;
 				};
 			};
-			deleteVehicle _entity;
+			deleteVehicle (['CONTEXT',_entity,'REMOVED','fn_spawnMenuInit.sqf:55',[]] call QS_fnc_vehicleDespawnLog);
 			if (!isNull _entityGroup && {(units _entityGroup) isEqualTo []}) then {
 				deleteGroup _entityGroup;
 			};

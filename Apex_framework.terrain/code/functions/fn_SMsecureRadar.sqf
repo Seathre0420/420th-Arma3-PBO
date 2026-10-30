@@ -136,7 +136,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureRadar.sqf:139',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [_object,_researchTable];			/*/ hide objective pieces/*/
 		sleep 120;
 		{
@@ -160,7 +160,7 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _object;
+		deleteVehicle (['CONTEXT',_object,'MISSION_CLEANUP','fn_SMsecureRadar.sqf:163',[]] call QS_fnc_vehicleDespawnLog);
 		uiSleep 12;											/*/ghetto bomb timer/*/
 		'Bo_Mk82' createVehicle (getPosATL _dummy); 			/*/ default "Bo_Mk82","Bo_GBU12_LGB"/*/
 		(missionNamespace getVariable 'QS_sideObj') setDamage 1;
@@ -169,13 +169,13 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _dummy;
+		deleteVehicle (['CONTEXT',_dummy,'MISSION_CLEANUP','fn_SMsecureRadar.sqf:172',[]] call QS_fnc_vehicleDespawnLog);
 		missionNamespace setVariable [
 			'QS_analytics_entities_deleted',
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _researchTable;
+		deleteVehicle (['CONTEXT',_researchTable,'MISSION_CLEANUP','fn_SMsecureRadar.sqf:178',[]] call QS_fnc_vehicleDespawnLog);
 		sleep 0.1;
 	
 		/*/------------------ DE-BRIEFING/*/

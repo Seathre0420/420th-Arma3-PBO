@@ -67,7 +67,7 @@ if (_type isEqualTo 0) then {
 										((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 										FALSE
 									];
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'REMOVED','fn_initCurator.sqf:70',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} count (_object getVariable 'QS_curator_modules');
 						};
@@ -87,7 +87,7 @@ if (_type isEqualTo 0) then {
 						((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 						FALSE
 					];
-					deleteVehicle _object;
+					deleteVehicle (['CONTEXT',_object,'REMOVED','fn_initCurator.sqf:90',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			};
 		}

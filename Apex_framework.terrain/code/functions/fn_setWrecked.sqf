@@ -49,7 +49,7 @@ if (_state isEqualTo 0) exitWith {
 		_oldEntity = _entity;
 		_vIndex = (serverNamespace getVariable 'QS_v_Monitor') findIf { _entity isEqualTo (_x # 0) };
 		{ropeDestroy _x} forEach (ropes _oldEntity);
-		{deleteVehicle _x} forEach (attachedObjects _oldEntity);
+		{deleteVehicle (['CONTEXT',_x,'REPLACED','fn_setWrecked.sqf:52',[]] call QS_fnc_vehicleDespawnLog)} forEach (attachedObjects _oldEntity);
 		_wreckType = [_oldEntity,toLowerANSI (typeOf _oldEntity)] call QS_fnc_getWreckType;
 		_entity = createVehicle [_wreckType,[-500,-500,500],[],100,'CAN_COLLIDE'];
 		_entity setVectorDirAndUp _entityVectors;
@@ -58,7 +58,7 @@ if (_state isEqualTo 0) exitWith {
 			_element set [0,_entity];
 			(serverNamespace getVariable 'QS_v_Monitor') set [_vIndex,_element];
 		};
-		deleteVehicle _oldEntity;
+		deleteVehicle (['CONTEXT',_oldEntity,'REPLACED','fn_setWrecked.sqf:61',[]] call QS_fnc_vehicleDespawnLog);
 		_entity setVelocity [0,0,0];
 		_entity setPosASL (_entityPos vectorAdd [0,0,1]);
 	} else {
@@ -86,7 +86,7 @@ if (_state isEqualTo 0) exitWith {
 					deleteMarker _marker;
 				};
 				if (!isNull (_entity getVariable ['QS_effect_smoke',objNull])) then {
-					deleteVehicle (_entity getVariable ['QS_effect_smoke',objNull]);
+					deleteVehicle (['CONTEXT',(_entity getVariable ['QS_effect_smoke',objNull]),'REPLACED','fn_setWrecked.sqf:89',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			}
 		],
@@ -99,7 +99,7 @@ if (_state isEqualTo 0) exitWith {
 					deleteMarker _marker;
 				};
 				if (!isNull (_entity getVariable ['QS_effect_smoke',objNull])) then {
-					deleteVehicle (_entity getVariable ['QS_effect_smoke',objNull]);
+					deleteVehicle (['CONTEXT',(_entity getVariable ['QS_effect_smoke',objNull]),'REPLACED','fn_setWrecked.sqf:102',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			}
 		],

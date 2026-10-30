@@ -217,7 +217,7 @@ if (_mode isEqualTo 'MODE4') exitWith {
 				(((ropes _parent) isNotEqualTo []) || (diag_tickTime > _timeout))
 			};
 			if ((ropes _parent) isEqualTo []) exitWith {
-				deleteVehicle QS_winch_globalHelperObject;
+				deleteVehicle (['CONTEXT',QS_winch_globalHelperObject,'REMOVED','fn_simpleWinch.sqf:220',[]] call QS_fnc_vehicleDespawnLog);
 				QS_winch_globalHelperObject = objNull;
 				50 cutText [localize 'STR_QS_Text_335','PLAIN',0.5];
 			};
@@ -556,7 +556,7 @@ if (_mode isEqualTo 'MODE14') exitWith {
 		_element set [3,_newHelper];
 		QS_winch_monitor set [_monitor_index,_element];
 		QS_winch_globalHelperObject = _newHelper;
-		deleteVehicle _oldHelper;
+		deleteVehicle (['CONTEXT',_oldHelper,'REMOVED','fn_simpleWinch.sqf:559',[]] call QS_fnc_vehicleDespawnLog);
 		TRUE
 	};
 	FALSE
@@ -864,10 +864,10 @@ if (_mode isEqualTo 'MODE22') exitWith {
 		QS_winch_tempObject = objNull;
 	};
 	removeMissionEventHandler ['Draw3D',QS_WINCH_UIHELPER];
-	deleteVehicle QS_winch_localHelperObject;
+	deleteVehicle (['CONTEXT',QS_winch_localHelperObject,'REMOVED','fn_simpleWinch.sqf:867',[]] call QS_fnc_vehicleDespawnLog);
 	if ((ropes QS_winch_globalHelperObject) isNotEqualTo []) exitWith {};
 	missionNamespace setVariable ['QS_winch_activeVehicle',objNull,FALSE];
-	deleteVehicle QS_winch_globalHelperObject;
+	deleteVehicle (['CONTEXT',QS_winch_globalHelperObject,'REMOVED','fn_simpleWinch.sqf:870',[]] call QS_fnc_vehicleDespawnLog);
 };
 if (_mode isEqualTo 'MODE23') exitWith {
 	params ['','_vehicle'];
@@ -907,7 +907,7 @@ if (_mode isEqualTo 'MODE24') exitWith {
 						_x params [['_rope',objNull],['_parent',objNull],['_child',objNull],['_helper',objNull],['_reversed',FALSE]];
 						if (isNull _rope) exitWith {
 							['MODE22'] call QS_fnc_simpleWinch;
-							deleteVehicle _helper;
+							deleteVehicle (['CONTEXT',_helper,'REMOVED','fn_simpleWinch.sqf:910',[]] call QS_fnc_vehicleDespawnLog);
 							QS_winch_monitor deleteAt _forEachIndex;
 						};
 						if ((isNull _child) && (isNull _helper)) exitWith {
@@ -1128,7 +1128,7 @@ if (_mode isEqualTo 'MODE25') exitWith {
 						};
 						if ((_vehicle getVariable ['QS_rope_helperObjects',[]]) isNotEqualTo []) then {
 							{
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'REMOVED','fn_simpleWinch.sqf:1131',[]] call QS_fnc_vehicleDespawnLog);
 							} forEach (_vehicle getVariable ['QS_rope_helperObjects',[]]);
 						};
 					}
@@ -1153,14 +1153,14 @@ if (_mode isEqualTo 'MODE25') exitWith {
 								_vehicle setVariable ['QS_rope_helperObjects',[],TRUE];
 							};
 							if ((_vehicle getVariable ['QS_rope_mode',0]) isEqualTo 3) exitWith {
-								deleteVehicle _vehicle;
+								deleteVehicle (['CONTEXT',_vehicle,'REMOVED','fn_simpleWinch.sqf:1156',[]] call QS_fnc_vehicleDespawnLog);
 							};
 							if (
 								(_vehicle isKindOf 'Sign_Sphere10cm_F') ||
 								{(_vehicle isKindOf 'B_UAV_01_F')} ||
 								{(_vehicle isKindOf 'B_static_AA_F')}
 							) then {
-								deleteVehicle _vehicle;
+								deleteVehicle (['CONTEXT',_vehicle,'REMOVED','fn_simpleWinch.sqf:1163',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					}
@@ -1183,7 +1183,7 @@ if (_mode isEqualTo 'MODE25') exitWith {
 							{(_parent isKindOf 'B_static_AA_F')}
 						) then {
 							_rope remoteExec ['ropeDestroy',_parent,FALSE];
-							deleteVehicle _parent;
+							deleteVehicle (['CONTEXT',_parent,'REMOVED','fn_simpleWinch.sqf:1186',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					}
 				]
@@ -1277,7 +1277,7 @@ if (_mode isEqualTo 'MODE25') exitWith {
 			};
 			if (_deleteOld && {!isNull _childOld}) then {
 				uiSleep (diag_deltaTime * 2);
-				deleteVehicle _childOld;
+				deleteVehicle (['CONTEXT',_childOld,'REMOVED','fn_simpleWinch.sqf:1280',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		};
 	};

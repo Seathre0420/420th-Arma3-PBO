@@ -281,7 +281,7 @@ for '_z' from 0 to 1 step 0 do {
 if (_fail) then {
 	[[WEST,'HQ'],(format ['%1 lost!',_displayName])] remoteExec ['sideChat',-2,FALSE];
 	['GRID_BRIEF',[localize 'STR_QS_Notif_155',localize 'STR_QS_Notif_158']] remoteExec ['QS_fnc_showNotification',-2,FALSE];
-	deleteVehicle _selectedDeployment;
+	deleteVehicle (['CONTEXT',_selectedDeployment,'REMOVED','fn_deployAssault.sqf:284',[]] call QS_fnc_vehicleDespawnLog);
 };
 if (_success) then {
 	
@@ -312,7 +312,7 @@ if (!isNull _selectedDeployment) then {
 };
 if (_selectedDeployment getVariable ['QS_deploy_assaultTerminate',FALSE]) then {
 	_selectedDeployment setVariable ['QS_deploy_assaultTerminate',FALSE,FALSE];
-	{deleteVehicle _x} forEach _enemyArray;
+	{deleteVehicle (['CONTEXT',_x,'REMOVED','fn_deployAssault.sqf:315',[]] call QS_fnc_vehicleDespawnLog)} forEach _enemyArray;
 } else {
 	_enemyArray spawn {
 		{
@@ -322,7 +322,7 @@ if (_selectedDeployment getVariable ['QS_deploy_assaultTerminate',FALSE]) then {
 		sleep 60;
 		{
 			if (alive _x) then {
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'REMOVED','fn_deployAssault.sqf:325',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		} forEach _this;
 	};

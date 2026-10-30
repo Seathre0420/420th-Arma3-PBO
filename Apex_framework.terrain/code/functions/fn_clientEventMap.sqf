@@ -201,7 +201,7 @@ if (_mapIsOpened) then {
 							if (!local _closestBuildable) then {
 								['systemChat',format [localize 'STR_QS_Text_401',profileName,(getText ((configOf _closestBuildable) >> 'displayName')),mapGridPosition _closestBuildable]] remoteExec ['QS_fnc_remoteExecCmd',_closestBuildable,FALSE];
 							};
-							deleteVehicle _closestBuildable;
+							deleteVehicle (['CONTEXT',_closestBuildable,'REMOVED','fn_clientEventMap.sqf:204',[]] call QS_fnc_vehicleDespawnLog);
 						} else {
 							50 cutText [localize 'STR_QS_Text_400','PLAIN',0.5,TRUE];
 						};

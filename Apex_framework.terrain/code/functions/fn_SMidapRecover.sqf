@@ -735,7 +735,7 @@ for '_x' from 0 to 1 step 0 do {
 			//comment 'Spawn civilians?';
 			if (_houseMines isNotEqualTo []) then {
 				{
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMidapRecover.sqf:738',[]] call QS_fnc_vehicleDespawnLog);
 				} forEach _houseMines;
 				_houseMines = [];
 			};
@@ -848,7 +848,7 @@ for '_x' from 0 to 1 step 0 do {
 							['SM_IDAP_UPDATE',[localize 'STR_QS_Notif_091',localize 'STR_QS_Notif_095']] remoteExec ['QS_fnc_showNotification',-2,FALSE];
 							_sceneType = 1;
 							deleteMarker _aidMarker;
-							deleteVehicle _crate;
+							deleteVehicle (['CONTEXT',_crate,'MISSION_CLEANUP','fn_SMidapRecover.sqf:851',[]] call QS_fnc_vehicleDespawnLog);
 							_crateSpawned = FALSE;
 							deleteMarker _houseMarker;
 							[78,0,'QS_client_customDraw2D',_iconID,_iconData] remoteExec ['QS_fnc_remoteExec',-2,FALSE];
@@ -877,7 +877,7 @@ for '_x' from 0 to 1 step 0 do {
 							};
 							if (_houseMines isNotEqualTo []) then {
 								{
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMidapRecover.sqf:880',[]] call QS_fnc_vehicleDespawnLog);
 								} forEach _houseMines;
 							};
 						};
@@ -989,7 +989,7 @@ for '_x' from 0 to 1 step 0 do {
 ['QS_TASK_SM_IDAP_1'] call (missionNamespace getVariable 'BIS_fnc_deleteTask');
 {
 	if (!isNull _x) then {
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMidapRecover.sqf:992',[]] call QS_fnc_vehicleDespawnLog);
 	};
 } forEach [
 	_recoverableUnit,
@@ -1002,7 +1002,7 @@ if (_allArray isNotEqualTo []) then {
 		if (_toDelete isKindOf 'LandVehicle') then {
 			if (alive _toDelete) then {
 				if (((crew _toDelete) findIf {(alive _x)}) isEqualTo -1) then {
-					deleteVehicle _toDelete;
+					deleteVehicle (['CONTEXT',_toDelete,'MISSION_CLEANUP','fn_SMidapRecover.sqf:1005',[]] call QS_fnc_vehicleDespawnLog);
 				} else {
 					_toDelete setVariable ['QS_vehicle_delayedDelete',(diag_tickTime + 600),FALSE];
 					_toDelete addEventHandler [
@@ -1011,7 +1011,7 @@ if (_allArray isNotEqualTo []) then {
 							params ['_vehicle'];
 							if (diag_tickTime > (_vehicle getVariable ['QS_vehicle_delayedDelete',-1])) then {
 								if (((crew _vehicle) findIf {(alive _x)}) isEqualTo -1) then {
-									deleteVehicle _vehicle;
+									deleteVehicle (['CONTEXT',_vehicle,'MISSION_CLEANUP','fn_SMidapRecover.sqf:1014',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							};
 						}
@@ -1020,7 +1020,7 @@ if (_allArray isNotEqualTo []) then {
 				};
 			};
 		} else {
-			deleteVehicle _toDelete;
+			deleteVehicle (['CONTEXT',_toDelete,'MISSION_CLEANUP','fn_SMidapRecover.sqf:1023',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	} forEach _allArray;
 };
@@ -1029,7 +1029,7 @@ if (_allArray isNotEqualTo []) then {
 } forEach _idapComposition;
 if (_houseMines isNotEqualTo []) then {
 	{
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMidapRecover.sqf:1032',[]] call QS_fnc_vehicleDespawnLog);
 	} forEach _houseMines;
 };
 {

@@ -124,18 +124,18 @@ if (
 				params ['_entity'];
 				if ((_entity getVariable ['bis_carrierParts',[]]) isNotEqualTo []) then {
 					{
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REMOVED','fn_destroyer.sqf:127',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (_entity getVariable ['bis_carrierParts',[]]);
 				};
 				if ((_entity getVariable ['QS_destroyer_turrets',[]]) isNotEqualTo []) then {
 					{
 						_x setDamage [1,FALSE];
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REMOVED','fn_destroyer.sqf:133',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (_entity getVariable ['QS_destroyer_turrets',[]]);
 				};
 				if ((_entity getVariable ['QS_carrier_props',[]]) isNotEqualTo []) then {
 					{
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REMOVED','fn_destroyer.sqf:138',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (_entity getVariable ['QS_carrier_props',[]]);
 				};
 				missionNamespace setVariable ['QS_destroyerObject',objNull,TRUE];

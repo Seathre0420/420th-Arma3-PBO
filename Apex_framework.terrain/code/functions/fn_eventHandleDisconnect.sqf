@@ -61,7 +61,7 @@ private _vehicleMonitor = serverNamespace getVariable ['QS_v_Monitor',[]];
 					_spawnedGroup = group _spawnedEntity;
 				};
 			};
-			deleteVehicle _spawnedEntity;
+			deleteVehicle (['CONTEXT',_spawnedEntity,'DISCONNECT','fn_eventHandleDisconnect.sqf:64',[]] call QS_fnc_vehicleDespawnLog);
 			if (!isNull _spawnedGroup && {(units _spawnedGroup) isEqualTo []}) then {
 				deleteGroup _spawnedGroup;
 			};
@@ -130,7 +130,7 @@ if (!isNil {_object getVariable 'QS_pilot_vehicleInfo'}) then {
 							sleep 2;
 							if ((vehicle _unit) isNotEqualTo _vehicle) then {
 								missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-								deleteVehicle _unit;
+								deleteVehicle (['CONTEXT',_unit,'DISCONNECT','fn_eventHandleDisconnect.sqf:133',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 						_unit setCaptive TRUE;
@@ -147,14 +147,14 @@ if (!isNil {_object getVariable 'QS_pilot_vehicleInfo'}) then {
 						_unit addEventHandler [
 							'GetOutMan',
 							{
-								deleteVehicle (_this # 0);
+								deleteVehicle (['CONTEXT',(_this # 0),'DISCONNECT','fn_eventHandleDisconnect.sqf:150',[]] call QS_fnc_vehicleDespawnLog);
 								missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 							}
 						];
 						_unit addEventHandler [
 							'SeatSwitchedMan',
 							{
-								deleteVehicle (_this # 0);
+								deleteVehicle (['CONTEXT',(_this # 0),'DISCONNECT','fn_eventHandleDisconnect.sqf:157',[]] call QS_fnc_vehicleDespawnLog);
 								missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 							}
 						];
@@ -313,7 +313,7 @@ if (_uid in (['CURATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist'))
 					{
 						if (!isNull _x) then {
 							missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'DISCONNECT','fn_eventHandleDisconnect.sqf:316',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} count (_module getVariable 'QS_curator_modules');
 				};
@@ -334,7 +334,7 @@ if (_uid in (['CURATOR'] call (missionNamespace getVariable 'QS_fnc_whitelist'))
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _module;
+			deleteVehicle (['CONTEXT',_module,'DISCONNECT','fn_eventHandleDisconnect.sqf:337',[]] call QS_fnc_vehicleDespawnLog);
 			deleteGroup _grp;
 			if (allCurators isEqualTo []) then {
 				if (missionNamespace getVariable 'QS_smSuspend') then {
@@ -354,14 +354,14 @@ if ((_object isEqualTo (missionNamespace getVariable 'QS_fighterPilot')) || {(_o
 	};
 	if (alive (missionNamespace getVariable 'QS_casJet')) then {
 		if ((crew QS_casJet) isEqualTo []) then {
-			deleteVehicle (missionNamespace getVariable 'QS_casJet');
+			deleteVehicle (['CONTEXT',(missionNamespace getVariable 'QS_casJet'),'DISCONNECT','fn_eventHandleDisconnect.sqf:357',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 };
 if ((getAllOwnedMines _object) isNotEqualTo []) then {
 	{
 		missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'DISCONNECT','fn_eventHandleDisconnect.sqf:364',[]] call QS_fnc_vehicleDespawnLog);
 	} count (getAllOwnedMines _object);
 };
 if ((attachedObjects _object) isNotEqualTo []) then {
@@ -374,7 +374,7 @@ if (!isNull _object) then {
 		if (isNull (objectParent _object)) then {
 			if (isNull (attachedTo _object)) then {
 				missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-				deleteVehicle _object;
+				deleteVehicle (['CONTEXT',_object,'DISCONNECT','fn_eventHandleDisconnect.sqf:377',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		};
 	} else {

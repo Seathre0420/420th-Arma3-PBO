@@ -192,7 +192,7 @@ _compositionData = nil;
 				params ['_entity'];
 				if ((attachedObjects _entity) isNotEqualTo []) then {
 					{
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMpriorityAA.sqf:195',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (attachedObjects _entity);
 				};
 			}
@@ -204,7 +204,7 @@ _compositionData = nil;
 				if ((attachedObjects _killed) isNotEqualTo []) then {
 					{
 						[0,_x] call QS_fnc_eventAttach;
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMpriorityAA.sqf:207',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (attachedObjects _killed);
 				};
 				if (!isNull _instigator) then {

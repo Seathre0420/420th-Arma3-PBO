@@ -273,7 +273,7 @@ for '_x' from 0 to 1 step 0 do {
 				};
 				_mine = createVehicle ['SmallSecondary',(getPosATL _objUnit),[],0,'CAN_COLLIDE']; 
 				_mine setDamage [1,TRUE];
-				deleteVehicle _objUnit;
+				deleteVehicle (['CONTEXT',_objUnit,'MISSION_CLEANUP','fn_aoTaskIG.sqf:276',[]] call QS_fnc_vehicleDespawnLog);
 			} else {
 				if (_objUnit getVariable ['QS_secured',FALSE]) then {
 					_taskSucceeded = TRUE;

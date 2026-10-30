@@ -1294,7 +1294,7 @@ private _fn_cancelBuild = {
 	// squads are cancelled; combat casualties in a fully built squad are retained.
 	{
 		if ((_x getVariable ['QS_primaryPressure_entityEpoch',-1]) isEqualTo (_state get 'epoch') && {!(_x call _fn_exempt)}) then {
-			if (!isNull (objectParent _x)) then {(objectParent _x) deleteVehicleCrew _x;} else {deleteVehicle _x;};
+			if (!isNull (objectParent _x)) then {(objectParent _x) deleteVehicleCrew _x;} else {deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:1297',[]] call QS_fnc_vehicleDespawnLog);};
 		};
 	} forEach (units _group);
 	{if ((_x # 4) isEqualTo _group) then {[_x # 1] call _fn_deleteChute;};} forEach (_state get 'air');
@@ -1308,7 +1308,7 @@ private _fn_deleteChute = {
 	// just because a moveOut command was issued in this same scheduler slice.
 	if (!isNull _chute && {((crew _chute) findIf {alive _x || {isPlayer _x}}) < 0}) then {
 		deleteVehicleCrew _chute;
-		deleteVehicle _chute;
+		deleteVehicle (['CONTEXT',_chute,'MISSION_CLEANUP','fn_AI.sqf:1311',[]] call QS_fnc_vehicleDespawnLog);
 	};
 };
 
@@ -1606,7 +1606,7 @@ if (_mode isEqualTo 'AIR') exitWith {
 				if (!_done && {_now > _deadline || {isNull _chute} || {(_jumper distance2D _landing) > 650}}) then {
 					// Bounded failure recovery: retire a failed insertion, never teleport
 					// a stuck/paragliding AI onto players or wait indefinitely for it.
-					if (!isNull (objectParent _jumper)) then {(objectParent _jumper) deleteVehicleCrew _jumper;} else {deleteVehicle _jumper;};
+					if (!isNull (objectParent _jumper)) then {(objectParent _jumper) deleteVehicleCrew _jumper;} else {deleteVehicle (['CONTEXT',_jumper,'MISSION_CLEANUP','fn_AI.sqf:1609',[]] call QS_fnc_vehicleDespawnLog);};
 					[_chute] call _fn_deleteChute;
 					diag_log format ['[PrimaryAO] DROP_TIMEOUT epoch=%1',_epoch];
 					_done = TRUE;
@@ -2084,7 +2084,7 @@ if (_mode isEqualTo 'WORK') exitWith {
 				};
 				private _members = units _crew;
 				if (isNull _crew || {(count _members) > 4} || {_members isEqualTo []} || {(WEST getFriend (side _crew)) >= 0.6}) then {
-					deleteVehicleCrew _vehicle; deleteVehicle _vehicle;
+					deleteVehicleCrew _vehicle; deleteVehicle (['CONTEXT',_vehicle,'MISSION_CLEANUP','fn_AI.sqf:2087',[]] call QS_fnc_vehicleDespawnLog);
 				} else {
 					{[_x] call _fn_charge; _x call QS_fnc_unitSetup;} forEach _members;
 					[_members,1] call QS_fnc_serverSetAISkill;
@@ -2153,7 +2153,7 @@ if (_mode isEqualTo 'WORK') exitWith {
 		};
 	};
 	if (_delivery isEqualTo 'HELI' && {isNull _heli || {isNull (driver _heli)}}) exitWith {
-		if (!isNull _heli) then {deleteVehicleCrew _heli; deleteVehicle _heli;};
+		if (!isNull _heli) then {deleteVehicleCrew _heli; deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_AI.sqf:2156',[]] call QS_fnc_vehicleDespawnLog);};
 		if (!isNull _cargo) then {deleteGroup _cargo;};
 		if (!isNull _pilots) then {deleteGroup _pilots;};
 		_state set ['reserved',0];
@@ -3726,13 +3726,13 @@ for '_x' from 0 to 1 step 0 do {
 										if ((objectParent _x) isKindOf 'AllVehicles') then {
 											(objectParent _x) deleteVehicleCrew _x;
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3729',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3732',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3735',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							};
 						};
@@ -3752,13 +3752,13 @@ for '_x' from 0 to 1 step 0 do {
 											if ((objectParent _x) isKindOf 'AllVehicles') then {
 												(objectParent _x) deleteVehicleCrew _x;
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3755',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3758',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3761',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								};
 							};
@@ -3782,13 +3782,13 @@ for '_x' from 0 to 1 step 0 do {
 														if ((objectParent _x) isKindOf 'AllVehicles') then {
 															(objectParent _x) deleteVehicleCrew _x;
 														} else {
-															deleteVehicle _x;
+															deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3785',[]] call QS_fnc_vehicleDespawnLog);
 														};
 													} else {
-														deleteVehicle _x;
+														deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3788',[]] call QS_fnc_vehicleDespawnLog);
 													};
 												} else {
-													deleteVehicle _x;
+													deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3791',[]] call QS_fnc_vehicleDespawnLog);
 												};
 											};
 										};
@@ -3807,7 +3807,7 @@ for '_x' from 0 to 1 step 0 do {
 								missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),_false];
 								_x setDamage [1,_false];
 								uiSleep 0.1;
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3810',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} forEach _QS_module_virtualSectors_uavs;
@@ -3823,13 +3823,13 @@ for '_x' from 0 to 1 step 0 do {
 										if ((objectParent _x) isKindOf 'AllVehicles') then {
 											(objectParent _x) deleteVehicleCrew _x;
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3826',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3829',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:3832',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							};
 						};
@@ -4170,13 +4170,13 @@ for '_x' from 0 to 1 step 0 do {
 														if ((objectParent _x) isKindOf 'AllVehicles') then {
 															(objectParent _x) deleteVehicleCrew _x;
 														} else {
-															deleteVehicle _x;
+															deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4173',[]] call QS_fnc_vehicleDespawnLog);
 														};
 													} else {
-														deleteVehicle _x;
+														deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4176',[]] call QS_fnc_vehicleDespawnLog);
 													};
 												} else {
-													deleteVehicle _x;
+													deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4179',[]] call QS_fnc_vehicleDespawnLog);
 												};
 											};
 										};
@@ -4198,13 +4198,13 @@ for '_x' from 0 to 1 step 0 do {
 												if ((objectParent _x) isKindOf 'AllVehicles') then {
 													(objectParent _x) deleteVehicleCrew _x;
 												} else {
-													deleteVehicle _x;
+													deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4201',[]] call QS_fnc_vehicleDespawnLog);
 												};
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4204',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4207',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									};
 								};
@@ -4223,13 +4223,13 @@ for '_x' from 0 to 1 step 0 do {
 											if ((objectParent _x) isKindOf 'AllVehicles') then {
 												(objectParent _x) deleteVehicleCrew _x;
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4226',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4229',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4232',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								};
 							};
@@ -4247,13 +4247,13 @@ for '_x' from 0 to 1 step 0 do {
 											if ((objectParent _x) isKindOf 'AllVehicles') then {
 												(objectParent _x) deleteVehicleCrew _x;
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4250',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4253',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4256',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								};
 							};
@@ -4271,13 +4271,13 @@ for '_x' from 0 to 1 step 0 do {
 											if ((objectParent _x) isKindOf 'AllVehicles') then {
 												(objectParent _x) deleteVehicleCrew _x;
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4274',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4277',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4280',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								};
 							};
@@ -4296,13 +4296,13 @@ for '_x' from 0 to 1 step 0 do {
 											if ((objectParent _x) isKindOf 'AllVehicles') then {
 												(objectParent _x) deleteVehicleCrew _x;
 											} else {
-												deleteVehicle _x;
+												deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4299',[]] call QS_fnc_vehicleDespawnLog);
 											};
 										} else {
-											deleteVehicle _x;
+											deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4302',[]] call QS_fnc_vehicleDespawnLog);
 										};
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4305',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								};
 							};
@@ -4334,13 +4334,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4337',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4340',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4343',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						} forEach _QS_module_grid_enemy_X;
 					} forEach _QS_module_grid_enemy;
@@ -4355,13 +4355,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4358',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4361',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4364',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} forEach (missionNamespace getVariable ['QS_primaryObjective_civilians',[]]);
@@ -4376,13 +4376,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4379',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4382',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4385',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} count (missionNamespace getVariable 'QS_aoAnimals');
@@ -4397,13 +4397,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4400',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4403',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4406',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} forEach _QS_module_grid_defendUnits;
@@ -4541,13 +4541,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4544',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4547',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4550',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} forEach _QS_module_grid_defendUnits;
@@ -4583,13 +4583,13 @@ for '_x' from 0 to 1 step 0 do {
 									if ((objectParent _x) isKindOf 'AllVehicles') then {
 										(objectParent _x) deleteVehicleCrew _x;
 									} else {
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4586',[]] call QS_fnc_vehicleDespawnLog);
 									};
 								} else {
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4589',[]] call QS_fnc_vehicleDespawnLog);
 								};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4592',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					} forEach _QS_module_ambientHostility_entities;
@@ -4617,7 +4617,7 @@ for '_x' from 0 to 1 step 0 do {
 												) then {
 													(objectParent _x) deleteVehicleCrew _x;
 												} else {
-													deleteVehicle _x;
+													deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AI.sqf:4620',[]] call QS_fnc_vehicleDespawnLog);
 												};
 											};
 										} forEach _QS_module_ambientHostility_entities;

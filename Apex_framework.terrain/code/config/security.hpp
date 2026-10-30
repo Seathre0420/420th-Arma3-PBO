@@ -211,6 +211,7 @@ class CfgRemoteExec {
 		class BIS_fnc_setTaskLocal {jip = 1;};
 		class BIS_fnc_sharedObjectives {};
 		class BIS_fnc_showNotification {allowedTargets = 1;};
+		class QS_fnc_vehicleDespawnReport {allowedTargets = 2; jip = 0;};
 		class QS_fnc_remoteExec {allowedTargets = 0;};
 		class QS_fnc_defendAssault {allowedTargets = 0; jip = 0;};
 		class QS_fnc_aoDamageProtection {allowedTargets = 0; jip = 1;};

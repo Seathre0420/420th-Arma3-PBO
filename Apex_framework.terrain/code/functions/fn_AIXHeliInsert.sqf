@@ -56,9 +56,9 @@ if ((_this param [0,[]]) isEqualTo 'TARU_CREATE') exitWith {
     private _heli = createVehicle [_class,_entry,[],0,'FLY'];
     if (isNull _heli) exitWith {deleteGroup _pilots; []};
     private _pilot = _pilots createUnit [QS_core_units_map getOrDefault ['o_helipilot_f','O_helipilot_F'],_entry,[],0,'NONE'];
-    if (isNull _pilot) exitWith {deleteVehicle _heli; deleteGroup _pilots; []};
+    if (isNull _pilot) exitWith {deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:59',[]] call QS_fnc_vehicleDespawnLog); deleteGroup _pilots; []};
     _pilot moveInDriver _heli;
-    if ((driver _heli) isNotEqualTo _pilot) exitWith {deleteVehicle _pilot; deleteVehicle _heli; deleteGroup _pilots; []};
+    if ((driver _heli) isNotEqualTo _pilot) exitWith {deleteVehicle (['CONTEXT',_pilot,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:61',[]] call QS_fnc_vehicleDespawnLog); deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:61',[]] call QS_fnc_vehicleDespawnLog); deleteGroup _pilots; []};
     _pilot call QS_fnc_unitSetup;
     _pilots addVehicle _heli;
     _heli setPosATL _entry;
@@ -278,11 +278,11 @@ if ((_this param [0,[]]) isEqualTo 'TARU_DELIVER') exitWith {
                     {isTouchingGround _chute || {_height < 1.8}}) then {unassignVehicle _unit; moveOut _unit;};
                 if (alive _unit && {_height >= 3 || {!isNull (objectParent _unit)}}) then {
                     if (diag_tickTime < _deadline && {(_unit distance2D _lz) <= 650}) then {_remaining pushBack _x;} else {
-                        if ((objectParent _unit) isEqualTo _chute) then {_chute deleteVehicleCrew _unit;} else {if (isNull (objectParent _unit)) then {deleteVehicle _unit;};};
+                        if ((objectParent _unit) isEqualTo _chute) then {_chute deleteVehicleCrew _unit;} else {if (isNull (objectParent _unit)) then {deleteVehicle (['CONTEXT',_unit,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:281',[]] call QS_fnc_vehicleDespawnLog);};};
                     };
                 };
             };
-            if (!isNull _chute && {((crew _chute) findIf {alive _x || {isPlayer _x}}) < 0}) then {deleteVehicleCrew _chute; deleteVehicle _chute;};
+            if (!isNull _chute && {((crew _chute) findIf {alive _x || {isPlayer _x}}) < 0}) then {deleteVehicleCrew _chute; deleteVehicle (['CONTEXT',_chute,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:285',[]] call QS_fnc_vehicleDespawnLog);};
         } forEach _air;
         _air = _remaining;
         (_air isEqualTo [] && {((units _cargo) findIf {alive _x && {(_x getVariable ['AR_Is_Rappelling',FALSE]) || {((getPosATL _x) # 2) > 3}}}) < 0}) ||
@@ -430,7 +430,7 @@ _heli addEventHandler [
 		deleteVehicleCrew _entity;
 		_helipad = _entity getVariable ['QS_assignedHelipad',objNull];
 		if (!isNull _helipad) then {
-			deleteVehicle _helipad;
+			deleteVehicle (['CONTEXT',_helipad,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:433',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	}
 ];
@@ -443,7 +443,7 @@ _heli addEventHandler [
 		_killed removeAllEventHandlers 'HandleDamage';
 		_helipad = _killed getVariable ['QS_assignedHelipad',objNull];
 		if (!isNull _helipad) then {
-			deleteVehicle _helipad;
+			deleteVehicle (['CONTEXT',_helipad,'MISSION_CLEANUP','fn_AIXHeliInsert.sqf:446',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	}
 ];

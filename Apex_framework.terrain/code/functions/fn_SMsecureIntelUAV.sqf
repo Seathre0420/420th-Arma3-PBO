@@ -156,7 +156,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _uav;
+			deleteVehicle (['CONTEXT',_uav,'MISSION_CLEANUP','fn_SMsecureIntelUAV.sqf:159',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 	if ((serverTime > _timeEnd) || {(!alive _uav)} || {(missionNamespace getVariable ['QS_smAbort',FALSE])}) exitWith {
@@ -178,7 +178,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _uav;
+			deleteVehicle (['CONTEXT',_uav,'MISSION_CLEANUP','fn_SMsecureIntelUAV.sqf:181',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 	if (time > _signalPulseCheckDelay) then {

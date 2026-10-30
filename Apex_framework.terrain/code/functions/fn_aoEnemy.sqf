@@ -289,7 +289,7 @@ if ((random 1) > _staticChance) then {
 		{
 			params ['_tower'];
 			{
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoEnemy.sqf:292',[]] call QS_fnc_vehicleDespawnLog);
 			} forEach (_tower getVariable ['QS_entity_assocEntities',[]]);
 		}
 	];
@@ -298,7 +298,7 @@ if ((random 1) > _staticChance) then {
 		{
 			params ['_tower'];
 			{
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoEnemy.sqf:301',[]] call QS_fnc_vehicleDespawnLog);
 			} forEach (_tower getVariable ['QS_entity_assocEntities',[]]);
 		}
 	];

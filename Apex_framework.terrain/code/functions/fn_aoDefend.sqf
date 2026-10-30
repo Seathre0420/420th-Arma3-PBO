@@ -733,16 +733,16 @@ for '_x' from 0 to 1 step 0 do {
 			if (_lift) then {
 				private _heli = _flight # 0; private _pilots = _flight # 1;
 				if (isNull _grp || {count (units _grp) isNotEqualTo _size}) then {
-					{deleteVehicle _x;} forEach (units _grp);
-					deleteVehicleCrew _heli; deleteVehicle _heli; deleteGroup _pilots;
+					{deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoDefend.sqf:736',[]] call QS_fnc_vehicleDespawnLog);} forEach (units _grp);
+					deleteVehicleCrew _heli; deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_aoDefend.sqf:737',[]] call QS_fnc_vehicleDespawnLog); deleteGroup _pilots;
 					_lift = FALSE;
 				} else {
 					_grp setVariable ['QS_AI_GRP_HC_EXCLUDED',TRUE,TRUE];
 					_grp setVariable ['QS_taruDelivery_busy',TRUE,TRUE];
 					{_x moveInCargo _heli;} forEach (units _grp);
 					if (((units _grp) findIf {(objectParent _x) isNotEqualTo _heli}) >= 0) exitWith {
-						{if ((objectParent _x) isEqualTo _heli) then {_heli deleteVehicleCrew _x;} else {deleteVehicle _x;};} forEach (units _grp);
-						deleteVehicleCrew _heli; deleteVehicle _heli; deleteGroup _pilots;
+						{if ((objectParent _x) isEqualTo _heli) then {_heli deleteVehicleCrew _x;} else {deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoDefend.sqf:744',[]] call QS_fnc_vehicleDespawnLog);};} forEach (units _grp);
+						deleteVehicleCrew _heli; deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_aoDefend.sqf:745',[]] call QS_fnc_vehicleDespawnLog); deleteGroup _pilots;
 						_lift = FALSE;
 					};
 					_allArray append [_heli,driver _heli];
@@ -1657,7 +1657,7 @@ sleep 7 + (random 7);
 		((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 		FALSE
 	];
-	deleteVehicle _x;
+	deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoDefend.sqf:1660',[]] call QS_fnc_vehicleDespawnLog);
 	sleep 0.05;
 } count _allArray;
 {
@@ -1667,12 +1667,12 @@ sleep 7 + (random 7);
 		FALSE
 	];
 	if (!(_x getVariable ['QS_dead_prop',FALSE])) then {
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoDefend.sqf:1670',[]] call QS_fnc_vehicleDespawnLog);
 		sleep 0.01;
 	};
 } count allDeadMen;
 {
-	deleteVehicle _x;
+	deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoDefend.sqf:1675',[]] call QS_fnc_vehicleDespawnLog);
 } forEach (allMines inAreaArray [_centerPos,300,300,0,FALSE]);
 {
 	if (local _x) then {

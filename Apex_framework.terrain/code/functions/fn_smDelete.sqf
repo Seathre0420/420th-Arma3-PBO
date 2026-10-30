@@ -16,17 +16,17 @@ ___________________________________________*/
     if (_x isEqualType grpNull) then {
         {
 			if ((vehicle _x) isNotEqualTo _x) then {
-                deleteVehicle (vehicle _x);
+                deleteVehicle (['CONTEXT',(vehicle _x),'MISSION_CLEANUP','fn_smDelete.sqf:19',[]] call QS_fnc_vehicleDespawnLog);
             };
-            deleteVehicle _x;
+            deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_smDelete.sqf:21',[]] call QS_fnc_vehicleDespawnLog);
         } forEach (units _x);
     } else {
         if ((vehicle _x) isNotEqualTo _x) then {
-            deleteVehicle (vehicle _x);
+            deleteVehicle (['CONTEXT',(vehicle _x),'MISSION_CLEANUP','fn_smDelete.sqf:25',[]] call QS_fnc_vehicleDespawnLog);
         };
         if !(_x isKindOf 'CAManBase') then {
 			deleteVehicleCrew _x;
         };
-        deleteVehicle _x;
+        deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_smDelete.sqf:30',[]] call QS_fnc_vehicleDespawnLog);
     };
 } forEach (_this # 0);

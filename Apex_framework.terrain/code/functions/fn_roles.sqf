@@ -910,7 +910,7 @@ if (_type isEqualTo 'HANDLE_REQUEST_ROLE') exitWith {
 		{
 			private _uavGroup = group (effectiveCommander _x);
 			deleteVehicleCrew _x;
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'UAV_CLEANUP','fn_roles.sqf:913',[]] call QS_fnc_vehicleDespawnLog);
 			if (!isNull _uavGroup && {(units _uavGroup) isEqualTo []}) then {
 				deleteGroup _uavGroup;
 			};

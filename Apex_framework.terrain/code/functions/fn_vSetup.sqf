@@ -417,7 +417,7 @@ if (_u isKindOf 'LandVehicle') then {
 						[0,_x] call QS_fnc_eventAttach;
 						if (!isPlayer _x) then {
 							_x setDamage [1,FALSE];
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'REMOVED','fn_vSetup.sqf:420',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} forEach (attachedObjects _vehicle);
 				};
@@ -434,7 +434,7 @@ if (_u isKindOf 'LandVehicle') then {
 						[0,_x] call QS_fnc_eventAttach;
 						if (!isPlayer _x) then {
 							_x setDamage [1,FALSE];
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'REMOVED','fn_vSetup.sqf:437',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} forEach (attachedObjects _vehicle);
 				};
@@ -761,7 +761,7 @@ if ((['LandVehicle','Air','Ship'] findIf { _u isKindOf _x }) isNotEqualTo -1) th
 		params ['_vehicle'];
 		private _attachedObjs = [_vehicle] call QS_fnc_getAllAttached;
 		{
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'REMOVED','fn_vSetup.sqf:764',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach _attachedObjs;
 		if (_vehicle isKindOf 'Plane') then {
 			if ((getVehicleCargo _vehicle) isNotEqualTo []) then {

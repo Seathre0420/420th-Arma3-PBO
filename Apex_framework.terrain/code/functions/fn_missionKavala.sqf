@@ -297,7 +297,7 @@ if (_staticsEnabled) then {
 			{
 				if (!isNull (gunner (_this # 0))) then {
 					if (alive (gunner (_this # 0))) then {
-						deleteVehicle (gunner (_this # 0));
+						deleteVehicle (['CONTEXT',(gunner (_this # 0)),'MISSION_CLEANUP','fn_missionKavala.sqf:300',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				};
 			}
@@ -728,7 +728,7 @@ for '_x' from 0 to 1 step 0 do {
 									((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 									FALSE
 								];
-								deleteVehicle (gunner (_this # 0));
+								deleteVehicle (['CONTEXT',(gunner (_this # 0)),'MISSION_CLEANUP','fn_missionKavala.sqf:731',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					}
@@ -1239,7 +1239,7 @@ waitUntil {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_missionKavala.sqf:1242',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 	uiSleep 0.01;
@@ -1252,7 +1252,7 @@ waitUntil {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_missionKavala.sqf:1255',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 	uiSleep 0.01;
@@ -1265,7 +1265,7 @@ waitUntil {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_missionKavala.sqf:1268',[]] call QS_fnc_vehicleDespawnLog);
 	};
 } forEach _supplyCrates;
 missionNamespace setVariable ['QS_customAO_GT_active',FALSE,TRUE];

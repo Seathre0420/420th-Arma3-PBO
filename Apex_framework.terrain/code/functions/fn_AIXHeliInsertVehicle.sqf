@@ -122,7 +122,7 @@ if (isNull (getSlingLoad _heli)) then {
 };
 if (isNull (getSlingLoad _heli)) exitWith {
 	deleteVehicleCrew _heli;
-	deleteVehicle _heli;
+	deleteVehicle (['CONTEXT',_heli,'MISSION_CLEANUP','fn_AIXHeliInsertVehicle.sqf:125',[]] call QS_fnc_vehicleDespawnLog);
 };
 _heli addEventHandler [
 	'HandleDamage',
@@ -160,7 +160,7 @@ _heli addEventHandler [
 						params ['_group','_wpIndex'];
 						_vehicle = vehicle (leader _group);
 						deleteVehicleCrew _vehicle;
-						deleteVehicle _vehicle;	
+						deleteVehicle (['CONTEXT',_vehicle,'MISSION_CLEANUP','fn_AIXHeliInsertVehicle.sqf:163',[]] call QS_fnc_vehicleDespawnLog);
 					}
 				];
 			};

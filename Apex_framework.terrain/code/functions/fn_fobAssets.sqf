@@ -94,13 +94,13 @@ if (_type isEqualTo 'VEHICLES_REMOVE') exitWith {
 					{
 						params ['_vehicle'];
 						if (((crew _vehicle) findIf {(alive _x)}) isEqualTo -1) then {
-							deleteVehicle _vehicle;
+							deleteVehicle (['CONTEXT',_vehicle,'REMOVED','fn_fobAssets.sqf:97',[]] call QS_fnc_vehicleDespawnLog);
 							missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 						};
 					}
 				];
 				if (isSimpleObject _entity) then {
-					deleteVehicle _entity;
+					deleteVehicle (['CONTEXT',_entity,'REMOVED','fn_fobAssets.sqf:103',[]] call QS_fnc_vehicleDespawnLog);
 					missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
 				} else {
 					(missionNamespace getVariable 'QS_garbageCollector') pushBack [_entity,'NOW_DISCREET',0];

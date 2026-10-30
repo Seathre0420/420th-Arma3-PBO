@@ -19,7 +19,7 @@ if ((attachedObjects _vehicle) isNotEqualTo []) then {
 	{
 		if (!isNull _x) then {
 			[0,_x] call QS_fnc_eventAttach;
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'REMOVED','fn_clientVehicleEventKilled.sqf:22',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	} forEach (attachedObjects _vehicle);
 };

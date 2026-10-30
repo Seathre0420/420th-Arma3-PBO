@@ -44,7 +44,7 @@ if (_preset isEqualTo 5) then {
 		_oldVehicle = _vehicle;
 		_oldType = typeOf _vehicle;
 		_oldVehicle setPosASL [0,0,0];
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:47',[]] call QS_fnc_vehicleDespawnLog);
 		if (_presetClass isEqualTo '') then {
 			_presetClass = ['land_repairdepot_01_tan_f','land_repairdepot_01_green_f'] select (worldName in ['Tanoa','Enoch']);
 		};
@@ -85,7 +85,7 @@ if (_preset isEqualTo 5) then {
 		_oldVehicle = _vehicle;
 		_oldType = _vehicle getVariable ['QS_deploy_type0',typeOf _vehicle];
 		_oldVehicle setPosASL [0,0,0];
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:88',[]] call QS_fnc_vehicleDespawnLog);
 		_vehicle = createVehicle [_oldType,[0,0,0]];
 		_vehicle allowDamage FALSE;
 		_vehicle enableSimulationGlobal FALSE;_vehicle spawn {uiSleep 1; _this enableSimulationGlobal TRUE; };
@@ -117,7 +117,7 @@ if (_preset isEqualTo 6) then {
 		_oldVehicle = _vehicle;
 		_oldType = typeOf _vehicle;
 		_oldVehicle setPosASL [0,0,0];
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:120',[]] call QS_fnc_vehicleDespawnLog);
 		if (_presetClass isEqualTo '') then {
 			_presetClass = 'b_sam_system_03_f';
 		};
@@ -186,7 +186,7 @@ if (_preset isEqualTo 6) then {
 		_oldType = _vehicle getVariable ['QS_deploy_type0',typeOf _vehicle];
 		_oldVehicle setPosASL [0,0,0];
 		deleteVehicleCrew _oldVehicle;
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:189',[]] call QS_fnc_vehicleDespawnLog);
 		_vehicle = createVehicle [_oldType,[0,0,0]];
 		_vehicle allowDamage FALSE;
 		_vehicle enableSimulationGlobal FALSE;_vehicle spawn {uiSleep 1; _this enableSimulationGlobal TRUE; };
@@ -218,7 +218,7 @@ if (_preset isEqualTo 7) then {
 		_oldVehicle = _vehicle;
 		_oldType = typeOf _vehicle;
 		_oldVehicle setPosASL [0,0,0];
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:221',[]] call QS_fnc_vehicleDespawnLog);
 		if (_presetClass isEqualTo '') then {
 			_presetClass = 'b_radar_system_01_f';
 		};
@@ -278,7 +278,7 @@ if (_preset isEqualTo 7) then {
 		_oldType = _vehicle getVariable ['QS_deploy_type0',typeOf _vehicle];
 		_oldVehicle setPosASL [0,0,0];
 		deleteVehicleCrew _oldVehicle;
-		deleteVehicle _oldVehicle;
+		deleteVehicle (['CONTEXT',_oldVehicle,'REPLACED','fn_deployAssetPreset.sqf:281',[]] call QS_fnc_vehicleDespawnLog);
 		_vehicle = createVehicle [_oldType,[0,0,0]];
 		_vehicle allowDamage FALSE;
 		_vehicle enableSimulationGlobal FALSE;_vehicle spawn {uiSleep 1; _this enableSimulationGlobal TRUE; };
@@ -588,7 +588,7 @@ if (_preset isEqualTo 16) then {
 			if (_assets isNotEqualTo []) then {
 				{
 					if (_x isEqualType objNull) then {
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REPLACED','fn_deployAssetPreset.sqf:591',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				} forEach _assets;
 			};
@@ -646,7 +646,7 @@ if (_preset isEqualTo 17) then {
 		_vehicle spawn {
 			_this hideObjectGlobal TRUE;
 			sleep 2;
-			deleteVehicle _this;
+			deleteVehicle (['CONTEXT',_this,'REPLACED','fn_deployAssetPreset.sqf:649',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 };

@@ -52,7 +52,7 @@ if (_isRuin) then {
 						for '_index' from 0 to ((count _buildables) - 1) step 1 do {
 							private _buildable = _buildables # _index;
 							if ((!isNull _buildable) && {_buildable inArea [_changedTo,_radius,_radius,0,FALSE]}) then {
-								deleteVehicle _buildable;
+								deleteVehicle (['CONTEXT',_buildable,'REMOVED','fn_eventBuildingChanged.sqf:55',[]] call QS_fnc_vehicleDespawnLog);
 							};
 							if ((_index mod 32) isEqualTo 31) then {
 								uiSleep 0.005;

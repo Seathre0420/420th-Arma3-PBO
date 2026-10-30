@@ -82,7 +82,7 @@ _this spawn {
 			-1
 		];
 		missionNamespace setVariable ['QS_uav_Monitor',(missionNamespace getVariable ['QS_uav_Monitor',[]]),TRUE];
-		deleteVehicle _vehicle;
+		deleteVehicle (['CONTEXT',_vehicle,'REPLACED','fn_registerVehicle.sqf:85',[]] call QS_fnc_vehicleDespawnLog);
 	};
 	if (isNil {serverNamespace getVariable 'QS_v_Monitor'}) then {
 		serverNamespace setVariable ['QS_v_Monitor',[]];
@@ -113,6 +113,6 @@ _this spawn {
 		_wreckChance,				// wreck chance
 		_wreckCondition				// wreck condition
 	];
-	deleteVehicle _vehicle;
+	deleteVehicle (['CONTEXT',_vehicle,'REPLACED','fn_registerVehicle.sqf:116',[]] call QS_fnc_vehicleDespawnLog);
 };
 0;

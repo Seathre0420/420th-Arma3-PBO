@@ -1,5 +1,11 @@
 Mission file for 420th Delta Invade & Annex.
 
+Vehicle removals are recorded in the server RPT with `[VEHICLE DESPAWN]`.
+Records include reason, source, owner distance, occupied seats and vehicle state;
+unknown external deletions use `UNKNOWN`. See
+`tests/vehicle-despawn/README.md` for the snapshot layout, coverage limits and
+multiplayer acceptance checks. Removal rules remain unchanged.
+
 ## Friendly AI revival
 
 Friendly military infantry become unconscious at the player vital-damage

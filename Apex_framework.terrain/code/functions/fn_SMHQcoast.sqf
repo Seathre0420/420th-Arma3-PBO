@@ -198,7 +198,7 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _object;
+		deleteVehicle (['CONTEXT',_object,'MISSION_CLEANUP','fn_SMHQcoast.sqf:201',[]] call QS_fnc_vehicleDespawnLog);
 		sleep 120;
 		{
 			missionNamespace setVariable [
@@ -206,7 +206,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQcoast.sqf:209',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [(missionNamespace getVariable 'QS_sideObj'),_boat,_trawler,_assault_boat];
 		{
 			if (_x isEqualType objNull) then {
@@ -234,7 +234,7 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _object;
+		deleteVehicle (['CONTEXT',_object,'MISSION_CLEANUP','fn_SMHQcoast.sqf:237',[]] call QS_fnc_vehicleDespawnLog);
 	
 		/*/-------------------- DE-BRIEFING/*/
 
@@ -275,7 +275,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQcoast.sqf:278',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [(missionNamespace getVariable 'QS_sideObj'),_boat,_trawler,_assault_boat];
 		{
 			if (_x isEqualType objNull) then {

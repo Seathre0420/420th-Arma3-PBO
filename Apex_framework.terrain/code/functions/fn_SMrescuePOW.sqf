@@ -1207,7 +1207,7 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _QS_POW;
+		deleteVehicle (['CONTEXT',_QS_POW,'MISSION_CLEANUP','fn_SMrescuePOW.sqf:1210',[]] call QS_fnc_vehicleDespawnLog);
 		missionNamespace setVariable ['QS_sideMission_POW',objNull,TRUE];
 		[1,_QS_buildingPosATL] spawn (missionNamespace getVariable 'QS_fnc_smDebrief');
 		sleep 120;
@@ -1344,7 +1344,7 @@ for '_x' from 0 to 1 step 0 do {
 						((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 						FALSE
 					];
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMrescuePOW.sqf:1347',[]] call QS_fnc_vehicleDespawnLog);
 				} count (attachedObjects _QS_POW);
 			};
 		};
@@ -1383,7 +1383,7 @@ for '_x' from 0 to 1 step 0 do {
 									((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 									FALSE
 								];
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMrescuePOW.sqf:1386',[]] call QS_fnc_vehicleDespawnLog);
 							} count _QS_arr;
 						};
 					};

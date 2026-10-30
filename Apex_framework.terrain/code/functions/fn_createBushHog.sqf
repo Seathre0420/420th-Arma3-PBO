@@ -140,7 +140,7 @@ private _attachedArray = [];
 			params ['_vehicle'];
 			{
 				[0,_x] call QS_fnc_eventAttach;
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'REMOVED','fn_createBushHog.sqf:143',[]] call QS_fnc_vehicleDespawnLog);
 			} count (attachedObjects _vehicle);
 		}
 	],
@@ -150,11 +150,11 @@ private _attachedArray = [];
 			params ['_killed','_killer'];
 			_attachedObjects = attachedObjects _killed;
 			{
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'REMOVED','fn_createBushHog.sqf:153',[]] call QS_fnc_vehicleDespawnLog);
 			} count ((_killed getVariable ['QS_attachedObjects',[]]) + _attachedObjects);
 			if ((attachedObjects _killed) isNotEqualTo []) then {
 				{
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'REMOVED','fn_createBushHog.sqf:157',[]] call QS_fnc_vehicleDespawnLog);
 				} count (attachedObjects _killed);
 			};
 		}

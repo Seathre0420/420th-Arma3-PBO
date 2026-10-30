@@ -179,11 +179,11 @@ if (_type isEqualTo 'SET_SERVER') exitWith {
 	if ((attachedObjects _child) isNotEqualTo []) then {
 		{
 			_x removeAllEventHandlers 'Deleted';
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'REPLACED','fn_virtualVehicleCargo.sqf:182',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach (attachedObjects _child);
 	};
 	_child removeAllEventHandlers 'Deleted';
-	deleteVehicle _child;
+	deleteVehicle (['CONTEXT',_child,'REPLACED','fn_virtualVehicleCargo.sqf:186',[]] call QS_fnc_vehicleDespawnLog);
 };
 if (_type isEqualTo 'GET_SERVER') exitWith {
 	params ['','_parent','_childType','_clientOwner','_placementPos','_placementAzi','_player',['_uid','']];

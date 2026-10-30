@@ -34,7 +34,7 @@ missionNamespace setVariable [
 	((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 	FALSE
 ];
-deleteVehicle _oldObj;
+deleteVehicle (['CONTEXT',_oldObj,'REMOVED','fn_setSimpleObject.sqf:37',[]] call QS_fnc_vehicleDespawnLog);
 _obj = createSimpleObject [_model,_position];
 _obj setVectorDirAndUp _vectorDirUp;
 _obj;

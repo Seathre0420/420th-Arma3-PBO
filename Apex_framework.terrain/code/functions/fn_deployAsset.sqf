@@ -48,7 +48,7 @@ if (_state isEqualTo -1) exitWith {
 				{
 					if (_x isEqualType objNull) then {
 						_x removeAllEventHandlers 'Deleted';
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REPLACED','fn_deployAsset.sqf:51',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				} forEach _assets;
 				QS_system_builtObjects = QS_system_builtObjects select {!isNull _x};
@@ -109,7 +109,7 @@ if (_state isEqualTo 0) exitWith {
 				if (_assets isNotEqualTo []) then {
 					{
 						if (_x isEqualType objNull) then {
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'REPLACED','fn_deployAsset.sqf:112',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} forEach _assets;
 					QS_system_builtObjects = QS_system_builtObjects select {!isNull _x};

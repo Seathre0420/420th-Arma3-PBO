@@ -321,7 +321,7 @@ _uavInitCodeGeneric = {
 			{
 				params ['_vehicle','','','','','','_projectile',''];
 				if ((_vehicle distance2D (markerPos 'QS_marker_base_marker')) < 500) exitWith {
-					deleteVehicle _projectile;
+					deleteVehicle (['CONTEXT',_projectile,'UAV_CLEANUP','fn_uavOperator2.sqf:324',[]] call QS_fnc_vehicleDespawnLog);
 				};
 				if (alive (getAttackTarget _vehicle)) then {
 					_assignedTarget = getAttackTarget _vehicle;
@@ -355,7 +355,7 @@ _uavInitCodeGeneric = {
 				if ((attachedObjects _entity) isNotEqualTo []) then {
 					{
 						if (isSimpleObject _x) then {
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'UAV_CLEANUP','fn_uavOperator2.sqf:358',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} forEach (attachedObjects _entity);
 				};				
@@ -370,7 +370,7 @@ _uavInitCodeGeneric = {
 						[0,_x] call QS_fnc_eventAttach;
 						if (!isPlayer _x) then {
 							_x setDamage [1,FALSE];
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'UAV_CLEANUP','fn_uavOperator2.sqf:373',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					} forEach (attachedObjects _entity);
 				};
@@ -389,7 +389,7 @@ _uavInitCodeGeneric = {
 			{
 				params ['_vehicle','','','','','','_projectile',''];
 				if ((_vehicle distance2D (markerPos 'QS_marker_base_marker')) < 500) exitWith {
-					deleteVehicle _projectile;
+					deleteVehicle (['CONTEXT',_projectile,'UAV_CLEANUP','fn_uavOperator2.sqf:392',[]] call QS_fnc_vehicleDespawnLog);
 				};
 				if (alive (getAttackTarget _vehicle)) then {
 					_assignedTarget = getAttackTarget _vehicle;
@@ -482,10 +482,10 @@ for '_i' from 0 to 1 step 0 do {
 						if (!isNull _uavEntity) then {
 							if ((attachedObjects _uavEntity) isNotEqualTo []) then {
 								{
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'UAV_CLEANUP','fn_uavOperator2.sqf:485',[]] call QS_fnc_vehicleDespawnLog);
 								} count (attachedObjects _uavEntity);
 							};
-							deleteVehicle _uavEntity;
+							deleteVehicle (['CONTEXT',_uavEntity,'UAV_CLEANUP','fn_uavOperator2.sqf:488',[]] call QS_fnc_vehicleDespawnLog);
 							uiSleep 0.1;
 						};
 						if (_uavType isKindOf ['Plane',_cfgVehicles]) then {
@@ -591,7 +591,7 @@ for '_i' from 0 to 1 step 0 do {
 				if (!isNull (laserTarget _uavEntity)) then {
 					([laserTarget _uavEntity,'SAFE'] call _fn_inZone) params ['_inSafezone','_safezoneLevel','_safezoneActive'];
 					if (_inSafezone && _safezoneActive && (_safezoneLevel > 1)) then {
-						deleteVehicle (laserTarget _uavEntity);
+						deleteVehicle (['CONTEXT',(laserTarget _uavEntity),'UAV_CLEANUP','fn_uavOperator2.sqf:594',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				};
 			};
@@ -625,7 +625,7 @@ for '_i' from 0 to 1 step 0 do {
 						deleteVehicleCrew _uavEntity;
 						deleteGroup _grp;
 					};
-					deleteVehicle _uavEntity;
+					deleteVehicle (['CONTEXT',_uavEntity,'UAV_CLEANUP','fn_uavOperator2.sqf:628',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			};
 		} forEach allUnitsUav;

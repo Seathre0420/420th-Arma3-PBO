@@ -111,7 +111,7 @@ if (_mode isEqualTo 0) then {
 							if ((attachedObjects _x) isNotEqualTo []) then {
 								{
 									[0,_x] call QS_fnc_eventAttach;
-									deleteVehicle _x;
+									deleteVehicle (['CONTEXT',_x,'SPAWN_PROTECTION','fn_zonePreset.sqf:114',[]] call QS_fnc_vehicleDespawnLog);
 								} foreach (attachedObjects _x);
 							};
 							if (!isNull (ropeAttachedTo _x)) then {
@@ -123,9 +123,9 @@ if (_mode isEqualTo 0) then {
 							50 cutText [localize 'STR_QS_Utility_034','PLAIN DOWN',0.35];
 							['systemChat',format [localize 'STR_QS_Utility_033',profileName,(getText ((configOf _x) >> 'displayName'))]] remoteExec ['QS_fnc_remoteExecCmd',-2,FALSE];
 							if (_deleteDelay) then {
-								_x spawn {sleep 1; deleteVehicle _this;};
+								_x spawn {sleep 1; deleteVehicle (['CONTEXT',_this,'SPAWN_PROTECTION','fn_zonePreset.sqf:126',[]] call QS_fnc_vehicleDespawnLog);};
 							} else {
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'SPAWN_PROTECTION','fn_zonePreset.sqf:128',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					};

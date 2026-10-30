@@ -245,7 +245,7 @@ if ((random 1) > 0) then {
 		'Deleted',
 		{
 			{
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoTaskIDAP.sqf:248',[]] call QS_fnc_vehicleDespawnLog);
 			} forEach (attachedObjects (_this # 0));
 		}
 	];
@@ -253,7 +253,7 @@ if ((random 1) > 0) then {
 		'Killed',
 		{
 			{
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoTaskIDAP.sqf:256',[]] call QS_fnc_vehicleDespawnLog);
 			} forEach (attachedObjects (_this # 0));
 		}
 	];
@@ -466,7 +466,7 @@ for '_x' from 0 to 1 step 0 do {
 [_taskID] call (missionNamespace getVariable 'BIS_fnc_deleteTask');
 private _toDelete = objNull;
 {
-	deleteVehicle _x;
+	deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_aoTaskIDAP.sqf:469',[]] call QS_fnc_vehicleDespawnLog);
 } forEach _missionEntities;
 {
 	_toDelete = _x;
@@ -477,7 +477,7 @@ private _toDelete = objNull;
 				{
 					params ['_vehicle'];
 					if (((crew _vehicle) findIf {(alive _x)}) isEqualTo -1) then {
-						deleteVehicle _vehicle;
+						deleteVehicle (['CONTEXT',_vehicle,'MISSION_CLEANUP','fn_aoTaskIDAP.sqf:480',[]] call QS_fnc_vehicleDespawnLog);
 					};
 				}
 			];

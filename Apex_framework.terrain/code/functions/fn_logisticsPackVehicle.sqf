@@ -23,6 +23,7 @@ if (_mode isEqualTo 0) then {
 	// Unpack
 	_args params ['_cursorObject','_profileName'];
 	_entity = ((attachedObjects _cursorObject) select {(_x getVariable ['QS_logistics_packed',FALSE])}) # 0;
+	['UNPACKED',_entity] call QS_fnc_vehicleDespawnLog;
 	_pos = (getPosASL _cursorObject) vectorAdd [0,0,1];
 	//_vectors = [vectorDir _cursorObject,vectorUp _cursorObject];
 	_vectors = [vectorDir _cursorObject,[0,0,1]];
@@ -41,7 +42,7 @@ if (_mode isEqualTo 0) then {
 		deleteMarker (_cursorObject getVariable ['QS_logistics_cargoMarker','']);
 	};
 	_cursorObject removeAllEventHandlers 'Deleted';
-	deleteVehicle _cursorObject;
+	deleteVehicle (['CONTEXT',_cursorObject,'REPLACED','fn_logisticsPackVehicle.sqf:44',[]] call QS_fnc_vehicleDespawnLog);
 	sleep (diag_deltaTime * 3);
 	_entity setVelocity [0,0,0];
 	_entity setVectorDirAndUp _vectors;
@@ -59,6 +60,7 @@ if (_mode isEqualTo 0) then {
 		['QS_logistics_packed',FALSE,TRUE]
 	];
 	_entity awake TRUE;
+	['PACKED',_cursorObject] call QS_fnc_vehicleDespawnLog;
 	if (local _entity) then {
 		_entity allowDamage TRUE;
 	} else {
@@ -146,7 +148,7 @@ if (_mode isEqualTo 1) then {
 	if ((crew _cursorObject) isNotEqualTo []) then {
 		{
 			if (unitIsUav _x) then {
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'REPLACED','fn_logisticsPackVehicle.sqf:149',[]] call QS_fnc_vehicleDespawnLog);
 			} else {
 				_x moveOut _cursorObject;
 			};
@@ -244,14 +246,14 @@ if (_mode isEqualTo 1) then {
 				params ['_cursorObject'];
 				_attachedObjs = [_cursorObject] call QS_fnc_getAllAttached;
 				{
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'REPLACED','fn_logisticsPackVehicle.sqf:247',[]] call QS_fnc_vehicleDespawnLog);
 				} forEach _attachedObjs;
 				_cargoParent = _cursorObject getVariable ['QS_logistics_cargoParent',objNull];
 				if (!isNull _cargoParent) then {
 					if (!isNull (isVehicleCargo _cargoParent)) then {
 						objNull setVehicleCargo _cargoParent;	
 					};
-					deleteVehicle _cargoParent;
+					deleteVehicle (['CONTEXT',_cargoParent,'REPLACED','fn_logisticsPackVehicle.sqf:254',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			}
 		],
@@ -261,14 +263,14 @@ if (_mode isEqualTo 1) then {
 				params ['_cursorObject'];
 				_attachedObjs = [_cursorObject] call QS_fnc_getAllAttached;
 				{
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'REPLACED','fn_logisticsPackVehicle.sqf:264',[]] call QS_fnc_vehicleDespawnLog);
 				} forEach _attachedObjs;
 				_cargoParent = _cursorObject getVariable ['QS_logistics_cargoParent',objNull];
 				if (!isNull _cargoParent) then {
 					if (!isNull (isVehicleCargo _cargoParent)) then {
 						objNull setVehicleCargo _cargoParent;	
 					};
-					deleteVehicle _cargoParent;
+					deleteVehicle (['CONTEXT',_cargoParent,'REPLACED','fn_logisticsPackVehicle.sqf:271',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			}
 		]
@@ -287,9 +289,9 @@ if (_mode isEqualTo 1) then {
 					if (!isNil '_entity') then {
 						if (!isNull _entity) then {
 							{
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'REPLACED','fn_logisticsPackVehicle.sqf:290',[]] call QS_fnc_vehicleDespawnLog);
 							} forEach ([_entity] call QS_fnc_getAllAttached);
-							deleteVehicle _entity;
+							deleteVehicle (['CONTEXT',_entity,'REPLACED','fn_logisticsPackVehicle.sqf:292',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					};
 				};
@@ -308,16 +310,16 @@ if (_mode isEqualTo 1) then {
 					if (!isNil '_entity') then {
 						if (!isNull _entity) then {
 							{
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'REPLACED','fn_logisticsPackVehicle.sqf:311',[]] call QS_fnc_vehicleDespawnLog);
 							} forEach ([_entity] call QS_fnc_getAllAttached);
-							deleteVehicle _entity;
+							deleteVehicle (['CONTEXT',_entity,'REPLACED','fn_logisticsPackVehicle.sqf:313',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					};
 				};
 				if ((_container getVariable ['QS_logistics_cargoMarker','']) isNotEqualTo '') then {
 					deleteMarker (_container getVariable ['QS_logistics_cargoMarker','']);
 				};
-				deleteVehicle _container;
+				deleteVehicle (['CONTEXT',_container,'REPLACED','fn_logisticsPackVehicle.sqf:320',[]] call QS_fnc_vehicleDespawnLog);
 			}
 		],
 		[

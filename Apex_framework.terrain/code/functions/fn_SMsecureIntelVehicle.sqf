@@ -223,7 +223,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureIntelVehicle.sqf:226',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [_objUnit1,_objUnit2,_objUnit3,_obj1,_obj2,_obj3];
 		{
 			if (_x isEqualType objNull) then {
@@ -311,7 +311,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureIntelVehicle.sqf:314',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [_objUnit1,_objUnit2,_objUnit3,_obj1,_obj2,_obj3];
 		sleep 120;
 		{
@@ -342,7 +342,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureIntelVehicle.sqf:345',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [_objUnit1,_objUnit2,_objUnit3,_obj1,_obj2,_obj3];
 		{	
 			if (_x isEqualType objNull) then {

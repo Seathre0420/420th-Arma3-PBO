@@ -156,16 +156,16 @@ if (
 			{
 				params ['_entity'];
 				if ((_entity getVariable ['bis_carrierParts',[]]) isNotEqualTo []) then {
-					deleteVehicle (_entity getVariable ['bis_carrierParts',[]]);
+					deleteVehicle (['CONTEXT',(_entity getVariable ['bis_carrierParts',[]]),'REMOVED','fn_carrier.sqf:159',[]] call QS_fnc_vehicleDespawnLog);
 				};
 				if ((_entity getVariable ['QS_carrier_turrets',[]]) isNotEqualTo []) then {
 					{
 						_x setDamage [1,FALSE];
-						deleteVehicle _x;
+						deleteVehicle (['CONTEXT',_x,'REMOVED','fn_carrier.sqf:164',[]] call QS_fnc_vehicleDespawnLog);
 					} forEach (_entity getVariable ['QS_carrier_turrets',[]]);
 				};
 				if ((_entity getVariable ['QS_carrier_props',[]]) isNotEqualTo []) then {
-					deleteVehicle (_entity getVariable ['QS_carrier_props',[]]);
+					deleteVehicle (['CONTEXT',(_entity getVariable ['QS_carrier_props',[]]),'REMOVED','fn_carrier.sqf:168',[]] call QS_fnc_vehicleDespawnLog);
 				};
 				missionNamespace setVariable ['QS_carrierObject',objNull,TRUE];
 			}

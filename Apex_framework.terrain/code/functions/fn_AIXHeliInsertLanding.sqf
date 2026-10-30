@@ -118,7 +118,7 @@ if (_spawnUnits) then {
 		uiSleep 2;
 		{
 			if ((_x distance2D _position) > 100) then {
-				deleteVehicle _x;
+				deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_AIXHeliInsertLanding.sqf:121',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		} forEach _units;
 		uiSleep 7;
@@ -134,7 +134,7 @@ if (_spawnUnits) then {
 };
 _helipad = _v getVariable ['QS_assignedHelipad',objNull];
 if (!isNull _helipad) then {
-	deleteVehicle _helipad;
+	deleteVehicle (['CONTEXT',_helipad,'MISSION_CLEANUP','fn_AIXHeliInsertLanding.sqf:137',[]] call QS_fnc_vehicleDespawnLog);
 };
 _v land 'NONE';
 _v flyInHeight [50,FALSE];
@@ -154,10 +154,10 @@ _g addEventHandler [
 		_v = vehicle _leader;
 		deleteVehicleCrew _v;
 		if (!isNull (_v getVariable 'QS_assignedHelipad')) then {
-			deleteVehicle (_v getVariable 'QS_assignedHelipad');
+			deleteVehicle (['CONTEXT',(_v getVariable 'QS_assignedHelipad'),'MISSION_CLEANUP','fn_AIXHeliInsertLanding.sqf:157',[]] call QS_fnc_vehicleDespawnLog);
 		};
 		if ((allPlayers inAreaArray [_v,500,500,0,FALSE]) isEqualTo []) then {
-			deleteVehicle _v;
+			deleteVehicle (['CONTEXT',_v,'MISSION_CLEANUP','fn_AIXHeliInsertLanding.sqf:160',[]] call QS_fnc_vehicleDespawnLog);
 		} else {
 			_v setDamage [1,TRUE];
 		};
@@ -202,7 +202,7 @@ if (!isNull (_v getVariable ['QS_heliInsert_supportHeli',objNull])) then {
 						_v = vehicle _leader;
 						deleteVehicleCrew _v;
 						if ((allPlayers inAreaArray [_v,500,500,0,FALSE]) isEqualTo []) then {
-							deleteVehicle _v;
+							deleteVehicle (['CONTEXT',_v,'MISSION_CLEANUP','fn_AIXHeliInsertLanding.sqf:205',[]] call QS_fnc_vehicleDespawnLog);
 						} else {
 							_v setDamage [1,TRUE];
 						};

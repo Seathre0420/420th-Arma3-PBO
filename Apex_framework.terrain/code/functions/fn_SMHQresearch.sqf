@@ -146,7 +146,7 @@ for '_x' from 0 to 1 step 0 do {
 				FALSE
 			];
 			[0,_x] call QS_fnc_eventAttach;
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQresearch.sqf:149',[]] call QS_fnc_vehicleDespawnLog);
 		} count [_object,_researchTable];
 		sleep 120;
 		{
@@ -155,7 +155,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQresearch.sqf:158',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [QS_sideObj,_veh];
 		{
 			if (_x isEqualType objNull) then {
@@ -180,7 +180,7 @@ for '_x' from 0 to 1 step 0 do {
 			FALSE
 		];
 		[0,_object] call QS_fnc_eventAttach;
-		deleteVehicle _object;
+		deleteVehicle (['CONTEXT',_object,'MISSION_CLEANUP','fn_SMHQresearch.sqf:183',[]] call QS_fnc_vehicleDespawnLog);
 		uiSleep 14;											/*/ ghetto bomb timer/*/
 		'Bo_Mk82' createVehicle (getPosATL _dummy); 				/*/default "Bo_Mk82"/*/
 		{
@@ -190,7 +190,7 @@ for '_x' from 0 to 1 step 0 do {
 				FALSE
 			];
 			[0,_x] call QS_fnc_eventAttach;
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQresearch.sqf:193',[]] call QS_fnc_vehicleDespawnLog);
 		} count [_dummy,_researchTable];
 		sleep 0.1;
 	
@@ -211,7 +211,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMHQresearch.sqf:214',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [QS_sideObj,_veh];
 		{
 			if (_x isEqualType objNull) then {

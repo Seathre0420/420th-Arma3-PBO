@@ -25,7 +25,7 @@ if (!isNull _prop) then {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _prop;
+			deleteVehicle (['CONTEXT',_prop,'REPLACED','fn_replaceWithVehicle.sqf:28',[]] call QS_fnc_vehicleDespawnLog);
 			_v = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _type,_type],[(random -1000),(random -1000),(1000 + (random 1000))],[],0,'NONE'];
 			_v setVectorDirAndUp _vectorDirAndUp;
 			_v setPosATL _position;
@@ -37,7 +37,7 @@ if (!isNull _prop) then {
 					if (diag_tickTime > (_vehicle getVariable ['QS_vehicle_delayedDelete',-1])) then {
 						if (((crew _vehicle) findIf {(alive _x)}) isEqualTo -1) then {
 							if (!(_vehicle isKindOf 'Air')) then {
-								deleteVehicle _vehicle;
+								deleteVehicle (['CONTEXT',_vehicle,'REPLACED','fn_replaceWithVehicle.sqf:40',[]] call QS_fnc_vehicleDespawnLog);
 							};
 						};
 					};
@@ -82,7 +82,7 @@ if (!isNull _prop) then {
 					['_spawnMenuVehicleSide',sideUnknown]
 				];
 				missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),FALSE];
-				deleteVehicle _prop;
+				deleteVehicle (['CONTEXT',_prop,'REPLACED','fn_replaceWithVehicle.sqf:85',[]] call QS_fnc_vehicleDespawnLog);
 				_v = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI _t,_t],[(random -1000),(random -1000),(1000 + (random 1000))],[],0,'NONE'];
 				if (_dir isEqualType 0) then {
 					_v setDir _dir;

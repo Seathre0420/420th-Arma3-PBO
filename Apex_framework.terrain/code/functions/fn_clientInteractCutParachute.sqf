@@ -20,14 +20,14 @@ if (!(_objectParent isKindOf 'Air')) then {
 	if (!isNull _attached) then {
 		if ((toLowerANSI (typeOf _attached)) in qs_core_classnames_vehicleparachutes) then {
 			[0,_objectParent] call QS_fnc_eventAttach;
-			_attached spawn {sleep 1;deleteVehicle _this;};
+			_attached spawn {sleep 1;deleteVehicle (['CONTEXT',_this,'REMOVED','fn_clientInteractCutParachute.sqf:23',[]] call QS_fnc_vehicleDespawnLog);};
 			50 cutText [localize 'STR_QS_Text_313','PLAIN',0.333];
 		};
 	};
 } else {
 	// Cut para chute
 	player moveOut _objectParent;
-	_objectParent spawn {sleep 1;deleteVehicle _this;};
+	_objectParent spawn {sleep 1;deleteVehicle (['CONTEXT',_this,'REMOVED','fn_clientInteractCutParachute.sqf:30',[]] call QS_fnc_vehicleDespawnLog);};
 	50 cutText [localize 'STR_QS_Text_313','PLAIN',0.333];
 };
 uiNamespace setVariable ['QS_client_openParachuteCooldown',diag_tickTime + 5];

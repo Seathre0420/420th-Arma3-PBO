@@ -95,7 +95,7 @@ for '_x' from 0 to 1 step 0 do {
 	if (_managed_flares isNotEqualTo []) then {
 		{
 			if (_QS_uiTime > (_x # 1)) then {
-				deleteVehicle (_x # 0);
+				deleteVehicle (['CONTEXT',(_x # 0),'REMOVED','fn_hcCore.sqf:98',[]] call QS_fnc_vehicleDespawnLog);
 			};
 		} forEach _managed_flares;
 	};

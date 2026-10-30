@@ -189,7 +189,7 @@ if ((missionNamespace getVariable ['QS_missionConfig_baseLayout',0]) isEqualTo 0
 		if (!isNull _x) then {
 			if (!(_x isKindOf 'Logic')) then {
 				if (!(_x getVariable ['QS_missionObject_protected',FALSE])) then {
-					deleteVehicle _x;
+					deleteVehicle (['CONTEXT',_x,'REMOVED','fn_config.sqf:192',[]] call QS_fnc_vehicleDespawnLog);
 				};
 			};
 		};
@@ -1455,7 +1455,7 @@ if ((allMissionObjects 'Land_RepairDepot_01_base_F') isNotEqualTo []) then {
 if ((allMissionObjects 'ModuleCurator_F') isNotEqualTo []) then {
 	{
 		if (!(_x getVariable ['QS_missionObject_protected',FALSE])) then {
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'REMOVED','fn_config.sqf:1458',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	} forEach (allMissionObjects 'ModuleCurator_F');
 };

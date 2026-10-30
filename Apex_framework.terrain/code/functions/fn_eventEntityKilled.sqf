@@ -119,7 +119,7 @@ if (_killed isKindOf 'Man') then {
 		[_killed,'CustomSoundController1',0] remoteExec ['setCustomSoundController',_killed,FALSE];
 	};
 	if (!isNull (_killed getVariable ['QS_effect_smoke',objNull])) then {
-		deleteVehicle (_killed getVariable ['QS_effect_smoke',objNull]);
+		deleteVehicle (['CONTEXT',(_killed getVariable ['QS_effect_smoke',objNull]),'REMOVED','fn_eventEntityKilled.sqf:122',[]] call QS_fnc_vehicleDespawnLog);
 	};
 	if (_killed isKindOf 'StaticWeapon') then {
 		_killed setVariable ['QS_logistics_immovable',TRUE,TRUE];
@@ -189,7 +189,7 @@ if (isPlayer _killed) then {
 			{(!local _killer)} &&
 			{(([_killer,15,[WEST,CIVILIAN],allPlayers,0] call (missionNamespace getVariable 'QS_fnc_serverDetector')) isEqualTo [])}
 		) then {
-			deleteVehicle _killer;
+			deleteVehicle (['CONTEXT',_killer,'REMOVED','fn_eventEntityKilled.sqf:192',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 } else {
@@ -228,7 +228,7 @@ if (isPlayer _killed) then {
 							[0,_x] call QS_fnc_eventAttach;
 							private _perfAttached = ['eventEntityKilled.destroyAttachment',1,[typeOf _x,netId _x]] call QS_fnc_perfBegin;
 							_x setDamage [1,FALSE];
-							deleteVehicle _x;
+							deleteVehicle (['CONTEXT',_x,'REMOVED','fn_eventEntityKilled.sqf:231',[]] call QS_fnc_vehicleDespawnLog);
 							[_perfAttached,-1] call QS_fnc_perfEnd;
 							uiSleep 0.01;
 						};

@@ -487,16 +487,16 @@ if (_type isEqualTo 'MANAGE') then {
 								};
 								if ((missionNamespace getVariable ['QS_grid_intelEntities',[]]) isNotEqualTo []) then {
 									{
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_grid.sqf:490',[]] call QS_fnc_vehicleDespawnLog);
 									} forEach (missionNamespace getVariable ['QS_grid_intelEntities',[]]);
 									missionNamespace setVariable ['QS_grid_intelEntities',[],_false];
 								};
 								if (!isNull (missionNamespace getVariable ['QS_grid_IGintel',objNull])) then {
-									deleteVehicle (missionNamespace getVariable 'QS_grid_IGintel');
+									deleteVehicle (['CONTEXT',(missionNamespace getVariable 'QS_grid_IGintel'),'MISSION_CLEANUP','fn_grid.sqf:495',[]] call QS_fnc_vehicleDespawnLog);
 									missionNamespace setVariable ['QS_grid_IGintel',objNull,_false];
 								};
 								if (!isNull (missionNamespace getVariable ['QS_grid_IDAPintel',objNull])) then {
-									deleteVehicle (missionNamespace getVariable 'QS_grid_IDAPintel');
+									deleteVehicle (['CONTEXT',(missionNamespace getVariable 'QS_grid_IDAPintel'),'MISSION_CLEANUP','fn_grid.sqf:499',[]] call QS_fnc_vehicleDespawnLog);
 									missionNamespace setVariable ['QS_grid_IDAPintel',objNull,_false];
 								};
 								if (missionNamespace getVariable ['QS_grid_defend_force',_false]) then {
@@ -509,7 +509,7 @@ if (_type isEqualTo 'MANAGE') then {
 								missionNamespace setVariable ['QS_grid_AIRspDestroyed',0,_false];
 								if ((missionNamespace getVariable ['QS_ao_UXOs',[]]) isNotEqualTo []) then {
 									{
-										deleteVehicle _x;
+										deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_grid.sqf:512',[]] call QS_fnc_vehicleDespawnLog);
 									} forEach (missionNamespace getVariable ['QS_ao_UXOs',[]]);
 									missionNamespace setVariable ['QS_ao_UXOs',[],_false];
 								};

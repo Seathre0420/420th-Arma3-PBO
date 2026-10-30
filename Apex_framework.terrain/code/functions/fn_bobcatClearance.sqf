@@ -39,7 +39,7 @@ if (_mode isEqualTo 'INIT') then {
 								((diag_tickTime > _timeout) || (!alive _v) || ((_v animationSourcePhase 'MovePlow') isEqualTo 0))
 							};
 							uiSleep 0.1;
-							deleteVehicle _soundSource;
+							deleteVehicle (['CONTEXT',_soundSource,'REMOVED','fn_bobcatClearance.sqf:42',[]] call QS_fnc_vehicleDespawnLog);
 						} else {
 							50 cutText [localize 'STR_QS_Text_018','PLAIN DOWN',0.25];
 							_v animateSource ['MovePlow',1,0.9];
@@ -51,7 +51,7 @@ if (_mode isEqualTo 'INIT') then {
 								((diag_tickTime > _timeout) || (!alive _v) || ((_v animationSourcePhase 'MovePlow') isEqualTo 1))
 							};
 							uiSleep 0.1;
-							deleteVehicle _soundSource;
+							deleteVehicle (['CONTEXT',_soundSource,'REMOVED','fn_bobcatClearance.sqf:54',[]] call QS_fnc_vehicleDespawnLog);
 						};
 					},
 					nil,
@@ -171,7 +171,7 @@ if (_mode isEqualTo 'INIT') then {
 						};
 					} forEach _listOfFrontStuff;
 					if (_QS_toDelete isNotEqualTo []) then {
-						{deleteVehicle _x} forEach _QS_toDelete;
+						{deleteVehicle (['CONTEXT',_x,'REMOVED','fn_bobcatClearance.sqf:174',[]] call QS_fnc_vehicleDespawnLog)} forEach _QS_toDelete;
 						_QS_toDelete = [];
 					};
 				};

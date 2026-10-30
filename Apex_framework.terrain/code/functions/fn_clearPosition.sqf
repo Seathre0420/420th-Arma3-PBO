@@ -26,7 +26,7 @@ private [
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _x;
+		deleteVehicle (['CONTEXT',_x,'REMOVED','fn_clearPosition.sqf:29',[]] call QS_fnc_vehicleDespawnLog);
 	};
 } count allDead;
 _obstructions = ['Air','LandVehicle','StaticWeapon','Ship'];

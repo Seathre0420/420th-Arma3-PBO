@@ -210,7 +210,7 @@ if (
 						_nearUnits = allPlayers - [QS_player];
 						if ((_nearUnits inAreaArray [_cursorObject,_radius * 2,_radius * 2,0,FALSE]) isEqualTo []) then {
 							QS_player playActionNow 'PutDown';
-							deleteVehicle _cursorObject;
+							deleteVehicle (['CONTEXT',_cursorObject,'REMOVED','fn_clientMenuActionContext.sqf:213',[]] call QS_fnc_vehicleDespawnLog);
 						} else {
 							50 cutText [localize 'STR_QS_Text_399','PLAIN',0.5,TRUE];
 						};

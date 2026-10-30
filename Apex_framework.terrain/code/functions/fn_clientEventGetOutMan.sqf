@@ -84,7 +84,7 @@ if (
 if (_vehicle isKindOf 'ParachuteBase') then {
 	_vehicle spawn {
 		sleep 2;
-		deleteVehicle _this;
+		deleteVehicle (['CONTEXT',_this,'REMOVED','fn_clientEventGetOutMan.sqf:87',[]] call QS_fnc_vehicleDespawnLog);
 	};
 };
 if (

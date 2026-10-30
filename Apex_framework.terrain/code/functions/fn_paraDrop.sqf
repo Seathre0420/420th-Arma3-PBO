@@ -60,6 +60,6 @@ if ((!((typeOf _v) in _ugvTypes))) then {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _p;
+		deleteVehicle (['CONTEXT',_p,'REMOVED','fn_paraDrop.sqf:63',[]] call QS_fnc_vehicleDespawnLog);
 	};
 };

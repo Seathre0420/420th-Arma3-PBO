@@ -57,7 +57,7 @@ for '_x' from 0 to (2 + (round(random 2))) do {
 					((missionNamespace getVariable 'QS_analytics_entities_killed') + 1),
 					FALSE
 				];
-				deleteVehicle (_this # 0);
+				deleteVehicle (['CONTEXT',(_this # 0),'MISSION_CLEANUP','fn_aoHQCache.sqf:60',[]] call QS_fnc_vehicleDespawnLog);
 			}
 		];
 		_box addEventHandler [

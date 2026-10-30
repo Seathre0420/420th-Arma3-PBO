@@ -440,7 +440,7 @@ if (_armedVehicleCount > 0) then {
 							{
 								_x setDamage [1,FALSE];
 								[0,_x] call QS_fnc_eventAttach;
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_gridEnemy.sqf:443',[]] call QS_fnc_vehicleDespawnLog);
 							} forEach (attachedObjects _entity);
 						}
 					];
@@ -451,7 +451,7 @@ if (_armedVehicleCount > 0) then {
 							{
 								_x setDamage [1,FALSE];
 								[0,_x] call QS_fnc_eventAttach;
-								deleteVehicle _x;
+								deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_gridEnemy.sqf:454',[]] call QS_fnc_vehicleDespawnLog);
 							} forEach (attachedObjects _entity);
 						}
 					];

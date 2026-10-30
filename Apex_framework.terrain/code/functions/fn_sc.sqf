@@ -300,7 +300,7 @@ if (_type isEqualTo 'REMOVE') exitWith {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle (_flagData # 0);
+		deleteVehicle (['CONTEXT',(_flagData # 0),'MISSION_CLEANUP','fn_sc.sqf:303',[]] call QS_fnc_vehicleDespawnLog);
 		private _array = [];
 		{
 			_array = _x;

@@ -141,7 +141,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:144',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [_object,_researchTable];			/*/ hide objective pieces/*/
 		sleep 120;
 		{
@@ -150,7 +150,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:153',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [QS_sideObj,_house,_hangar];
 		{
 			if (_x isEqualType objNull) then {
@@ -173,7 +173,7 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _object;
+		deleteVehicle (['CONTEXT',_object,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:176',[]] call QS_fnc_vehicleDespawnLog);
 		uiSleep 14;											/*/ ghetto bomb timer/*/
 		'Bo_GBU12_LGB' createVehicle (getPosATL _dummy); 		/*/ default "Bo_Mk82"/*/
 		missionNamespace setVariable [
@@ -181,13 +181,13 @@ for '_x' from 0 to 1 step 0 do {
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _dummy;
+		deleteVehicle (['CONTEXT',_dummy,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:184',[]] call QS_fnc_vehicleDespawnLog);
 		missionNamespace setVariable [
 			'QS_analytics_entities_deleted',
 			((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 			FALSE
 		];
-		deleteVehicle _researchTable;
+		deleteVehicle (['CONTEXT',_researchTable,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:190',[]] call QS_fnc_vehicleDespawnLog);
 		sleep 0.1;
 	
 		/*/-------------------- DE-BRIEFING/*/
@@ -207,7 +207,7 @@ for '_x' from 0 to 1 step 0 do {
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureChopper.sqf:210',[]] call QS_fnc_vehicleDespawnLog);
 		} forEach [QS_sideObj,_house,_hangar];
 		{
 			if (_x isEqualType objNull) then {

@@ -43,7 +43,7 @@ while {true} do {
     {diag_log text format ["%1: %2 '%3' %4", _fnc_scriptName, getPosWorld _x, typeOf _x, velocity _x]} forEach _props;
 
     private _perfDelete = ['outOfBounds.deleteVehicle',count _props] call QS_fnc_perfBegin;
-    deleteVehicle _props;
+    deleteVehicle (['CONTEXT',_props,'REMOVED','fn_deleteOutOfBoundsLoop.sqf:46',[]] call QS_fnc_vehicleDespawnLog);
     [_perfDelete,-1] call QS_fnc_perfEnd;
     // If any props still remain, try killing them instead
     private _perfKill = ['outOfBounds.setDamageBatch',count _props] call QS_fnc_perfBegin;

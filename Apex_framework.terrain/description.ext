@@ -106,6 +106,9 @@ class CfgFunctions {
 	#include "420th\userinputmenus\CfgFunctions.cpp"
 	class QS {
 		class apex_framework {
+			class vehicleDespawnReport {file = "code\functions\fn_vehicleDespawnReport.sqf";};
+			class vehicleDespawnLogInit {file = "code\functions\fn_vehicleDespawnLogInit.sqf"; preInit = 1;};
+			class vehicleDespawnLog {file = "code\functions\fn_vehicleDespawnLog.sqf";};
 			class perfInit {file = "code\functions\fn_perfInit.sqf"; preInit = 1;};
 			class perfBegin {file = "code\functions\fn_perfBegin.sqf";};
 			class perfEnd {file = "code\functions\fn_perfEnd.sqf";};

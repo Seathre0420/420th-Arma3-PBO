@@ -71,7 +71,7 @@ if (isNull _objectParent) then {
 		if (!isNull (attachedTo _objectParent)) then {
 			[0,_objectParent] call QS_fnc_eventAttach;
 			sleep 1;
-			deleteVehicle _para;
+			deleteVehicle (['CONTEXT',_para,'REMOVED','fn_clientInteractOpenParachute.sqf:74',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 };

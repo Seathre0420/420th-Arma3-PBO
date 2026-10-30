@@ -779,7 +779,7 @@ _box3_secured = FALSE;
 				((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),
 				FALSE
 			];
-			deleteVehicle _x;
+			deleteVehicle (['CONTEXT',_x,'MISSION_CLEANUP','fn_SMsecureUrban.sqf:782',[]] call QS_fnc_vehicleDespawnLog);
 		};
 	};
 } count _QS_allArray;
