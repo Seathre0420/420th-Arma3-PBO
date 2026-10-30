@@ -10,11 +10,14 @@ script errors enabled and inspect client/server RPTs. Source checks:
 | Toggle Driver, Gunner, Commander, Passenger separately | Corresponding entry and seat-switch actions disappear/reappear; unrelated groups remain available. |
 | Ghost Hawk and armed Huron | Gunner controls both weapon turrets, including auxiliary side gun. |
 | Vehicle with FFV and ordinary cargo | Passenger controls both; Gunner does not control FFV. |
-| Every group locked; A exits | A can open Vehicle Access within 3 m and use Enter Owned Vehicle; B stays locked out throughout boarding. |
-| Owner boarding | First available permitted role in driver/commander/gunner/turret/cargo order; full vehicle causes no displacement. |
+| Every group locked; A exits | A can open Vehicle Access within 3 m of vehicle bounds and use the separate owner role actions; B stays locked out throughout boarding. |
+| Non-developer A, anti-hack enabled | Take Ownership, Vehicle Access, and all five boarding choices survive opening/using the action menu; no non-whitelisted action warning or removal. |
+| Large Ghost Hawk/Huron; A at a door beyond 3 m of model origin | Outside Vehicle Access and available role choices are visible and work; walking beyond 3 m of vehicle bounds closes the access dialog and rejects changes. |
+| Owner boarding | Only the selected role is used, even if a higher-priority role is empty; full role causes no displacement or fallback to another role. Auxiliary Turret / FFV and Passenger each select the first available seat in that engine role, not an exact numbered seat. |
 | Independent disabled/locked seat, including MH-9 benches | Ownership unlock preserves restriction; owner bypass excludes any role with independently locked empty candidates. |
 | Role restrictions, reports, safe zones, wreck, carried casualty | Owner boarding obeys existing boarding restrictions. |
-| A wants to switch seats inside | Unlock destination group in Vehicle Access, switch normally, relock. |
+| A wants to switch seats inside a stationary ground vehicle or landed aircraft | Owner role choices bypass ownership locks and move A to the selected role; locks remain set and other players remain blocked. |
+| A wants to switch seats in flight | Custom transfer refuses to move A out of the aircraft; Vehicle Access remains available to unlock the destination, switch normally, and relock. |
 | B uses quick cargo boarding | No boarding into a locked cargo/FFV position. |
 | A changes locks while someone is seated | Current occupant remains; existing eject buttons retain their behavior and altitude restriction. |
 | B tries old context driver-lock action | Directed to Vehicle Access; ownership settings unchanged. |

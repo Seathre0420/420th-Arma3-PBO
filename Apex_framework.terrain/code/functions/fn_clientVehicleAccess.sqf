@@ -30,6 +30,15 @@ if (_mode isEqualTo 'REMOVE_ACTIONS') exitWith {
 	localNamespace setVariable ['QS_vehicleAccess_actions',[]];
 };
 
+if (_mode isEqualTo 'CAN_BOARD') exitWith {
+	private _v = cursorObject;
+	if (!isNull objectParent player) then {_v = objectParent player;};
+	alive player && {!isNull _v} &&
+	{(_v getVariable ['QS_vehicleAccess_ownerUID','']) isEqualTo getPlayerUID player} &&
+	{[player,_v] call QS_fnc_vehicleAccessNear} &&
+	{(([_v] call QS_fnc_vehicleAccessSeats) findIf {isNull (_x # 4) && {(_x # 5) isEqualTo _arg1}}) >= 0}
+};
+
 if (_mode isEqualTo 'ACTIONS') exitWith {
 	['REMOVE_ACTIONS'] call QS_fnc_clientVehicleAccess;
 	private _vehicle = _arg1;
@@ -42,11 +51,27 @@ if (_mode isEqualTo 'ACTIONS') exitWith {
 	private _access = player addAction ['Vehicle Access',{
 		private _v = objectParent player;
 		if (isNull _v) then {_v = cursorObject;};
+		if (!([player,_v] call QS_fnc_vehicleAccessNear) || {(_v getVariable ['QS_vehicleAccess_ownerUID','']) isNotEqualTo getPlayerUID player}) exitWith {};
 		uiNamespace setVariable ['QS_vehicleAccess_vehicle',_v];
 		createDialog 'QS_RD_client_dialog_vehicle_access';
-	},nil,5,FALSE,TRUE,'','private _v = objectParent player; if (isNull _v) then {_v = cursorObject;}; alive _v && {player distance _v <= 3 || {objectParent player isEqualTo _v}} && {(_v getVariable [''QS_vehicleAccess_ownerUID'','''']) isEqualTo getPlayerUID player}'];
-	private _board = player addAction ['Enter Owned Vehicle',{['BOARD',player,cursorObject] remoteExecCall ['QS_fnc_vehicleAccessServer',2];},nil,5,FALSE,TRUE,'','isNull objectParent player && {alive cursorObject} && {player distance cursorObject <= 3} && {(cursorObject getVariable [''QS_vehicleAccess_ownerUID'','''']) isEqualTo getPlayerUID player}'];
-	localNamespace setVariable ['QS_vehicleAccess_actions',[_take,_access,_board]];
+	},nil,5,FALSE,TRUE,'','private _v = objectParent player; if (isNull _v) then {_v = cursorObject;}; [player,_v] call QS_fnc_vehicleAccessNear && {(_v getVariable [''QS_vehicleAccess_ownerUID'','''']) isEqualTo getPlayerUID player}'];
+	private _actions = [_take,_access];
+	{
+		_x params ['_title','_role'];
+		_actions pushBack (player addAction [_title,{
+			params ['_target','_caller','_id','_role'];
+			private _v = objectParent _caller;
+			if (isNull _v) then {_v = cursorObject;};
+			['BOARD',_caller,_v,_role] remoteExecCall ['QS_fnc_vehicleAccessServer',2];
+		},_role,5,FALSE,TRUE,'',format ["['CAN_BOARD','%1'] call QS_fnc_clientVehicleAccess",_role]]);
+	} forEach [
+		['Enter Owned Vehicle: Driver','DRIVER'],
+		['Enter Owned Vehicle: Commander','COMMANDER'],
+		['Enter Owned Vehicle: Gunner','GUNNER'],
+		['Enter Owned Vehicle: Auxiliary Turret / FFV','TURRET'],
+		['Enter Owned Vehicle: Passenger','CARGO']
+	];
+	localNamespace setVariable ['QS_vehicleAccess_actions',_actions];
 };
 
 if (_mode isEqualTo 'LOAD') exitWith {
@@ -59,7 +84,7 @@ if (_mode isEqualTo 'LOAD') exitWith {
 };
 
 private _vehicle = uiNamespace getVariable ['QS_vehicleAccess_vehicle',objNull];
-if (isNull _vehicle || {!alive _vehicle} || {(_vehicle getVariable ['QS_vehicleAccess_ownerUID','']) isNotEqualTo getPlayerUID player}) exitWith {closeDialog 2;};
+if (!([player,_vehicle] call QS_fnc_vehicleAccessNear) || {(_vehicle getVariable ['QS_vehicleAccess_ownerUID','']) isNotEqualTo getPlayerUID player}) exitWith {closeDialog 2;};
 
 if (_mode isEqualTo 'REFRESH') exitWith {
 	private _display = uiNamespace getVariable ['QS_vehicleAccess_display',displayNull];

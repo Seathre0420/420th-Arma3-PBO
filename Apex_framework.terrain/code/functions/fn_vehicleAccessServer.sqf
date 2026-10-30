@@ -11,9 +11,12 @@ if (_mode isEqualTo 'TAKE') exitWith {
 	[_vehicle] remoteExecCall ['QS_fnc_vehicleAccessApply',0,_vehicle];
 };
 if ((_vehicle getVariable ['QS_vehicleAccess_ownerUID','']) isNotEqualTo _uid) exitWith {};
-if ((objectParent _unit) isNotEqualTo _vehicle && {(_unit distance _vehicle) > 3}) exitWith {};
-if (_mode isEqualTo 'BOARD' && {isNull objectParent _unit}) exitWith {
-	[_unit,_vehicle] remoteExecCall ['QS_fnc_vehicleAccessBoard',_unit];
+if !([_unit,_vehicle] call QS_fnc_vehicleAccessNear) exitWith {};
+if (_mode isEqualTo 'BOARD') exitWith {
+	if !(_group in ['DRIVER','COMMANDER','GUNNER','TURRET','CARGO']) exitWith {};
+	private _seats = [_vehicle] call QS_fnc_vehicleAccessSeats;
+	if ((_seats findIf {isNull (_x # 4) && {(_x # 5) isEqualTo _group}}) < 0) exitWith {};
+	[_unit,_vehicle,_group] remoteExecCall ['QS_fnc_vehicleAccessBoard',_unit];
 };
 if (_mode isEqualTo 'TOGGLE' && {_group in ['driver','gunner','commander','passenger']}) then {
 	private _key = format ['QS_vehicleAccess_%1Locked',_group];

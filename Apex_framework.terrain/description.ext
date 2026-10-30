@@ -380,6 +380,7 @@ class CfgFunctions {
 			class clientMenu2 {file = "code\functions\fn_clientMenu2.sqf";};
 			class clientMenuActionContext {file = "code\functions\fn_clientMenuActionContext.sqf";};
 			class clientVehicleAccess {file = "code\functions\fn_clientVehicleAccess.sqf";};
+			class vehicleAccessNear {file = "code\functions\fn_vehicleAccessNear.sqf";};
 			class vehicleAccessExternalLock {file = "code\functions\fn_vehicleAccessExternalLock.sqf";};
             class vehicleAccessBoard {file = "code\functions\fn_vehicleAccessBoard.sqf";};
             class vehicleAccessServer {file = "code\functions\fn_vehicleAccessServer.sqf";};

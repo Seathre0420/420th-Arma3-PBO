@@ -14,6 +14,14 @@ Description:
 ___________________________________________/*/
 
 [
+	'Take Ownership',
+	'Vehicle Access',
+	'Enter Owned Vehicle',
+	'Enter Owned Vehicle: Driver',
+	'Enter Owned Vehicle: Commander',
+	'Enter Owned Vehicle: Gunner',
+	'Enter Owned Vehicle: Auxiliary Turret / FFV',
+	'Enter Owned Vehicle: Passenger',
 	localize 'STR_QS_Interact_036',			// Sit
 	localize 'STR_QS_Interact_066',			// Stand
 	localize 'STR_QS_Interact_003',			// Escort
