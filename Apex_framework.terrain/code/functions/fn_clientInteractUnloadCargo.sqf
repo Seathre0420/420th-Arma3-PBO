@@ -73,6 +73,17 @@ if (
 	_hasUnloaded = TRUE;
 	[QS_player,_object,FALSE,TRUE] call QS_fnc_unloadCargoPlacementMode;
 } else {
+	if (!(_object isKindOf 'CAManBase') && {!isSimpleObject _object}) then {
+		private _empty = (position player) findEmptyPosition [0,15,typeOf _object];
+		if (_empty isNotEqualTo []) then {
+			private _up = surfaceNormal _empty;
+			private _right = (vectorDir _object) vectorCrossProduct _up;
+			private _dir = vectorNormalized (_up vectorCrossProduct _right);
+			['PLACE',_object,ATLToASL _empty,[_dir,_up],[],QS_player] remoteExecCall ['QS_fnc_cargoMove',_object,FALSE];
+			_hasUnloaded = TRUE;
+			playSound 'Click';
+		};
+	} else {
 	if (!isNull (isVehicleCargo _object)) then {
 		['setVehicleCargo',objNull,_object] remoteExec ['QS_fnc_remoteExecCmd',[_object,(isVehicleCargo _object)],FALSE];
 		_hasUnloaded = TRUE;
@@ -96,6 +107,7 @@ if (
 		} else {
 			50 cutText [localize 'STR_QS_Text_166','PLAIN DOWN',0.3];
 		};
+	};
 	};
 };
 if (!_hasUnloaded) exitWith {

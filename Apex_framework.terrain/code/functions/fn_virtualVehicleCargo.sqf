@@ -152,6 +152,11 @@ if (_type isEqualTo 'SET_SERVER') exitWith {
 	_simpleObject = [0,1] select (isSimpleObject _child);
 	_damageAllowed = [0,1] select (isDamageAllowed _child);
 	_simulationEnabled = [0,1] select (simulationEnabled _child);
+	private _moveState = _child getVariable ['QS_cargoMove_state',[]];
+	if (_moveState isNotEqualTo []) then {
+		_simulationEnabled = [0,1] select (_moveState # 1);
+		_damageAllowed = [0,1] select (_moveState # 2);
+	};
 	_boundingRadius = (0 boundingBoxReal _child) # 2;
 	_damage = damage _child;
 	private _virtualCargoIndex = _virtualCargo findIf { (_childType isEqualTo ((_x # 0) # 0)) };

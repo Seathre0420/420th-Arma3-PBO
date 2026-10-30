@@ -19,6 +19,19 @@ private _cursorTarget = cursorTarget;
 private _anim = '';
 private _object = objNull;
 _attachedObjects = (attachedObjects QS_player) select {!isObjectHidden _x};
+private _protectedCargo = _attachedObjects select {(_x getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []};
+if (_protectedCargo isNotEqualTo []) exitWith {
+	private _cargo = _protectedCargo # 0;
+	if ([_cargo] call QS_fnc_isBoundingBoxIntersected) then {
+		50 cutText [localize 'STR_QS_Text_120','PLAIN DOWN',0.5];
+	} else {
+		uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+		['PLACE',_cargo,getPosASL _cargo,[vectorDir _cargo,vectorUp _cargo],[],QS_player] remoteExecCall ['QS_fnc_cargoMove',_cargo,FALSE];
+		missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+	};
+	TRUE
+};
 if (_attachedObjects isNotEqualTo []) then {
 	{
 		if (!isNull _x) then {

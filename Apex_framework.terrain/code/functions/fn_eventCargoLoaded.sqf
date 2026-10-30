@@ -39,7 +39,10 @@ if (!isNull _child) then {
 			(_child isKindOf 'StaticWeapon') ||
 			{(_child isKindOf 'Reammobox_F')}
 		) then {
-			_child setVariable ['cargo_isDamageAllowed',isDamageAllowed _child,TRUE];
+			private _moveState = _child getVariable ['QS_cargoMove_state',[]];
+			private _damageAllowed = isDamageAllowed _child;
+			if (_moveState isNotEqualTo []) then {_damageAllowed = _moveState # 2;};
+			_child setVariable ['cargo_isDamageAllowed',_damageAllowed,TRUE];
 			_child allowDamage FALSE;
 		};
 	} else {

@@ -224,6 +224,7 @@ class CfgRemoteExec {
         class QS_fnc_vehicleAccessBoard {allowedTargets = 1;};
 		class QS_fnc_finishCargoChildUnload {allowedTargets = 0;};
 		class QS_fnc_finishCargoParentUnload {allowedTargets = 0;};
+		class QS_fnc_cargoMove {allowedTargets = 0; jip = 0;};
 		class QS_fnc_clientApplyEntityState {allowedTargets = 1; jip = 0;};
 		class QS_fnc_clientMenuDonatorSkins {allowedTargets = 1;};
 		class QS_fnc_clientMenuPrivateChannels {allowedTargets = 1;};

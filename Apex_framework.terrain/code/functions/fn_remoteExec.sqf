@@ -1219,6 +1219,10 @@ if (_case < 50) exitWith {
 	/*/===== Unload Cargo Global/*/
 	if (_case isEqualTo 45) then {
 		params ['','_vehicle','_requestedObject','_azi','_position','_clientOwner',['_positionOnly',FALSE],['_attempt',0]];
+		if (!(_requestedObject isKindOf 'CAManBase') && {!isSimpleObject _requestedObject}) exitWith {
+			private _actor = (allPlayers select {owner _x isEqualTo _clientOwner && {!(_x isKindOf 'HeadlessClient_F')}}) param [0,objNull];
+			['PLACE',_requestedObject,_position,_azi,[],_actor] call QS_fnc_cargoMove;
+		};
 		if (!local _requestedObject) exitWith {
 			if (_attempt < 2) then {
 				[45,_vehicle,_requestedObject,_azi,_position,_clientOwner,_positionOnly,(_attempt + 1)] remoteExec ['QS_fnc_remoteExec',_requestedObject,FALSE];

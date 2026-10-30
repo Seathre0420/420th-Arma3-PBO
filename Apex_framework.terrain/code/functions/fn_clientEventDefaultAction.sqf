@@ -119,6 +119,18 @@ if (_mode isEqualTo 'activate') exitWith {
 			) exitWith {
 				50 cutText [localize 'STR_QS_Text_120','PLAIN DOWN',0.333];
 			};
+			if (!(_requestedObject isKindOf 'CAManBase') && {!isSimpleObject _requestedObject}) exitWith {
+				private _carrier = localNamespace getVariable ['QS_placementMode_carrier',objNull];
+				if (alive _carrier) exitWith {
+					[nil,nil,nil,[_requestedObject,_carrier],TRUE] call QS_fnc_clientInteractLoadCargo;
+				};
+				uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+				QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+				['PLACE',_requestedObject,uiNamespace getVariable ['QS_targetBoundingBox_ASLPos',getPosASL _requestedObject],
+					uiNamespace getVariable ['QS_targetBoundingBox_vectors',[vectorDir _requestedObject,vectorUp _requestedObject]],[],QS_player]
+					remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+				missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+			};
 			if (local _requestedObject) then {
 				if (_localHelper) then {
 					if (!isNull (isVehicleCargo _requestedObject)) then {
@@ -157,15 +169,6 @@ if (_mode isEqualTo 'activate') exitWith {
 				waitUntil {((!isObjectHidden _requestedObject) || (diag_tickTime > _timeout))};
 				QS_player reveal [_requestedObject,4];
 				(group QS_player) reveal [_requestedObject,4];
-				if ((toLowerANSI _simulation) in ['thingx']) then {
-					uiSleep 0.1;
-					['awake',_requestedObject,TRUE] remoteExec ['QS_fnc_remoteExecCmd',_requestedObject,FALSE];
-					if (local _requestedObject) then {
-						_requestedObject setVelocity [0,0,-1];
-					} else {
-						['setVelocity',_requestedObject,[0,0,-1]] remoteExec ['QS_fnc_remoteExecCmd',_requestedObject,FALSE];
-					};
-				};
 				(collisionDisabledWith _requestedObject) params ['_other','_mutual'];
 				if (!isNull _other) then {
 					['enableCollisionWith',_requestedObject,_other] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];

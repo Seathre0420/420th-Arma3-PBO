@@ -509,6 +509,8 @@ class CfgFunctions {
 			class eventCargoUnloaded {file = "code\functions\fn_eventCargoUnloaded.sqf";}; 
 			class finishCargoChildUnload {file = "code\functions\fn_finishCargoChildUnload.sqf";};
 			class finishCargoParentUnload {file = "code\functions\fn_finishCargoParentUnload.sqf";};
+			class cargoMove {file = "code\functions\fn_cargoMove.sqf";};
+			class cargoPlacementClear {file = "code\functions\fn_cargoPlacementClear.sqf";};
 			class eventEachFrame {file = "code\functions\fn_eventEachFrame.sqf";};
 			class eventEachFrame2 {file = "code\functions\fn_eventEachFrame2.sqf";};
 			class eventEntityCreated {file = "code\functions\fn_eventEntityCreated.sqf";};

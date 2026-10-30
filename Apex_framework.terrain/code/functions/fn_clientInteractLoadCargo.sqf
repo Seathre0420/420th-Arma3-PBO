@@ -67,7 +67,18 @@ _boundingBox = QS_hashmap_boundingBoxes getOrDefaultCall [
 	TRUE
 ];
 if (_child getVariable ['QS_logistics_virtual',FALSE]) exitWith {
+	if ((_child getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) then {
+		uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+		missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+	};
 	['SET_CLIENT',_parent,_child] call QS_fnc_virtualVehicleCargo;
+};
+if ((_child getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) exitWith {
+	['LOAD',_child,[],[],[_parent],QS_player] remoteExecCall ['QS_fnc_cargoMove',_child,FALSE];
+	uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+	QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+	missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
 };
 if ([_parent,_child] call QS_fnc_setVehicleCargo) then {
 	playSound3D [

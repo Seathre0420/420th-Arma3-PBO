@@ -292,7 +292,15 @@ if (_mode3 isEqualTo 'Unload_2') exitWith {
 			(_requestedObject isEqualType objNull) &&
 			{(_requestedObject in (getVehicleCargo _vehicle))}
 		) then {
-			objNull setVehicleCargo _requestedObject;
+			if (_requestedObject isKindOf 'CAManBase' || {isSimpleObject _requestedObject} || {(_vehicle isKindOf 'Air') && {((getPosATL _vehicle) # 2) > 5}}) then {
+				objNull setVehicleCargo _requestedObject;
+			} else {
+				private _empty = (getPos _vehicle) findEmptyPosition [5,30,typeOf _requestedObject];
+				if (_empty isNotEqualTo []) then {
+					['PLACE',_requestedObject,ATLToASL _empty,[vectorDir _requestedObject,surfaceNormal _empty],[],QS_player]
+						remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+				};
+			};
 		};
 	};
 	if (_placementMode isEqualTo 1) exitWith {
@@ -316,6 +324,14 @@ if (_mode3 isEqualTo 'Unload_2') exitWith {
 	};
 	if (_requestedObject isEqualType '') exitWith {
 		['GET_CLIENT',_vehicle,_requestedObject,(uiNamespace getVariable ['QS_targetBoundingBox_ASLPos',[0,0,0]]),(uiNamespace getVariable 'QS_targetBoundingBox_vectors')] call QS_fnc_virtualVehicleCargo;
+	};
+	if (!(_requestedObject isKindOf 'CAManBase') && {!isSimpleObject _requestedObject}) exitWith {
+		uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+		['PLACE',_requestedObject,uiNamespace getVariable ['QS_targetBoundingBox_ASLPos',getPosASL _requestedObject],
+			uiNamespace getVariable ['QS_targetBoundingBox_vectors',[vectorDir _requestedObject,vectorUp _requestedObject]],[],QS_player]
+			remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+		missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
 	};
 	if (local _requestedObject) then {
 		if (!isNull (isVehicleCargo _requestedObject)) then {

@@ -28,13 +28,27 @@ if (
 	if (uiNamespace getVariable ['QS_localHelper',FALSE]) then {
 		deleteVehicle QS_targetBoundingBox_helper;
 		uiNamespace setVariable ['QS_localHelper',FALSE];
+		if (!(uiNamespace getVariable ['QS_cargoPlacement_committing',FALSE])) then {
+			private _info = uiNamespace getVariable ['QS_targetBoundingBox_this',[]];
+			private _cargo = _info param [1,objNull];
+			private _source = _info param [2,objNull];
+			if (_cargo isEqualType objNull && {!isNull _cargo} && {!isNull _source}) then {
+				['enableCollisionWith',_cargo,_source] remoteExec ['QS_fnc_remoteExecCmd',0,FALSE];
+			};
+		};
 	} else {
-		if (_cameraOn isKindOf 'CAManBase') then {
-			[QS_targetBoundingBox_helper,_cameraOn,diag_frameNo + 2] spawn {
-				params ['_child','_parent','_eventFrame'];
-				waitUntil {diag_frameNo > _eventFrame};
-				if (_child in (attachedObjects _parent)) then {
-					[0,_child] call QS_fnc_eventAttach;
+		private _state = QS_targetBoundingBox_helper getVariable ['QS_cargoMove_state',[]];
+		if (_state isNotEqualTo []) then {
+			if (!(uiNamespace getVariable ['QS_cargoPlacement_committing',FALSE])) then {
+				QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+				['RECOVER',QS_targetBoundingBox_helper,[],[],[],QS_player,_state # 0] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
+			};
+		} else {
+			if (_cameraOn isKindOf 'CAManBase') then {
+				[QS_targetBoundingBox_helper,_cameraOn,diag_frameNo + 2] spawn {
+					params ['_child','_parent','_eventFrame'];
+					waitUntil {diag_frameNo > _eventFrame};
+					if (_child in (attachedObjects _parent)) then {[0,_child] call QS_fnc_eventAttach;};
 				};
 			};
 		};

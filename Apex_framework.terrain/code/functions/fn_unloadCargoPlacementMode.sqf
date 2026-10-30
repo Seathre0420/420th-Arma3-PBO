@@ -29,6 +29,14 @@ params [
 	['_followRotation',FALSE],
 	['_updateCOM',TRUE]
 ];
+if (!canSuspend) exitWith {_this spawn QS_fnc_unloadCargoPlacementMode;};
+if ((missionNamespace getVariable ['QS_targetBoundingBox_placementMode',FALSE]) ||
+	{(QS_player getVariable ['QS_cargoMove_active',[]]) isNotEqualTo []}) exitWith {FALSE};
+if (_requestedObject isEqualType objNull && {isNull _oldParent}) then {
+	_oldParent = isVehicleCargo _requestedObject;
+	if (isNull _oldParent) then {_oldParent = attachedTo _requestedObject;};
+};
+uiNamespace setVariable ['QS_cargoPlacement_committing',FALSE];
 private _frontVehicleLift = FALSE;
 if (dialog) then {closeDialog 2;};
 0 spawn {
@@ -67,7 +75,7 @@ if (_useHelper) then {
 	missionNamespace setVariable ['QS_targetBoundingBox_helper',_requestedObject,FALSE];
 	uiNamespace setVariable ['QS_targetBoundingBox_target',_requestedObject];
 	if (
-		_carryMode &&
+		_carryMode && {(_requestedObject isKindOf 'CAManBase') || {isSimpleObject _requestedObject}} &&
 		{isObjectHidden _requestedObject}
 	) then {
 		[71,_requestedObject,FALSE] remoteExec ['QS_fnc_remoteExec',2,FALSE];
@@ -105,23 +113,10 @@ if (_useCurrentPos && (!_useHelper)) then {
 	_zOffset = (_vehicle worldToModel (QS_targetBoundingBox_helper modelToWorldVisual [0,0,0])) # 2;
 };
 _orient = [QS_targetBoundingBox_helper,_vehicle,TRUE] call (missionNamespace getVariable 'BIS_fnc_vectorDirAndUpRelative');
-// DETACH
-if (isNull _oldParent) then {
-	_oldParent = attachedTo QS_targetBoundingBox_helper;
-};
-if (!isNull (isVehicleCargo QS_targetBoundingBox_helper)) then {
-	objNull setVehicleCargo QS_targetBoundingBox_helper;
-};
-if (!isNull _oldParent) then {
-	if (!isNull (attachedTo QS_targetBoundingBox_helper)) then {
-		[0,QS_targetBoundingBox_helper] call QS_fnc_eventAttach;
-	};
-	if (
-		(!_useHelper) &&
-		(_updateCOM)
-	) then {
-		[_oldParent,TRUE,TRUE] call QS_fnc_updateCenterOfMass;
-	};
+// Real non-person cargo is released only by the protected owner worker below.
+if (QS_targetBoundingBox_helper isKindOf 'CAManBase' || {isSimpleObject QS_targetBoundingBox_helper}) then {
+	if (!isNull (isVehicleCargo QS_targetBoundingBox_helper)) then {objNull setVehicleCargo QS_targetBoundingBox_helper;};
+	if (!isNull (attachedTo QS_targetBoundingBox_helper)) then {[0,QS_targetBoundingBox_helper] call QS_fnc_eventAttach;};
 };
 private _buildRadius = 30;
 if (!isNull _oldParent) then {
@@ -153,6 +148,28 @@ uiNamespace setVariable ['QS_targetBoundingBox_drawOffset',_frontModelPos];
 uiNamespace setVariable ['QS_targetBoundingBox_attachOffset',_frontModelPos];
 uiNamespace setVariable ['QS_targetBoundingBox_yOffset',_frontModelPos # 1];
 QS_targetBoundingBox_helper setVariable ['QS_attached_frontPos',_frontPos,FALSE];
+private _handoffOK = TRUE;
+if (!_useHelper && {!(_requestedObject isKindOf 'CAManBase')} && {!isSimpleObject _requestedObject}) then {
+	private _attachParams = [_vehicle,_frontModelPos];
+	if (_memPoint isNotEqualTo '') then {_attachParams = [_vehicle,_frontModelPos,_memPoint,_followRotation];};
+	private _ticket = [clientOwner,diag_tickTime];
+	QS_player setVariable ['QS_cargoMove_active',_ticket,TRUE];
+	['ATTACH',_requestedObject,[],_orient,_attachParams,QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+	private _deadline = diag_tickTime + 5;
+	waitUntil {
+		uiSleep 0.01;
+		((attachedTo _requestedObject) isEqualTo _vehicle &&
+		{((_requestedObject getVariable ['QS_cargoMove_state',[]]) param [0,[]]) isEqualTo _ticket}) ||
+		{diag_tickTime > _deadline} || {isNull _requestedObject}
+	};
+	_handoffOK = !isNull _requestedObject && {(attachedTo _requestedObject) isEqualTo _vehicle} &&
+		{((_requestedObject getVariable ['QS_cargoMove_state',[]]) param [0,[]]) isEqualTo _ticket};
+	if (!_handoffOK) then {
+		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
+		['RECOVER',_requestedObject,[],[],[],QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
+	};
+};
+if (!_handoffOK) exitWith {50 cutText [localize 'STR_QS_Text_372','PLAIN DOWN',0.333];};
 if (_frontPos) then {
 	[2,_vehicle,QS_targetBoundingBox_helper,_bufferY,_rotationEnabled,_memPoint,_followRotation,_zOffset] call QS_fnc_getFrontModelPos;
 } else {
@@ -160,7 +177,9 @@ if (_frontPos) then {
 	if (_memPoint isNotEqualTo '') then {
 		uiNamespace setVariable ['QS_targetBoundingBox_attachTo',[_vehicle,_frontModelPos,_memPoint,_followRotation]];
 	};
-	QS_targetBoundingBox_helper attachTo (uiNamespace getVariable ['QS_targetBoundingBox_attachTo',[_vehicle,_frontModelPos]]);
+	if (_useHelper || {QS_targetBoundingBox_helper isKindOf 'CAManBase'} || {isSimpleObject QS_targetBoundingBox_helper}) then {
+		QS_targetBoundingBox_helper attachTo (uiNamespace getVariable ['QS_targetBoundingBox_attachTo',[_vehicle,_frontModelPos]]);
+	};
 };
 if (
 	(!_useHelper) &&

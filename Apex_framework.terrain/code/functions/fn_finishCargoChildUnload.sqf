@@ -17,8 +17,9 @@ if (isEngineOn _child) then {
 };
 
 if (
-	(_child isKindOf 'StaticWeapon') ||
-	{(_child isKindOf 'Reammobox_F')}
+	((_child getVariable ['QS_cargoMove_state',[]]) isEqualTo []) &&
+	{isNull (isVehicleCargo _child)} &&
+	{(_child isKindOf 'StaticWeapon') || {(_child isKindOf 'Reammobox_F')}}
 ) then {
 	_child allowDamage (_child getVariable ['cargo_isDamageAllowed',TRUE]);
 };
