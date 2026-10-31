@@ -18,7 +18,7 @@ if (_mode isEqualTo 0) exitWith {
 	comment 'Physical';
 	private _volume = 0;
 	private _cargoMass = 0;
-	_cargo = (attachedObjects _vehicle) select {
+	private _cargo = (attachedObjects _vehicle) select {
 		(!(_x getVariable ['QS_attached',FALSE]))
 	};
 	{

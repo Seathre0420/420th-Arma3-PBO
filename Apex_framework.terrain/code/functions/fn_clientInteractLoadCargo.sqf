@@ -42,22 +42,38 @@ _displayName2 = QS_hashmap_configfile getOrDefaultCall [
 ];
 if (_child getVariable ['QS_logistics_immovable',FALSE]) exitWith {50 cutText [localize 'STR_QS_Text_335','PLAIN DOWN',0.25];};
 private _canLoad = [_parent,_child] call QS_fnc_canVehicleCargo;
-if (!(_canLoad # 1)) exitWith {
+private _moveState = _child getVariable ['QS_cargoMove_state',[]];
+private _protectedCarry = _moveState isNotEqualTo [] && {(_moveState # 4) isEqualTo QS_player} &&
+	{(_moveState # 0) isEqualTo (QS_player getVariable ['QS_cargoMove_active',[]])} &&
+	{!(_child getVariable ['QS_cargoMove_busy',FALSE])} &&
+	{(attachedTo _child) in [QS_player,vehicle QS_player]};
+if (_moveState isNotEqualTo [] && {!_protectedCarry}) exitWith {
+	50 cutText [localize 'STR_QS_Text_444','PLAIN',0.3];
+};
+private _hiddenStorage = !(_canLoad # 1);
+if (_hiddenStorage && {!_protectedCarry}) exitWith {
 	_result = [nil,nil,nil,nil,_parent,_child] call QS_fnc_clientInteractLoad;
 	if (!(_result)) then {
 		50 cutText [format [localize 'STR_QS_Text_348',(_child getVariable ['QS_ST_customDN',_displayName1]),(_parent getVariable ['QS_ST_customDN',_displayName2])],'PLAIN DOWN',0.333];
 	};
 };
-if (!(_canLoad # 0)) exitWith {
+if ((!_hiddenStorage && {!(_canLoad # 0)}) ||
+	{_hiddenStorage && {!([0,_child,_parent] call QS_fnc_getCustomCargoParams) ||
+	{!([1,_child,_parent] call QS_fnc_getCustomCargoParams)}}}) exitWith {
 	50 cutText [localize 'STR_QS_Text_349','PLAIN DOWN',0.333];
 };
-if (([_child,0] call QS_fnc_logisticsMovementDisallowed) && (!_bypass)) exitWith {
+if (([_child,0] call QS_fnc_logisticsMovementDisallowed) && {(!_bypass) || {_protectedCarry}}) exitWith {
 	50 cutText [localize 'STR_QS_Text_378','PLAIN',0.3];
 };
-if (([_child,1] call QS_fnc_logisticsMovementDisallowed) && (!_bypass)) exitWith {
+// Legacy cargo includes configured classes/static weapons without QS_logistics.
+// Only the current carry operation may use its saved simulation state.
+private _temporaryFreeze = _protectedCarry && {_moveState # 1} && {
+	(_child getVariable ['QS_logistics',FALSE]) || {[0,_child,_parent] call QS_fnc_getCustomCargoParams}
+};
+if (([_child,1] call QS_fnc_logisticsMovementDisallowed) && {!_temporaryFreeze} && {(!_bypass) || {_protectedCarry}}) exitWith {
 	50 cutText [localize 'STR_QS_Text_444','PLAIN',0.3];
 };
-if (lockedInventory _parent) exitWith {
+if (lockedInventory _parent || {_parent getVariable ['QS_lockedInventory',FALSE]}) exitWith {
 	50 cutText [format ['%1 %2',(_parent getVariable ['QS_ST_customDN',_displayName2]),localize 'STR_QS_Text_380'],'PLAIN DOWN',0.333];
 };
 private _text = '';
@@ -75,10 +91,25 @@ if (_child getVariable ['QS_logistics_virtual',FALSE]) exitWith {
 	['SET_CLIENT',_parent,_child] call QS_fnc_virtualVehicleCargo;
 };
 if ((_child getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) exitWith {
-	['LOAD',_child,[],[],[_parent],QS_player] remoteExecCall ['QS_fnc_cargoMove',_child,FALSE];
 	uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
+	private _ticket = _moveState # 0;
+	['LOAD',_child,[],[],[_parent,['STANDARD','HIDDEN'] select _hiddenStorage],QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',_child,FALSE];
 	QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
 	missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+	[_child,_parent,_ticket] spawn {
+		params ['_child','_parent','_ticket'];
+		private _deadline = diag_tickTime + 8;
+		waitUntil {uiSleep 0.1; isNull _child ||
+			{((_child getVariable ['QS_cargoMove_state',[]]) param [0,[]]) isNotEqualTo _ticket} || {diag_tickTime > _deadline}};
+		private _loaded = !isNull _child && {(attachedTo _child) isEqualTo _parent || {(isVehicleCargo _child) isEqualTo _parent}} &&
+			{(_child getVariable ['QS_cargoMove_state',[]]) isEqualTo []};
+		private _message = localize 'STR_QS_Text_116';
+		if (_loaded) then {
+			_message = format ['%1 %3 %2',getText ((configOf _child) >> 'displayName'),
+				getText ((configOf _parent) >> 'displayName'),localize 'STR_QS_Text_114'];
+		};
+		50 cutText [_message,'PLAIN DOWN',0.5];
+	};
 };
 if ([_parent,_child] call QS_fnc_setVehicleCargo) then {
 	playSound3D [

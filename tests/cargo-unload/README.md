@@ -24,6 +24,23 @@ cargo serialization preserves the original flags rather than the temporary
 freeze. Simple objects, person transport, and native airborne paradrops keep
 their original release paths. Angular-velocity clearing requires Arma 3 2.18+.
 
+Protected carry loads share the owner worker, including legacy hidden storage
+at `[0,0,-100]`. Their token is required for LOAD. Loading marks placement as
+committing before dispatch; delayed cancellation is ignored during settling,
+and the watchdog finishes transfers instead of releasing them again. Custom attachments count as
+successful loads as well as native vehicle cargo. Failed capacity/lock checks
+on the owner recover the cargo safely. The client reports physical load success
+only after protection clears and the destination still contains the cargo.
+
+The loading exception for disabled simulation applies only to the requesting
+player's active, idle carry token, with originally enabled simulation and normal
+logistics eligibility, including configured cargo classes, static weapons and
+native-compatible cargo without a pre-existing `QS_logistics` flag. Successful
+physical loads register that flag for subsequent unloading. The physical and
+virtual volume helpers keep their cargo arrays private so capacity checks cannot
+overwrite the worker's cargo object reference. Other movement restrictions still apply. Intentionally
+disabled cargo is not made loadable by this exception.
+
 ## Multiplayer acceptance checks (not executed)
 
 Server execution tests were skipped at the user's request. No successful native
@@ -50,6 +67,14 @@ script errors, damage, velocity, ownership, and the cargo's
 | Place inside the original HEMTT's bounding box | Placement is rejected/recovered before physics resumes. |
 | Move the HEMTT back into cargo during settling | Completion rechecks clearance and recovers instead of enabling physics in an overlap. |
 | Carry and load into another vehicle; fail that load | Successful loads retain normal cargo protection; failed loads recover safely. |
+| Carry, then load using the action menu and placement confirmation | Both routes accept the temporary freeze; original flags and carry lease clear after success. |
+| Legacy hidden storage, native cargo, and custom attachment points | Cargo remains at its destination beyond 10 seconds; placement cleanup and watchdog do not unload it. |
+| Successful load, unload to ground, reload with the same and a second player | Restored cargo has a Load action and can be loaded again. |
+| Destination becomes full/locked after client validation | Owner rejects transfer, safely recovers cargo, and the client reports failure. |
+| Duplicate LOAD, delayed cancellation, old LOAD token after completion | No repeated release or new protection state; settled cargo remains loaded. |
+| Configured cargo/static weapon without QS_logistics, carried into a compatible native/custom/hidden destination | Load succeeds, QS_logistics becomes true after physical loading, and cargo appears in the unload menu. |
+| Hidden load into an empty carrier and one with existing physical/virtual cargo | Capacity checks retain the worker's object reference; no Array/Object script errors, and protection clears after success. |
+| Originally simulation-disabled cargo or cargo outside all supported eligibility routes | The temporary-freeze exception does not bypass normal loading restrictions. |
 | Carry and serialize virtual cargo, then unload it again | Serialized simulation/damage reflects the original flags, not the temporary freeze. |
 | Ammo crate/static weapon unloaded and immediately reloaded | A delayed old unload callback does not enable damage on loaded cargo. |
 | Native aircraft paradrop, simple objects, incapacitated units | Existing behavior remains functional. |

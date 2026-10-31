@@ -47,6 +47,10 @@ if (_attachedObjects isNotEqualTo []) then {
 			player setVariable ['QS_RD_interacting',FALSE,TRUE];
 			_obj setVariable ['QS_RD_interacting',FALSE,TRUE];
 		} else {
+			if ((_obj getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) exitWith {
+				[nil,nil,nil,[_obj,_t]] call QS_fnc_clientInteractLoadCargo;
+				_result = TRUE;
+			};
 			_isViV = [_t,_obj] call (missionNamespace getVariable 'QS_fnc_isValidCargoV');
 			if (
 				(([1,_obj,_t] call (missionNamespace getVariable 'QS_fnc_getCustomCargoParams')) || (_isViV)) &&

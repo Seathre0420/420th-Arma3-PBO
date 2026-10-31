@@ -15,7 +15,7 @@ ______________________________________________________/*/
 
 params ['_vehicle'];
 if (!alive _vehicle) exitWith {0};
-_cargo = _vehicle getVariable ['QS_virtualCargo',[]];
+private _cargo = _vehicle getVariable ['QS_virtualCargo',[]];
 if (_cargo isEqualTo []) exitWith {0};
 private _cargoVolume = 0;
 private _element = [];

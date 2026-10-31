@@ -35,7 +35,9 @@ if (_mode isEqualTo 'WATCH') exitWith {
                     {isNull (attachedTo _cargo) && {isNull (isVehicleCargo _cargo)}}}
                 ) then {
                     _nextRecovery = diag_tickTime + 5;
-                    private _mode = ['RECOVER','FINISH'] select (!isNull (isVehicleCargo _cargo));
+                    private _mode = ['RECOVER','FINISH'] select (
+                        ((_state param [8,'']) in ['LOAD','PLACE','RECOVER']) || {!isNull (isVehicleCargo _cargo)}
+                    );
                     [_mode,_cargo,[],[],[],objNull,_token] remoteExecCall ['QS_fnc_cargoMove',_cargo,FALSE];
                 };
             };
@@ -63,6 +65,7 @@ if (_mode in ['ATTACH','PLACE']) then {
 };
 if (_mode isEqualTo '') exitWith {FALSE};
 if (_mode isEqualTo 'LOAD' && {count _attachment < 1 || {!((_attachment # 0) isEqualType objNull)}}) exitWith {FALSE};
+if (_mode isEqualTo 'LOAD' && {!((_attachment param [1,'STANDARD']) in ['STANDARD','HIDDEN'])}) exitWith {FALSE};
 if (_mode in ['ATTACH','PLACE','LOAD'] && {!isNull _actor}) then {
     if ((getPlayerUID _actor) in (missionNamespace getVariable ['QS_blacklist_logistics',[]])) exitWith {_mode = '';};
     if (_mode isEqualTo 'PLACE' && {(getPosASL _actor) distance _position > 100}) exitWith {_mode = '';};
@@ -82,6 +85,9 @@ private _result = FALSE;
 isNil {
     _state = _cargo getVariable ['QS_cargoMove_state',[]];
     if (_mode in ['FINISH','RECOVER'] && {_state isEqualTo [] || {(_state # 0) isNotEqualTo _token}}) exitWith {};
+    // A delayed carry cancellation must not undo a transfer already settling.
+    if (_mode isEqualTo 'RECOVER' && {(_state param [8,'']) in ['LOAD','PLACE','RECOVER']}) exitWith {};
+    if (_mode isEqualTo 'LOAD' && {_state isEqualTo [] || {(_state # 0) isNotEqualTo _token}}) exitWith {};
     if (_state isNotEqualTo [] && {!isNull _actor} && {(_state # 4) isNotEqualTo _actor}) exitWith {};
     if (_mode in ['ATTACH','PLACE','LOAD'] && {_cargo getVariable ['QS_cargoMove_busy',FALSE]}) exitWith {};
     if (_mode isEqualTo 'ATTACH' && {count _attachment < 2 || {isNull (_attachment # 0)} || {count _vectors isNotEqualTo 2}}) exitWith {};
@@ -162,7 +168,29 @@ isNil {
             _placed = [_cargo,_state # 3] call QS_fnc_cargoPlacementClear;
         };
         if (_mode isEqualTo 'LOAD') then {
-            _placed = [_attachment # 0,_cargo] call QS_fnc_setVehicleCargo;
+            private _target = _attachment # 0;
+            private _canLoad = [_target,_cargo] call QS_fnc_canVehicleCargo;
+            private _hidden = (_attachment param [1,'STANDARD']) isEqualTo 'HIDDEN';
+            private _eligible = alive _target && {alive _cargo} &&
+                {!lockedInventory _target} && {!(_target getVariable ['QS_lockedInventory',FALSE])} &&
+                {!(_target getVariable ['QS_logistics_wreck',FALSE])} &&
+                {!(_cargo getVariable ['QS_logistics_immovable',FALSE])};
+            if (_hidden) then {
+                _eligible = _eligible && {!(_canLoad # 1)} &&
+                    {[0,_cargo,_target] call QS_fnc_getCustomCargoParams} &&
+                    {[1,_cargo,_target] call QS_fnc_getCustomCargoParams};
+            } else {_eligible = _eligible && {_canLoad # 0};};
+            if (_eligible) then {
+                if (_hidden) then {
+                    _cargo attachTo [_target,[0,0,-100]];
+                    [71,_cargo,TRUE] remoteExecCall ['QS_fnc_remoteExec',2,FALSE];
+                    _placed = (attachedTo _cargo) isEqualTo _target;
+                } else {_placed = [_target,_cargo] call QS_fnc_setVehicleCargo;};
+                // Preserve legacy registration so newly loaded class-based cargo
+                // appears in the unload menu and remains eligible for unloading.
+                if (_placed) then {_cargo setVariable ['QS_logistics',TRUE,TRUE];};
+                [_target,TRUE,TRUE] call QS_fnc_updateCenterOfMass;
+            };
             _state set [7,_attachment];
         };
         // Failed placement/transfer and abandoned carrying return to the original
@@ -212,7 +240,8 @@ isNil {
         };
     };
     if (!isNull _previousParent) then {[_previousParent,TRUE,TRUE] call QS_fnc_updateCenterOfMass;};
-    if (!isNull _actor && {isObjectHidden _cargo}) then {
+    if (!isNull _actor && {isObjectHidden _cargo} &&
+        {!(_mode isEqualTo 'LOAD' && {(_attachment param [1,'STANDARD']) isEqualTo 'HIDDEN'})}) then {
         [71,_cargo,FALSE] remoteExec ['QS_fnc_remoteExec',2,FALSE];
     };
 };

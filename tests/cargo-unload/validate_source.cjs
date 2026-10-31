@@ -6,8 +6,9 @@ const root = path.resolve(__dirname, '../..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const names = ['cargoMove', 'cargoPlacementClear', 'clientInteractUnloadCargo',
   'clientMenuUnloadCargo', 'unloadCargoPlacementMode', 'clientEventDefaultAction',
-  'clientEventDraw3D2', 'clientInteractLoadCargo', 'clientInteractRelease',
-  'eventCargoLoaded', 'finishCargoChildUnload', 'remoteExec', 'virtualVehicleCargo'];
+  'clientEventDraw3D2', 'clientInteractLoadCargo', 'clientInteractLoad', 'clientInteractRelease',
+  'eventCargoLoaded', 'finishCargoChildUnload', 'remoteExec', 'virtualVehicleCargo',
+  'getCargoVolume', 'getVirtualCargoVolume'];
 for (const name of names) {
   const source = read(`Apex_framework.terrain/code/functions/fn_${name}.sqf`);
   const stack = [];
@@ -35,6 +36,13 @@ for (const name of ['cargoMove', 'cargoPlacementClear']) {
 }
 assert(read('Apex_framework.terrain/code/config/security.hpp').includes('class QS_fnc_cargoMove {allowedTargets = 0; jip = 0;};'));
 const worker = read('Apex_framework.terrain/code/functions/fn_cargoMove.sqf');
+// These helpers run inside cargoMove's dynamic scope. An unqualified assignment
+// would replace its Object parameter with an Array after simulation was frozen.
+for (const name of ['getCargoVolume', 'getVirtualCargoVolume']) {
+  const source = read(`Apex_framework.terrain/code/functions/fn_${name}.sqf`);
+  assert(/\bprivate\s+_cargo\s*=/.test(source), `${name} must isolate its cargo array`);
+  assert(!/^\s*_cargo\s*=/m.test(source), `${name} must not overwrite the caller's cargo`);
+}
 assert(worker.indexOf('enableSimulationGlobal FALSE') < worker.indexOf('objNull setVehicleCargo'), 'Freeze must precede native release');
 assert(worker.indexOf('enableSimulationGlobal FALSE') < worker.indexOf('detach _cargo'), 'Freeze must precede custom release');
 for (const name of ['clientInteractUnloadCargo', 'clientMenuUnloadCargo', 'unloadCargoPlacementMode', 'clientEventDefaultAction', 'remoteExec']) {
