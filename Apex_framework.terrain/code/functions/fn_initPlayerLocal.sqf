@@ -1041,3 +1041,6 @@ if (userInputDisabled) then {
 };
 
 ['ACTIONS',objNull] call QS_fnc_clientVehicleAccess;
+
+// Request an authoritative task snapshot for this player object.
+['REQUEST'] remoteExecCall ['QS_fnc_taskSyncRequest',2];

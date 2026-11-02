@@ -192,7 +192,9 @@ class CfgRemoteExec {
 		class ASL_Drop_Ropes {};
 		class BIS_fnc_callScriptedEventHandler {};
 		class BIS_fnc_curatorRespawn {};
-		class BIS_fnc_deleteTask {jip = 1;};
+		class QS_fnc_taskSyncRequest {allowedTargets = 2;};
+        class QS_fnc_taskSyncClient {allowedTargets = 1; jip = 1;};
+        class BIS_fnc_deleteTask {jip = 1;};
 		class BIS_fnc_dynamicGroups {};
 		class BIS_fnc_effectKilled {};
 		class BIS_fnc_effectKilledSecondaries {};

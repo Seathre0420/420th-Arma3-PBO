@@ -745,7 +745,10 @@ class CfgFunctions {
 			class taskSetCustomData {file = "code\functions\fn_taskSetCustomData.sqf";};
 			class taskSetProgress {file = "code\functions\fn_taskSetProgress.sqf";};
 			class taskSetSingleWaypoint {file = "code\functions\fn_taskSetSingleWaypoint.sqf";};
-			class taskSetTimer {file = "code\functions\fn_taskSetTimer.sqf";};
+			class taskSyncRequest {file = "code\functions\fn_taskSyncRequest.sqf";};
+            class taskSyncServer {file = "code\functions\fn_taskSyncServer.sqf";};
+            class taskSyncClient {file = "code\functions\fn_taskSyncClient.sqf";};
+            class taskSetTimer {file = "code\functions\fn_taskSetTimer.sqf";};
 			class terrainGradAngle {file = "code\functions\fn_terrainGradAngle.sqf";};
 			class turret {file = "code\functions\fn_turret.sqf";};
 			class turretActionCancel {file = "code\functions\fn_turretActionCancel.sqf";};

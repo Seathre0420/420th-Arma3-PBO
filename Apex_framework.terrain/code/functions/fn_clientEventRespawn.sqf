@@ -287,3 +287,6 @@ if ((player getVariable ['QS_unit_side',WEST]) isNotEqualTo WEST) then {
 
 localNamespace setVariable ['QS_vehicleAccess_actions',[]];
 ['ACTIONS',objNull] call QS_fnc_clientVehicleAccess;
+
+// Request an authoritative task snapshot for this player object.
+['REQUEST'] remoteExecCall ['QS_fnc_taskSyncRequest',2];

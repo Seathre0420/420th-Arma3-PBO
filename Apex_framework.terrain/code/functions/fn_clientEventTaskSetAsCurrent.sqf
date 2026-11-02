@@ -19,6 +19,7 @@ Params:
 ___________________________________________________________________*/
 
 params ['_unit','_task'];
+if (!(localNamespace getVariable ['QS_taskSync_applying',FALSE])) then {localNamespace setVariable ['QS_taskSync_handoff',-1]};
 {
 	if (_x isNotEqualTo _task) then {
 		if (taskAlwaysVisible _x) then {

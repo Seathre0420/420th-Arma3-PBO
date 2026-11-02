@@ -5406,6 +5406,8 @@ for '_z' from 0 to 1 step 0 do {
 					};
 				} count _QS_module_taskManager_simpleTasks;
 			};
+			[localNamespace getVariable ['QS_taskSync_snapshot',[]]] call QS_fnc_taskSyncClient;
+			['REQUEST'] remoteExecCall ['QS_fnc_taskSyncRequest',2];
 			_QS_module_taskManager_checkDelay = _timeNow + _QS_module_taskManager_delay;
 		};
 	};

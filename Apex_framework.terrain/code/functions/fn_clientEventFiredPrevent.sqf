@@ -41,7 +41,7 @@ if (_mode isEqualTo 1) exitWith {
 					!(
 						((markerShape "QS_marker_base_firing_area") in ["RECTANGLE","ELLIPSE"]) &&
 						{(_originalTarget inArea "QS_marker_base_firing_area")} &&
-						{(((getPosATL _originalTarget) # 2) <= 5)}
+						{(((getPosATL _originalTarget) # 2) <= 3)}
 					)
 				}'		// A3 2.16 - replace cameraOn with focusOn
 			]),

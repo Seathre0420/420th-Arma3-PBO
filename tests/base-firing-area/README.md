@@ -10,10 +10,10 @@ spawn protection has expired.
 | Scenario | Expected behavior |
 | --- | --- |
 | Inside, on terrain | Rifle and pistol shots fire normally inside the marker at ground level. Repeat on elevated and sloped terrain to confirm the ceiling follows terrain rather than sea level. |
-| Height threshold | In the editor/debug console, position the player inside the marker at ATL heights 4.9, 5, and 5.1 m. Test immediately before gravity changes the height, using temporary local simulation control if necessary. Shooting is allowed at 4.9 and exactly 5, and blocked at 5.1. |
-| Buildings | Test on a roof less than 5 m and one greater than 5 m above the terrain below. Only the lower position allows shooting. |
+| Height threshold | In the editor/debug console, position the player inside the marker at ATL heights 2.9, 3, and 3.1 m. Test immediately before gravity changes the height, using temporary local simulation control if necessary. Shooting is allowed at 2.9 and exactly 3, and blocked at 3.1. |
+| Buildings | Test on a roof less than 3 m and one greater than 3 m above the terrain below. Only the lower position allows shooting. |
 | Crossing horizontally | Walk into and out of the marker while remaining inside base. Shooting is allowed only inside. Repeat while holding automatic fire across the boundary in both directions. |
-| Crossing vertically | Rise above 5 m and descend back below it inside the marker while attempting to fire. The safety action follows the current height. Repeat while holding automatic fire. |
+| Crossing vertically | Rise above 3 m and descend back below it inside the marker while attempting to fire. The safety action follows the current height. Repeat while holding automatic fire. |
 | Shapes and rotation | Repeat with a rotated rectangle and with an ellipse. Positions outside the actual rotated rectangle or ellipse remain blocked, even inside its bounding rectangle. |
 | Missing or invalid marker | Remove/rename the marker, then try an icon marker with that name. Base shooting remains blocked. Hide a valid area marker using alpha 0; its firing permission still works. |
 | Marker changes | Move or resize the marker during a test session, including while holding automatic fire. Permission follows its current area. |

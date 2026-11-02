@@ -130,10 +130,10 @@ position, size, and rotation to cover the desired area inside the main base.
 No marker is placed automatically.
 
 The base weapon-safety action allows shooting while the player is inside this
-marker and `(getPosATL player) # 2` is **5 meters or less**. Height is measured
+marker and `(getPosATL player) # 2` is **3 meters or less**. Height is measured
 above terrain, including on slopes; standing on a roof does not reset it to zero.
-The condition is checked each frame, so leaving the marker or rising above 5 m
-restores the firing restriction. Exactly 5 m is allowed. Missing markers and
+The condition is checked each frame, so leaving the marker or rising above 3 m
+restores the firing restriction. Exactly 3 m is allowed. Missing markers and
 icon markers do not grant an exception.
 
 Base damage protection, grenade/explosive restrictions, and vehicle manual-fire
@@ -220,3 +220,11 @@ The readable inventory and array are in `docs/reference/`. Keep those copies
 synchronized when editing the runtime allowlist, and run
 `python tests/randomized-pylons/validate_allowlist.py`. See
 `tests/randomized-pylons/README.md` for the in-engine validation procedure.
+
+## Task synchronization
+
+Main AO selection now transfers to its Defend mission. Server-owned versioned
+snapshots reject stale updates and restore missing client tasks after joining,
+respawning, or on the 15-second task check. Deploy the updated mission and
+`@apex/addons/apex_server.pbo` together. See `tests/task-sync/README.md` for
+local build verification and multiplayer acceptance checks.
