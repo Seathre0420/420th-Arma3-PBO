@@ -25,10 +25,7 @@ if (_protectedCargo isNotEqualTo []) exitWith {
 	if ([_cargo] call QS_fnc_isBoundingBoxIntersected) then {
 		50 cutText [localize 'STR_QS_Text_120','PLAIN DOWN',0.5];
 	} else {
-		uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
-		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
-		['PLACE',_cargo,getPosASL _cargo,[vectorDir _cargo,vectorUp _cargo],[],QS_player] remoteExecCall ['QS_fnc_cargoMove',_cargo,FALSE];
-		missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+		[_cargo,getPosASLVisual _cargo,[vectorDirVisual _cargo,vectorUpVisual _cargo]] spawn QS_fnc_cargoPlaceClient;
 	};
 	TRUE
 };

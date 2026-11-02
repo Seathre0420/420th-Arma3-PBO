@@ -298,7 +298,7 @@ if (_mode3 isEqualTo 'Unload_2') exitWith {
 				private _empty = (getPos _vehicle) findEmptyPosition [5,30,typeOf _requestedObject];
 				if (_empty isNotEqualTo []) then {
 					['PLACE',_requestedObject,ATLToASL _empty,[vectorDir _requestedObject,surfaceNormal _empty],[],QS_player]
-						remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+						remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
 				};
 			};
 		};
@@ -330,7 +330,7 @@ if (_mode3 isEqualTo 'Unload_2') exitWith {
 		QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
 		['PLACE',_requestedObject,uiNamespace getVariable ['QS_targetBoundingBox_ASLPos',getPosASL _requestedObject],
 			uiNamespace getVariable ['QS_targetBoundingBox_vectors',[vectorDir _requestedObject,vectorUp _requestedObject]],[],QS_player]
-			remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+			remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
 		missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
 	};
 	if (local _requestedObject) then {

@@ -79,7 +79,7 @@ if (
 			private _up = surfaceNormal _empty;
 			private _right = (vectorDir _object) vectorCrossProduct _up;
 			private _dir = vectorNormalized (_up vectorCrossProduct _right);
-			['PLACE',_object,ATLToASL _empty,[_dir,_up],[],QS_player] remoteExecCall ['QS_fnc_cargoMove',_object,FALSE];
+			['PLACE',_object,ATLToASL _empty,[_dir,_up],[],QS_player] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
 			_hasUnloaded = TRUE;
 			playSound 'Click';
 		};

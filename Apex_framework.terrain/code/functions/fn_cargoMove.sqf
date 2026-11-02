@@ -8,12 +8,26 @@
 */
 params [
     ['_mode','',['']],['_cargo',objNull,[objNull]],['_position',[],[[]]],['_vectors',[],[[]]],['_attachment',[],[[]]],
-    ['_actor',objNull,[objNull]],['_token',[],[[]]],['_attempt',0,[0]]
+    ['_actor',objNull,[objNull]],['_token',[],[[]]],['_attempt',0,[0]],['_revision',-1,[0]]
 ];
 if (isNull _cargo || {_cargo isKindOf 'CAManBase'} || {isSimpleObject _cargo}) exitWith {FALSE};
 if (isRemoteExecutedJIP) exitWith {FALSE};
 if (_token isNotEqualTo [] && {count _token isNotEqualTo 2 || {(_token findIf {!(_x isEqualType 0) || {!finite _x}}) isNotEqualTo -1}}) exitWith {FALSE};
 private _state = _cargo getVariable ['QS_cargoMove_state',[]];
+private _requestedMode = _mode;
+private _reject = {
+    if (_requestedMode in ['ATTACH','PLACE','LOAD']) then {
+        diag_log format ['[CARGO MOVE] Rejected mode=%1 cargo=%2 local=%3 sender=%4 actorOwner=%5 token=%6 revision=%7 state=%8 busy=%9',
+            _requestedMode,_cargo,local _cargo,remoteExecutedOwner,owner _actor,_token,_revision,_state,_cargo getVariable ['QS_cargoMove_busy',FALSE]];
+        // Only acknowledge a request belonging to this object's current actor.
+        if (!isNull _actor && {_state isNotEqualTo []} && {(_state # 4) isEqualTo _actor} &&
+            {(_state # 0) isEqualTo _token} &&
+            {!isRemoteExecuted || {remoteExecutedOwner isEqualTo 2} || {isServer && {remoteExecutedOwner isEqualTo (owner _actor)}}}) then {
+            _cargo setVariable ['QS_cargoMove_result',[_token,_revision,'REJECTED'],TRUE];
+        };
+    };
+    FALSE
+};
 
 if (_mode isEqualTo 'WATCH') exitWith {
     if (!isServer || {_state isEqualTo []} || {(_state # 0) isNotEqualTo _token}) exitWith {FALSE};
@@ -23,22 +37,31 @@ if (_mode isEqualTo 'WATCH') exitWith {
     [_cargo,_token] spawn {
         params ['_cargo','_token'];
         private _nextRecovery = diag_tickTime + 5;
+        private _abandonedSince = -1;
+        private _busySince = -1;
         while {!isNull _cargo && {((_cargo getVariable ['QS_cargoMove_state',[]]) param [0,[]]) isEqualTo _token}} do {
             uiSleep 0.25;
             private _state = _cargo getVariable ['QS_cargoMove_state',[]];
             if (_state isNotEqualTo [] && {(_state # 0) isEqualTo _token}) then {
                 private _actor = _state # 4;
+                if (_cargo getVariable ['QS_cargoMove_busy',FALSE]) then {
+                    if (_busySince < 0) then {_busySince = diag_tickTime;};
+                } else {_busySince = -1;};
+                if (!isNull _actor && {(_actor getVariable ['QS_cargoMove_active',[]]) isNotEqualTo _token}) then {
+                    if (_abandonedSince < 0) then {_abandonedSince = diag_tickTime;};
+                } else {_abandonedSince = -1;};
                 if (
                     diag_tickTime >= _nextRecovery &&
                     {isNull _actor || {!alive _actor} || {!isPlayer _actor} ||
-                    {(_actor getVariable ['QS_cargoMove_active',[]]) isNotEqualTo _token} ||
+                    {_abandonedSince >= 0 && {diag_tickTime - _abandonedSince >= 5}} ||
+                    {_busySince >= 0 && {diag_tickTime - _busySince >= 5}} ||
                     {isNull (attachedTo _cargo) && {isNull (isVehicleCargo _cargo)}}}
                 ) then {
                     _nextRecovery = diag_tickTime + 5;
                     private _mode = ['RECOVER','FINISH'] select (
                         ((_state param [8,'']) in ['LOAD','PLACE','RECOVER']) || {!isNull (isVehicleCargo _cargo)}
                     );
-                    [_mode,_cargo,[],[],[],objNull,_token] remoteExecCall ['QS_fnc_cargoMove',_cargo,FALSE];
+                    [_mode,_cargo,[],[],[],objNull,_token,0,_state param [10,0]] remoteExecCall ['QS_fnc_cargoMove',_cargo,FALSE];
                 };
             };
         };
@@ -47,13 +70,16 @@ if (_mode isEqualTo 'WATCH') exitWith {
 };
 
 // Do not expose a general-purpose remote teleport/freeze endpoint.
+// owner returns 0 on clients. Client-originated RPCs must enter on the server,
+// which authenticates their actor before forwarding to the cargo owner.
+if (isRemoteExecuted && {!isServer} && {remoteExecutedOwner isNotEqualTo 2}) exitWith {call _reject};
 if (isRemoteExecuted && {remoteExecutedOwner isNotEqualTo 2}) then {
     private _sender = remoteExecutedOwner;
     private _completion = _mode isEqualTo 'FINISH' && {_state isNotEqualTo []} && {(_state # 6) isEqualTo _sender};
     if (!_completion && {isNull _actor || {owner _actor isNotEqualTo _sender} || {!isPlayer _actor} ||
         {_actor distance _cargo > 100}}) exitWith {_mode = '';};
 };
-if !(_mode in ['ATTACH','PLACE','LOAD','FINISH','RECOVER']) exitWith {FALSE};
+if !(_mode in ['ATTACH','PLACE','LOAD','FINISH','RECOVER']) exitWith {call _reject};
 if (_mode in ['ATTACH','PLACE']) then {
     private _validVector = {(_this isEqualType []) && {count _this isEqualTo 3} && {(_this findIf {!(_x isEqualType 0) || {!finite _x}}) isEqualTo -1}};
     if (count _vectors isNotEqualTo 2 || {!((_vectors # 0) call _validVector)} || {!((_vectors # 1) call _validVector)}) exitWith {_mode = '';};
@@ -63,7 +89,7 @@ if (_mode in ['ATTACH','PLACE']) then {
         {count _attachment > 2 && {!((_attachment # 2) isEqualType '')}} ||
         {count _attachment > 3 && {!((_attachment # 3) isEqualType FALSE)}}}) exitWith {_mode = '';};
 };
-if (_mode isEqualTo '') exitWith {FALSE};
+if (_mode isEqualTo '') exitWith {call _reject};
 if (_mode isEqualTo 'LOAD' && {count _attachment < 1 || {!((_attachment # 0) isEqualType objNull)}}) exitWith {FALSE};
 if (_mode isEqualTo 'LOAD' && {!((_attachment param [1,'STANDARD']) in ['STANDARD','HIDDEN'])}) exitWith {FALSE};
 if (_mode in ['ATTACH','PLACE','LOAD'] && {!isNull _actor}) then {
@@ -73,17 +99,23 @@ if (_mode in ['ATTACH','PLACE','LOAD'] && {!isNull _actor}) then {
     if (_mode isEqualTo 'LOAD' && {_cargo distance (_attachment # 0) > 100}) exitWith {_mode = '';};
     if (_mode isEqualTo 'LOAD' && {lockedInventory (_attachment # 0) || {(_attachment # 0) getVariable ['QS_lockedInventory',FALSE]}}) exitWith {_mode = '';};
 };
-if (_mode isEqualTo '') exitWith {FALSE};
+if (_mode isEqualTo '') exitWith {call _reject};
 if (!local _cargo) exitWith {
     if (_attempt < 3) then {
         private _target = [2,_cargo] select isServer;
-        [_mode,_cargo,_position,_vectors,_attachment,_actor,_token,_attempt + 1] remoteExecCall ['QS_fnc_cargoMove',_target,FALSE];
+        [_mode,_cargo,_position,_vectors,_attachment,_actor,_token,_attempt + 1,_revision] remoteExecCall ['QS_fnc_cargoMove',_target,FALSE];
     };
-    FALSE
+    if (_attempt >= 3) then {call _reject;} else {TRUE}
 };
 private _result = FALSE;
 isNil {
     _state = _cargo getVariable ['QS_cargoMove_state',[]];
+    if (_mode isEqualTo 'ATTACH' && {_state isNotEqualTo []}) exitWith {};
+    if (_mode isEqualTo 'PLACE' && {_state isEqualTo []} && {_token isNotEqualTo []}) exitWith {};
+    if (_mode in ['PLACE','LOAD'] && {_state isNotEqualTo []} &&
+        {(_state # 0) isNotEqualTo _token || {_revision isNotEqualTo ((_state param [10,0]) + 1)}}) exitWith {};
+    if (_mode isEqualTo 'FINISH' && {_state isNotEqualTo []} && {_revision isNotEqualTo (_state param [10,0])}) exitWith {};
+    if (_mode isEqualTo 'RECOVER' && {_revision >= 0} && {_state isNotEqualTo []} && {_revision isNotEqualTo (_state param [10,0])}) exitWith {};
     if (_mode in ['FINISH','RECOVER'] && {_state isEqualTo [] || {(_state # 0) isNotEqualTo _token}}) exitWith {};
     // A delayed carry cancellation must not undo a transfer already settling.
     if (_mode isEqualTo 'RECOVER' && {(_state param [8,'']) in ['LOAD','PLACE','RECOVER']}) exitWith {};
@@ -113,11 +145,24 @@ isNil {
     _state set [6,clientOwner];
     _cargo setVariable ['QS_cargoMove_state',_state,TRUE];
     _token = _state # 0;
+    if (_mode in ['PLACE','LOAD','RECOVER']) then {
+        _revision = (_state param [10,0]) + 1;
+        _state set [10,_revision];
+        if (_mode isEqualTo 'PLACE' && {(_state param [8,'']) isEqualTo 'CARRY'} && {!isNull (attachedTo _cargo)}) then {
+            private _parent = attachedTo _cargo;
+            _state set [11,[_parent,_parent worldToModel (getPos _cargo),[_cargo,_parent,TRUE] call BIS_fnc_vectorDirAndUpRelative]];
+        };
+    };
     ['WATCH',_cargo,[],[],[],objNull,_token] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
     _cargo setVariable ['QS_cargoMove_busy',TRUE,TRUE];
     _cargo enableSimulationGlobal FALSE;
     _cargo allowDamage FALSE;
 
+    if (_mode isEqualTo 'FINISH' && {(_state param [8,'']) isEqualTo 'PLACE'} &&
+        {isNull (attachedTo _cargo)} && {isNull (isVehicleCargo _cargo)} &&
+        {(getPosASL _cargo) distance (_state # 9) > 0.25}) then {
+        _cargo setPosASL (_state # 9);
+    };
     if (_mode isEqualTo 'FINISH' && {(_state param [8,'']) isEqualTo 'PLACE'} &&
         {(!isNull (attachedTo _cargo)) || {!isNull (isVehicleCargo _cargo)} ||
         {(getPosASL _cargo) distance (_state # 9) > 0.25}}) then {_mode = 'RECOVER';};
@@ -126,12 +171,41 @@ isNil {
         (attachedTo _cargo) isNotEqualTo _target && {(isVehicleCargo _cargo) isNotEqualTo _target}}) then {_mode = 'RECOVER';};
     if (_mode isEqualTo 'FINISH' && {isNull (attachedTo _cargo)} && {isNull (isVehicleCargo _cargo)} &&
         {!([_cargo,_state # 3] call QS_fnc_cargoPlacementClear)}) then {_mode = 'RECOVER';};
+    if (_mode isEqualTo 'FINISH' && {(_state param [8,'']) isEqualTo 'PLACE'} &&
+        {(_state param [11,[]]) isNotEqualTo []} &&
+        {!([_cargo,_state # 3,_state # 4] call QS_fnc_cargoPlacementClear)}) then {_mode = 'RECOVER';};
+    // Rejected ordinary placement returns to the current carry session.
+    if (_mode isEqualTo 'RECOVER' && {(_state param [8,'']) isEqualTo 'PLACE'} &&
+        {(_state param [11,[]]) isNotEqualTo []}) then {_mode = 'RETURN';};
+    if (_mode isEqualTo 'RETURN' &&
+        {private _parent = (_state # 11) # 0;
+        isNull _parent || {!alive _parent} || {isNull (_state # 4)} || {!alive (_state # 4)} || {!isPlayer (_state # 4)}}) then {_mode = 'RECOVER';};
+    if (_mode isEqualTo 'RETURN') exitWith {
+        (_state # 11) params ['_parent','_offset','_relative'];
+        if (!isNull (isVehicleCargo _cargo)) then {objNull setVehicleCargo _cargo;};
+        detach _cargo;
+        _cargo attachTo [_parent,_offset];
+        _cargo setVectorDirAndUp _relative;
+        _cargo enableSimulationGlobal FALSE;
+        _cargo allowDamage FALSE;
+        _state set [8,'CARRY'];
+        _cargo setVariable ['QS_cargoMove_state',_state,TRUE];
+        _cargo setVariable ['QS_cargoMove_busy',FALSE,TRUE];
+        _cargo setVariable ['QS_cargoMove_result',[_token,_state # 10,'BLOCKED'],TRUE];
+        _result = TRUE;
+    };
     if (_mode isEqualTo 'FINISH') exitWith {
         _cargo setVelocity [0,0,0];
         _cargo setAngularVelocity [0,0,0];
         _cargo enableSimulationGlobal (_state # 1);
         private _loaded = !isNull (isVehicleCargo _cargo);
         _cargo allowDamage ((_state # 2) && {!_loaded || {!((_cargo isKindOf 'Reammobox_F') || {_cargo isKindOf 'StaticWeapon'})}});
+        private _outcome = switch (_state param [8,'']) do {
+            case 'PLACE': {'PLACED'};
+            case 'LOAD': {'LOADED'};
+            default {'RECOVERED'};
+        };
+        _cargo setVariable ['QS_cargoMove_result',[_token,_state param [10,0],_outcome],TRUE];
         _cargo setVariable ['QS_cargoMove_state',nil,TRUE];
         _cargo setVariable ['QS_cargoMove_busy',FALSE,TRUE];
         if (!isNull (_state # 3)) then {
@@ -157,6 +231,7 @@ isNil {
         _cargo attachTo _attachment;
         _cargo setVectorDirAndUp _vectors;
         _state set [7,_attachment];
+        _state set [8,'CARRY'];
         _cargo setVariable ['QS_cargoMove_state',_state,TRUE];
         _cargo setVariable ['QS_cargoMove_busy',FALSE,TRUE];
         _result = TRUE;
@@ -166,6 +241,12 @@ isNil {
             _cargo setVectorDirAndUp _vectors;
             _cargo setPosASL _position;
             _placed = [_cargo,_state # 3] call QS_fnc_cargoPlacementClear;
+            if (!_placed && {(_state param [11,[]]) isNotEqualTo []}) then {
+                // Route through FINISH's return-to-carry path, without relocation.
+                _state set [8,'PLACE'];
+                _state set [9,_position];
+                _placed = TRUE;
+            };
         };
         if (_mode isEqualTo 'LOAD') then {
             private _target = _attachment # 0;
@@ -227,11 +308,12 @@ isNil {
             _state set [8,_mode];
             _state set [9,_position];
             _cargo setVariable ['QS_cargoMove_state',_state,TRUE];
-            [_cargo,_token,diag_frameNo + 2] spawn {
-                params ['_cargo','_token','_frame'];
+            [_cargo,_token,diag_frameNo + 2,_state param [10,0]] spawn {
+                params ['_cargo','_token','_frame','_revision'];
                 waitUntil {diag_frameNo >= _frame || {isNull _cargo}};
                 if (!isNull _cargo) then {
-                    ['FINISH',_cargo,[],[],[],objNull,_token] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
+                    private _finish = ['FINISH',_cargo,[],[],[],objNull,_token,0,_revision];
+                    if (local _cargo) then {_finish call QS_fnc_cargoMove;} else {_finish remoteExecCall ['QS_fnc_cargoMove',2,FALSE];};
                 };
             };
             _result = TRUE;
@@ -245,4 +327,5 @@ isNil {
         [71,_cargo,FALSE] remoteExec ['QS_fnc_remoteExec',2,FALSE];
     };
 };
+if (!_result) then {call _reject;};
 _result

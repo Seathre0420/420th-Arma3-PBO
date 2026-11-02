@@ -154,7 +154,8 @@ if (!_useHelper && {!(_requestedObject isKindOf 'CAManBase')} && {!isSimpleObjec
 	if (_memPoint isNotEqualTo '') then {_attachParams = [_vehicle,_frontModelPos,_memPoint,_followRotation];};
 	private _ticket = [clientOwner,diag_tickTime];
 	QS_player setVariable ['QS_cargoMove_active',_ticket,TRUE];
-	['ATTACH',_requestedObject,[],_orient,_attachParams,QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+	// Authenticate on the server before routing to the current cargo owner.
+	['ATTACH',_requestedObject,[],_orient,_attachParams,QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
 	private _deadline = diag_tickTime + 5;
 	waitUntil {
 		uiSleep 0.01;

@@ -13,6 +13,11 @@ Description:
 	Placement
 ______________________________________________/*/
 
+private _pending = uiNamespace getVariable ['QS_cargoPlacement_pending',[]];
+private _cancelPending = (missionNamespace getVariable ['QS_targetBoundingBox_placementModeCancel',FALSE]) ||
+    {!((lifeState QS_player) in ['HEALTHY','INJURED'])};
+if (_pending isNotEqualTo [] && {!_cancelPending}) exitWith {};
+if (_cancelPending) then {uiNamespace setVariable ['QS_cargoPlacement_pending',[]];};
 _cameraOn = uiNamespace getVariable ['QS_targetBoundingBox_parent',objNull];
 if (
 	((uiNamespace getVariable ['QS_targetBoundingBox_this',[]]) call QS_fnc_placementModeCancel) ||
@@ -41,7 +46,8 @@ if (
 		if (_state isNotEqualTo []) then {
 			if (!(uiNamespace getVariable ['QS_cargoPlacement_committing',FALSE])) then {
 				QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
-				['RECOVER',QS_targetBoundingBox_helper,[],[],[],QS_player,_state # 0] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
+				private _recover = ['RECOVER',QS_targetBoundingBox_helper,[],[],[],QS_player,_state # 0,0,_state param [10,0]];
+				if (local QS_targetBoundingBox_helper) then {_recover call QS_fnc_cargoMove;} else {_recover remoteExecCall ['QS_fnc_cargoMove',2,FALSE];};
 			};
 		} else {
 			if (_cameraOn isKindOf 'CAManBase') then {

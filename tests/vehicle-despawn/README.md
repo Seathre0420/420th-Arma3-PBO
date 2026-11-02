@@ -45,3 +45,17 @@ No Arma engine runtime is simulated by the source checks.
 Packing also emits PACKED after the server verifies the hidden representation;
 this is an intentional disappearance rather than destruction. Unpacking resets
 that transition marker so a later pack receives its own entry.
+
+Garbage-collector metadata regression: the source validator exercises the captured
+instruction/deadline expressions with mixed entries, successful recycling, an
+object disappearing before deletion, and consecutive passes. It also pins the
+cleanup commands and conditions independently of Git HEAD. These checks do not
+execute the Arma engine.
+
+On a dedicated test server, queue disposable vehicles with NOW_FORCED,
+NOW_DISCREET, DELAYED_FORCED and DELAYED_DISCREET, using distinct deadlines.
+Verify existing timing and player-proximity conditions, one GARBAGE_COLLECTION
+record per deletion, matching instruction/deadline fields, and no undefined
+_QS_instructions or _QS_timeDelete errors. Mix entries in one pass, include
+a successfully recycled object and an object removed before the deletion pass,
+and repeat in a later pass to check that metadata never shifts or carries over.

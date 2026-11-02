@@ -87,6 +87,11 @@ if (missionNamespace getVariable ['QS_targetBoundingBox_placementMode',FALSE]) t
 		if (uiNamespace getVariable ['QS_localHelper',FALSE]) then {
 			_return = TRUE;
 			missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
+		} else {
+			if ((QS_targetBoundingBox_helper getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) then {
+				_return = TRUE;
+				missionNamespace setVariable ['QS_targetBoundingBox_placementModeCancel',TRUE,FALSE];
+			};
 		};
 	};
 	if (_key in 

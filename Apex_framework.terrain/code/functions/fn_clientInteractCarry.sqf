@@ -14,6 +14,13 @@ Description:
 _________________________________________*/
 
 private _t = cursorTarget;
+private _existingMove = _t getVariable ['QS_cargoMove_state',[]];
+if (_existingMove isNotEqualTo []) exitWith {
+    if (isNull (attachedTo _t) && {isNull (isVehicleCargo _t)} && {(_existingMove # 4) isEqualTo QS_player}) then {
+        ['RECOVER',_t,[],[],[],QS_player,_existingMove # 0,0,_existingMove param [10,0]] remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
+    };
+    50 cutText [localize 'STR_QS_Text_116','PLAIN DOWN',0.5];
+};
 if (!isNull (objectParent _t)) exitWith {};
 if (
 	(!(_t isKindOf 'CAManBase')) && 

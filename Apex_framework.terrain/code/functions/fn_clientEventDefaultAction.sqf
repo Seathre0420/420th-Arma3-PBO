@@ -120,6 +120,11 @@ if (_mode isEqualTo 'activate') exitWith {
 				50 cutText [localize 'STR_QS_Text_120','PLAIN DOWN',0.333];
 			};
 			if (!(_requestedObject isKindOf 'CAManBase') && {!isSimpleObject _requestedObject}) exitWith {
+				if ((_requestedObject getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) exitWith {
+					private _carrier = localNamespace getVariable ['QS_placementMode_carrier',objNull];
+					if (alive _carrier) exitWith {[nil,nil,nil,[_requestedObject,_carrier],TRUE] call QS_fnc_clientInteractLoadCargo;};
+					[_requestedObject,getPosASLVisual _requestedObject,[vectorDirVisual _requestedObject,vectorUpVisual _requestedObject]] spawn QS_fnc_cargoPlaceClient;
+				};
 				private _carrier = localNamespace getVariable ['QS_placementMode_carrier',objNull];
 				if (alive _carrier) exitWith {
 					[nil,nil,nil,[_requestedObject,_carrier],TRUE] call QS_fnc_clientInteractLoadCargo;
@@ -128,7 +133,7 @@ if (_mode isEqualTo 'activate') exitWith {
 				QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
 				['PLACE',_requestedObject,uiNamespace getVariable ['QS_targetBoundingBox_ASLPos',getPosASL _requestedObject],
 					uiNamespace getVariable ['QS_targetBoundingBox_vectors',[vectorDir _requestedObject,vectorUp _requestedObject]],[],QS_player]
-					remoteExecCall ['QS_fnc_cargoMove',_requestedObject,FALSE];
+					remoteExecCall ['QS_fnc_cargoMove',2,FALSE];
 				missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
 			};
 			if (local _requestedObject) then {

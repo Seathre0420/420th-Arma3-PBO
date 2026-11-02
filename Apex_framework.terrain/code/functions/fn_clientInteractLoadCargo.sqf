@@ -91,25 +91,7 @@ if (_child getVariable ['QS_logistics_virtual',FALSE]) exitWith {
 	['SET_CLIENT',_parent,_child] call QS_fnc_virtualVehicleCargo;
 };
 if ((_child getVariable ['QS_cargoMove_state',[]]) isNotEqualTo []) exitWith {
-	uiNamespace setVariable ['QS_cargoPlacement_committing',TRUE];
-	private _ticket = _moveState # 0;
-	['LOAD',_child,[],[],[_parent,['STANDARD','HIDDEN'] select _hiddenStorage],QS_player,_ticket] remoteExecCall ['QS_fnc_cargoMove',_child,FALSE];
-	QS_player setVariable ['QS_cargoMove_active',nil,TRUE];
-	missionNamespace setVariable ['QS_targetBoundingBox_placementMode',FALSE,FALSE];
-	[_child,_parent,_ticket] spawn {
-		params ['_child','_parent','_ticket'];
-		private _deadline = diag_tickTime + 8;
-		waitUntil {uiSleep 0.1; isNull _child ||
-			{((_child getVariable ['QS_cargoMove_state',[]]) param [0,[]]) isNotEqualTo _ticket} || {diag_tickTime > _deadline}};
-		private _loaded = !isNull _child && {(attachedTo _child) isEqualTo _parent || {(isVehicleCargo _child) isEqualTo _parent}} &&
-			{(_child getVariable ['QS_cargoMove_state',[]]) isEqualTo []};
-		private _message = localize 'STR_QS_Text_116';
-		if (_loaded) then {
-			_message = format ['%1 %3 %2',getText ((configOf _child) >> 'displayName'),
-				getText ((configOf _parent) >> 'displayName'),localize 'STR_QS_Text_114'];
-		};
-		50 cutText [_message,'PLAIN DOWN',0.5];
-	};
+	[_child,[],[],'LOAD',[_parent,['STANDARD','HIDDEN'] select _hiddenStorage]] spawn QS_fnc_cargoPlaceClient;
 };
 if ([_parent,_child] call QS_fnc_setVehicleCargo) then {
 	playSound3D [
