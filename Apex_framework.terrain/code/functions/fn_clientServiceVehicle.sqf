@@ -152,7 +152,7 @@ if ((_baseService) || (_isDepot)) then {
 			[_v] call (missionNamespace getVariable 'QS_fnc_vehicleAPSParams');
 		};
 		if ((['medical',(typeOf _v),FALSE] call (missionNamespace getVariable 'QS_fnc_inString')) || {(['medevac',(typeOf _v),FALSE] call (missionNamespace getVariable 'QS_fnc_inString'))}) then {
-			_v setVariable ['QS_medicalVehicle_reviveTickets',(getNumber ((configOf _v) >> 'transportSoldier')),TRUE];
+			_v setVariable ['QS_medicalVehicle_reviveTickets',((getNumber ((configOf _v) >> 'transportSoldier')) max 8),TRUE];
 		};
 		if (_v isKindOf 'Air') then {
 			_cargoSeats = getNumber ((configOf _v) >> 'transportSoldier');

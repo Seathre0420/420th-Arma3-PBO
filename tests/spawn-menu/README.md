@@ -41,14 +41,20 @@ from the FOB during these checks.
 
 | Scenario | Expected result |
 | --- | --- |
-| Spawn `B_Slingload_01_Medevac_F` through the Spawn Menu outside the FOB's 75 m radius | `QS_services_medical` and `QS_logistics_deployable` are true, `QS_medicalVehicle_reviveTickets` is initialized, and `QS_vehicle_isSuppliedFOB` is unset. |
+| Spawn `B_Slingload_01_Medevac_F` through the Spawn Menu outside the FOB's 75 m radius | `QS_services_medical` and `QS_logistics_deployable` are true, `QS_medicalVehicle_reviveTickets` is eight, and `QS_vehicle_isSuppliedFOB` is unset. |
 | Bring that container within 75 m of the regional FOB centre while attached or sling-loaded | No tickets are added until the container is detached from both objects and ropes. |
-| Detach the container inside the radius and allow the FOB manager to process it | `QS_module_fob_respawnEnabled` becomes true, the flag gains exactly four `QS_deploy_tickets`, and the container receives `QS_vehicle_isSuppliedFOB = true`. |
+| Detach the container inside the radius and allow the FOB manager to process it | `QS_module_fob_respawnEnabled` becomes true, the flag gains exactly eight `QS_deploy_tickets`, and the container receives `QS_vehicle_isSuppliedFOB = true`. |
 | Leave the supplied container in place through further FOB scans without rearming or reattaching it | No additional tickets are added. |
-| Deliver a second fresh Spawn Menu medical container under the same conditions | Exactly four more tickets are added. |
+| Deliver a second fresh Spawn Menu medical container under the same conditions | Exactly eight more tickets are added. |
 | Repeat with a fresh Zeus medical container and an activated container created through `QS_fnc_registerVehicle` | The medical flag and FOB ticket contribution match the Spawn Menu container. |
-| Spawn `Box_B_UAV_06_medical_F` outside the FOB radius and inspect the packed box before assembling its drone | `QS_services_medical` and `QS_logistics_deployable` are true and `QS_medicalVehicle_reviveTickets` is initialized to four. |
-| Deliver that packed medical UAV box to the FOB, detached from objects and ropes, then leave it through further scans | The flag gains exactly four deployment tickets and the box receives `QS_vehicle_isSuppliedFOB = true`; subsequent scans add no more tickets. |
+| Spawn `Box_B_UAV_06_medical_F` outside the FOB radius and inspect the packed box before assembling its drone | `QS_services_medical` and `QS_logistics_deployable` are true and `QS_medicalVehicle_reviveTickets` is initialized to eight. |
+| Deliver that packed medical UAV box to the FOB, detached from objects and ropes, then leave it through further scans | The flag gains exactly eight deployment tickets and the box receives `QS_vehicle_isSuppliedFOB = true`; subsequent scans add no more tickets. |
+| Assemble a fresh medical UAV outside the FOB radius; repeat with a directly spawned medical UAV | The UAV has eight revive tickets and `QS_services_medical = true`. Deliver it detached inside the FOB radius and verify eight tickets are credited once. |
+| Spawn an ambulance van, either Taru medical asset, each first-aid kit world object, and a portable medical cabinet through shared vehicle setup | Each asset starts with eight revive tickets and contributes eight on a fresh FOB delivery. |
+| Spawn HEMTT, Zamak, and Tempest medical trucks through shared vehicle setup | Initial revive tickets are 24, 24, and 18 respectively. Fresh FOB deliveries credit those amounts. |
+| Spend a revive ticket from an eight-ticket supplier before FOB delivery | Remaining tickets decrease to seven and the FOB receives seven. The Huron medical container retains its fixed eight-ticket contribution. |
+| Service depleted medical assets in an active Level 2 safezone, including eligible attached cargo | Assets with an eight-ticket capacity refill to eight and their supplied-FOB marker is cleared. Larger medical trucks refill to their existing calculated capacities. The asset can supply the FOB again once after servicing. |
+| Exercise `QS_fnc_clientServiceVehicle` with an ambulance van, a medical UAV, and a medical truck | The van and UAV receive eight tickets. The truck receives its existing configured passenger-count refill with a minimum of eight. |
 | Spawn `FlexibleTank_01_forest_F` | `getFuelCargo` returns zero, `QS_logistics_deployable`, `QS_inventory_disabled`, and `QS_lockedInventory` are true, inventory access is blocked, and the `QS_vSetup_fuelKilledEH` handler is registered. An eligible player can use the deployment action outside restricted build zones. |
 | Spawn `Box_NATO_AmmoVeh_F` | `getAmmoCargo` returns zero and `QS_logistics_deployable` is true. An eligible player can use the deployment action outside restricted build zones. |
 | Spawn `Land_Pod_Heli_Transport_04_fuel_F` through a logistics pilot terminal | Server-side `getMass` returns 8500; fuel service setup and logistics interactions remain available. Check the black fuel-pod variant through shared vehicle setup as well when its class is available. |

@@ -702,14 +702,9 @@ if ((QS_hashmap_configfile getOrDefaultCall [format ['cfgvehicles_%1_attendant',
 		} else {
 			_transportSoldier = round (_transportSoldier * 1.5);
 		};
-		if (_t2 isKindOf 'Van_02_medevac_base_F') then {
-			_transportSoldier = 2;
-		};
-		_u setVariable ['QS_medicalVehicle_reviveTickets',_transportSoldier,TRUE];
+		_u setVariable ['QS_medicalVehicle_reviveTickets',(_transportSoldier max 8),TRUE];
 	} else {
-		if (!(_u isKindOf 'UAV_06_base_F')) then {
-			_u setVariable ['QS_medicalVehicle_reviveTickets',4,TRUE];
-		};
+		_u setVariable ['QS_medicalVehicle_reviveTickets',8,TRUE];
 	};
 };
 // Misc Services/Logistics

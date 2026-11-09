@@ -68,7 +68,8 @@ _this spawn {
 			} else {
 				if (unitIsUAV _weapon) then {
 					if ((['medical',(typeOf _weapon),FALSE] call (missionNamespace getVariable 'QS_fnc_inString')) || {(['medevac',(typeOf _weapon),FALSE] call (missionNamespace getVariable 'QS_fnc_inString'))}) then {
-						_weapon setVariable ['QS_medicalVehicle_reviveTickets',0,TRUE];
+						_weapon setVariable ['QS_medicalVehicle_reviveTickets',((_weapon getVariable ['QS_medicalVehicle_reviveTickets',0]) max 8),TRUE];
+						_weapon setVariable ['QS_services_medical',TRUE,TRUE];
 					};
 					_weapon setVariable ['QS_RD_recruitable',TRUE,TRUE];
 					_weapon setVariable ['QS_logistics',TRUE,TRUE];

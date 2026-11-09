@@ -38,14 +38,9 @@ if (
 		} else {
 			_transportSoldier = round (_transportSoldier * 1.5);
 		};
-		if (_vehicleTypeLower isKindOf 'Van_02_medevac_base_F') then {
-			_transportSoldier = 4;
-		};
-		_vehicle setVariable ['QS_medicalVehicle_reviveTickets',_transportSoldier,TRUE];
+		_vehicle setVariable ['QS_medicalVehicle_reviveTickets',(_transportSoldier max 8),TRUE];
 	} else {
-		if (!(_vehicle isKindOf 'UAV_06_base_F')) then {
-			_vehicle setVariable ['QS_medicalVehicle_reviveTickets',8,TRUE];
-		};
+		_vehicle setVariable ['QS_medicalVehicle_reviveTickets',8,TRUE];
 	};
 };
 if (_vehicle isKindOf 'Air') then {

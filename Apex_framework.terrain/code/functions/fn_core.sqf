@@ -3166,7 +3166,7 @@ for '_x' from 0 to 1 step 0 do {
 						};
 						_module_fob_respawn_ticketsAdded = 0;
 						if (_ve isKindOf 'Slingload_base_F') then {			// Huron medical container
-							_module_fob_respawn_ticketsAdded = 4;
+							_module_fob_respawn_ticketsAdded = 8;
 						} else {
 							_module_fob_respawn_ticketsAdded = _ve getVariable ['QS_medicalVehicle_reviveTickets',(getNumber ((configOf _ve) >> 'transportSoldier'))];
 						};
