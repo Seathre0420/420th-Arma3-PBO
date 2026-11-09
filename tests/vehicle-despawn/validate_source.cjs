@@ -27,6 +27,21 @@ for (const file of fs.readdirSync(require('node:path').join(root, 'Apex_framewor
 }
 assert(sites > 100, 'Missing broad removal-site coverage');
 const core = read('Apex_framework.terrain/code/functions/fn_core.sqf');
+// Regression for the occupied Black Wasp deletion. All three deletion side
+// effects must remain inside the final distance-and-living-player decision.
+const abandonmentDecision = core.match(
+  /private _spawnMenuCleanupDistance = \[1500,100\] select _spawnMenuInBase;\s*if \(([\s\S]*?)\) then \{([^{}]*?)\}/
+);
+assert(abandonmentDecision, 'Missing Spawn Menu abandonment decision');
+assert.equal(
+  abandonmentDecision[1].replace(/\s+/g, ' ').trim(),
+  '((_spawnMenuOwner distance2D _v) > _spawnMenuCleanupDistance) && {((crew _v) findIf {isPlayer _x && {alive _x}}) isEqualTo -1}',
+  'Spawn Menu abandonment must require zero living player occupants at the final decision'
+);
+assert.match(abandonmentDecision[2], /missionNamespace setVariable \['QS_analytics_entities_deleted',/);
+assert.match(abandonmentDecision[2], /deleteVehicle \(\['CONTEXT',_v,'ABANDONED',/);
+assert.match(abandonmentDecision[2], /\(serverNamespace getVariable 'QS_v_Monitor'\) set \[_forEachIndex,_false\];/);
+assert(!/\b(?:sleep|uiSleep|spawn)\b/.test(abandonmentDecision[2]), 'Do not yield between the occupancy check and deletion');
 const begin = core.indexOf("\t\t\tif ((missionNamespace getVariable 'QS_garbageCollector') isNotEqualTo []) then {");
 const finish = core.indexOf('\t\t\t\t} count _QS_garbageCollector;', begin);
 assert(begin >= 0 && finish > begin);

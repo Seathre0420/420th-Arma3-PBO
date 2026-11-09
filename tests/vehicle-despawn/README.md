@@ -28,7 +28,10 @@ On a dedicated multiplayer server verify:
 
 | Case | Expected |
 | --- | --- |
-| Owner leaves a Spawn Menu vehicle over 50 m inside base or 1500 m outside | One ABANDONED record; owner distance, threshold and base result present. |
+| Owner leaves an empty Spawn Menu vehicle over 100 m inside BASE_HIGHSEC_0 or 1500 m outside | One ABANDONED record; owner distance, threshold and base result present. |
+| Owner exceeds the threshold while a living player occupies any seat | Vehicle retained with no ABANDONED record; after the last living player exits, the next eligible pass produces exactly one ABANDONED record even if AI remains. Include an incapacitated living player. |
+| Only AI occupies a Spawn Menu vehicle whose owner exceeds the threshold | Eligible for abandonment cleanup, including friendly AI. |
+| Old Black Wasp wreck is removed while its owner pilots a replacement | WRECK_CLEANUP for the old network ID; replacement retained with no ABANDONED record. |
 | Owner occupies vehicle removed in infantry protection zone | One SPAWN_PROTECTION record with driver/pilot seat; same existing chat warning and timing. |
 | Manual Despawn, staff deletion, Zeus deletion | One removal record; uninstrumented Zeus deletion may be UNKNOWN. |
 | Owner disconnects; role changes remove UAV | DISCONNECT / UAV_CLEANUP respectively. |

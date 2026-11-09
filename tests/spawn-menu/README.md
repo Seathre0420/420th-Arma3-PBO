@@ -4,17 +4,22 @@ For Transport/Logistics Pilot default pylon removal and fuel-tank retention,
 also run the spawn checks in `../pilot-pylons/README.md` before boarding.
 
 Run these in multiplayer against the updated mission, using a vehicle created
-through the Spawn Menu. Allow at least one vehicle-manager pass (approximately
-five seconds) after each change. Distances are horizontal and the owner is the
-player who spawned the vehicle.
+through the Spawn Menu. Allow at least one vehicle-manager pass (15 seconds plus
+processing time) after each change. Distances are horizontal and the owner is the
+player who spawned the vehicle. Unless a case specifies occupants, use an empty vehicle.
 
 | Scenario | Expected result |
 | --- | --- |
-| Inside the `QS_base_safe_#` polygon; owner 24 m, then exactly 25 m, then 26 m away | Retained at 24 m and 25 m; deleted at 26 m. |
+| Inside `BASE_HIGHSEC_0`; owner 99 m, then exactly 100 m, then 101 m away | Retained at 99 m and 100 m; deleted at 101 m. |
 | Outside the polygon; owner 1,499 m, then exactly 1,500 m, then 1,501 m away | Retained at 1,499 m and 1,500 m; deleted at 1,501 m. |
-| Concave base boundary: vehicle inside the polygon's bounding box but outside the polygon; owner 26 m away | Retained; the polygon, not its bounding box or a base-marker radius, selects the threshold. |
+| Concave base boundary: vehicle inside the polygon's bounding box but outside the polygon; owner 101 m away | Retained; the configured polygon selects the outside threshold. |
 | Vehicle still at its original Spawn Menu position; owner exceeds the applicable threshold | Deleted without first moving the vehicle. |
-| Another player or AI occupies the vehicle while the owner exceeds the threshold | Deleted; crew occupancy does not protect the vehicle. |
+| Another living player occupies any seat while the owner exceeds the threshold | Retained with no ABANDONED record. Exercise driver/pilot, turret and passenger seats. |
+| Only AI occupies the vehicle while the owner exceeds the threshold | Eligible for abandonment cleanup, including friendly AI. |
+| Incapacitated but living player occupies a seat while the owner exceeds the threshold | Retained with no ABANDONED record. |
+| Last living player exits while the owner remains beyond the threshold, including when AI remains aboard | Deleted on the next eligible pass with exactly one ABANDONED record. Repeat inside base beyond 100 m and outside beyond 1,500 m. |
+| Vehicle contains only dead crew while the owner exceeds the threshold | Eligible for abandonment cleanup. |
+| Old Black Wasp wreck is cleaned up while the owner pilots a replacement at base | Wreck receives WRECK_CLEANUP; occupied replacement survives subsequent manager passes with no ABANDONED record. |
 | Another player or an active vehicle rally point is next to the vehicle; owner exceeds the threshold | Deleted; only the owner's distance matters. |
 | Vehicle attached to another object with `attachTo`; owner exceeds the threshold | Retained until detached, then deleted on a subsequent pass. |
 | Vehicle is deployed or logistics-packed; owner exceeds the threshold | Retained until both protections are cleared. Exercise the normal deployment and packing actions to verify their lifecycle still works. |
