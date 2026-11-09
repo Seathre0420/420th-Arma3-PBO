@@ -14,6 +14,7 @@ Description:
 _________________________________________________/*/
 
 params ['_type','_vehicle'];
+[_vehicle] call TGC_fnc_addDamageProtection;
 if (_type isEqualTo 0) then {
 	//comment 'Remove Events';
 	if ((_vehicle getVariable ['QS_client_vehicleEventHandlers',[]]) isNotEqualTo []) then {

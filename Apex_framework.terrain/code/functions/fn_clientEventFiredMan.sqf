@@ -150,6 +150,7 @@ if (_weapon isEqualTo 'Throw') then {
 		};
 		if (!isNull _projectile) then {
 			_projectile setVariable ['TGC_playerPlacedExplosiveUID',getPlayerUID _unit,TRUE];
+            _projectile setVariable ['TGC_damage_provenance',[[_unit] call TGC_fnc_damageSide],TRUE];
 		};
 	} else {
 		_projectile addEventHandler ['HitPart',{call (missionNamespace getVariable 'QS_fnc_clientProjectileEventHitPart')}];

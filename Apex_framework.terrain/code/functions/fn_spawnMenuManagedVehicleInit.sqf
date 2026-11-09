@@ -16,6 +16,8 @@ if (
 _vehicle setVariable ['QS_spawnMenu_spawnedBy',_ownerUID,TRUE];
 _vehicle setVariable ['QS_RD_vehicleRespawnable',TRUE,TRUE];
 _vehicle setVariable ['TGC_vehicle_side',_vehicleSide,TRUE];
+_vehicle setVariable ['TGC_damage_side',_vehicleSide,TRUE];
+[_vehicle] call TGC_fnc_addDamageProtection;
 (missionNamespace getVariable ['QS_spawnMenu_spawnedEntities',[]]) pushBackUnique _vehicle;
 
 if (!isNil 'TGC_fnc_addSpawnMenuVehicleHandlers') then {

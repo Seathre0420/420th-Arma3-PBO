@@ -14,18 +14,10 @@ Description:
 ____________________________________________*/
 
 if (!(local (_this # 0))) exitWith {};
-params ['_vehicle','_selectionName','_damage','_source','_projectile','_hitIndex','_instigator','_hitPoint','_directHit'];
-if (
-	((_vehicle getVariable ['QS_spawnMenu_spawnedBy','']) isNotEqualTo '') &&
-	((crew _vehicle) isEqualTo []) &&
-	{_this call TGC_fnc_isProtectedEmptyVehicleDamage}
-) exitWith {
-	if (_hitIndex >= 0) then {
-		_vehicle getHitIndex _hitIndex
-	} else {
-		damage _vehicle
-	}
+if (local (_this # 0) && {_this call TGC_fnc_isFriendlyFire}) exitWith {
+    if ((_this # 5) >= 0) then {(_this # 0) getHitIndex (_this # 5)} else {damage (_this # 0)}
 };
+params ['_vehicle','_selectionName','_damage','_source','_projectile','_hitIndex','_instigator','_hitPoint','_directHit'];
 _oldDamage = [(_vehicle getHit _selectionName),(damage _vehicle)] select (_selectionName isEqualTo '');
 _szArray = if (diag_tickTime > (_vehicle getVariable ['QS_zones_eventHD_checkInterval',-1])) then {
 	_vehicle setVariable ['QS_zones_eventHD_checkInterval',diag_tickTime + 2,FALSE];
@@ -36,27 +28,16 @@ _szArray = if (diag_tickTime > (_vehicle getVariable ['QS_zones_eventHD_checkInt
 	(_vehicle getVariable ['QS_zones_eventHD_result',[FALSE,0,FALSE]])
 };
 _szArray params ['_inSafezone','_safezoneLevel','_safezoneActive'];
+private _combatEvent = +_this;
+_combatEvent set [10,_this call TGC_fnc_damageDecision];
 private _scale = 1;
 private _aircraft_crit = FALSE;
-private _localPlayerSide = side (group player);
-if (_localPlayerSide isEqualTo sideUnknown) then {
-	_localPlayerSide = player getVariable ['QS_unit_side',WEST];
-};
-if (
-	((_vehicle getVariable ['QS_spawnMenu_spawnedBy','']) isNotEqualTo '') &&
-	{call TGC_fnc_isFriendlyFire}
-) exitWith {_oldDamage};
 if (!isNull _instigator) then {
-	if (
-		(!(_vehicle in [_source,_instigator])) &&
-		{((side (group _instigator)) in [_localPlayerSide,sideEnemy])}
-	) then {
-		_scale = [0.05,0] select isNil 'TGC_allowFF';
-	} else {
+
 		if (_vehicle isKindOf 'Helicopter') then {
 			_scale = 0.5;
 		};
-	};
+
 };
 if (!isNull _source) then {
 	if (
@@ -75,12 +56,7 @@ if (!isNull _source) then {
 	) then {
 		_scale = 0.05;
 	};
-	if (
-		(!(_vehicle in [_source,_instigator])) &&
-		{((side (group _instigator)) in [_localPlayerSide,sideEnemy])}
-	) then {
-		_scale = [0.05,0] select isNil 'TGC_allowFF';
-	} else {
+
 		if (_vehicle isKindOf 'Helicopter') then {
 			_scale = 0.333;
 			_data1 = [
@@ -170,7 +146,7 @@ if (!isNull _source) then {
 				_scale = [0.25,0.333] select ((random 1) > 0.5);
 			};
 		};
-	};
+
 } else {
 	if (_projectile isEqualTo '') then {
 		_scale = 0.5;
@@ -197,14 +173,14 @@ if (
 		_instigator setDamage [1,FALSE];
 	};
 	if ((vehicle _instigator) isKindOf 'LandVehicle') then {
-		_scale = [0.01,0] select isNil 'TGC_allowFF';
+		_scale = 0;
 	};
 };
 if (
 	(_scale > 0.05) &&
 	{(_inSafezone && _safezoneActive && (_safezoneLevel > 1))}
 ) then {
-	_scale = [0.05,0] select isNil 'TGC_allowFF';
+	_scale = 0;
 };
 if (
 	(_projectile isEqualTo 'FuelExplosion') &&
@@ -285,20 +261,20 @@ if (_aircraft_crit) exitWith {
 		};
 		if (scriptDone (missionNamespace getVariable ['QS_aircraft_critHit',scriptNull])) then {
 			QS_aircraft_critHit_array = [[_selectionName,0.86]];
-			QS_aircraft_critHit = [_vehicle,_source,_instigator] spawn {
-				params ['_vehicle','_source','_instigator'];
+			QS_aircraft_critHit = [_vehicle,_source,_instigator,_combatEvent] spawn {
+				params ['_vehicle','_source','_instigator','_combatEvent'];
 				uiSleep 0.333;
 				{
-					_vehicle setHit [_x # 0,_x # 1,TRUE,_source,_instigator];
+					[_combatEvent,'setHit',[_x # 0,_x # 1,TRUE,_source,_instigator]] call TGC_fnc_applyCombatDamage;
 				} forEach QS_aircraft_critHit_array;
 				QS_aircraft_critHit_array = [];
 			};
 		} else {
 			QS_aircraft_critHit_array pushBack [_selectionName,0.89];
 		};
-		_vehicle setHit [(['hitfuel','fuel_hit'] select (_vehicle isKindOf 'Helicopter')),_damage,TRUE,_source,_instigator];
+		[_combatEvent,'setHit',[(['hitfuel','fuel_hit'] select (_vehicle isKindOf 'Helicopter')),_damage,TRUE,_source,_instigator]] call TGC_fnc_applyCombatDamage;
 		_damage = _damage min 0.86;
 	};
-	_damage;
+	(((_damage - _oldDamage) * _scale) + _oldDamage)
 };
 (((_damage - _oldDamage) * _scale) + _oldDamage)

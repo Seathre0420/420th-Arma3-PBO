@@ -13,6 +13,9 @@ Description:
 	-
 ___________________________________________________________________/*/
 
+if (local (_this # 0) && {_this call TGC_fnc_isFriendlyFire}) exitWith {
+    if ((_this # 5) >= 0) then {(_this # 0) getHitIndex (_this # 5)} else {damage (_this # 0)}
+};
 params ['_unit','','_damage','_source','_projectile','_hitPartIndex','_instigator','','_directHit'];
 if ((!local _unit) || {(!((lifeState _unit) in ['HEALTHY','INJURED']))} || {(!(isDamageAllowed _unit))}) exitWith {
 	((if (_hitPartIndex isEqualTo -1) then {(damage _unit)} else {(_unit getHitIndex _hitPartIndex)}) min 0.89)

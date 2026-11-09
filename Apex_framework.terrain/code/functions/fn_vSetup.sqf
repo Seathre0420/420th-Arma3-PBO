@@ -14,6 +14,7 @@ Description:
 _____________________________________________________/*/
 
 params ['_u',['_z',FALSE],['_wreckable',FALSE]];
+[_u] call TGC_fnc_addDamageProtection;
 private _fn_addManagedEventHandler = {
 	params ['_entity','_eventType','_handler','_idVariable'];
 	private _existingEH = _entity getVariable [_idVariable,-1];

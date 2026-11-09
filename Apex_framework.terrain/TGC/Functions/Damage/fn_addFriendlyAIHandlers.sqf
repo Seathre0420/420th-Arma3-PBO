@@ -15,6 +15,7 @@ Author:
 
 */
 params [["_unit", objNull, [objNull]]];
+[_unit] call TGC_fnc_addDamageProtection;
 
 if (
     (isNull _unit) ||
@@ -26,25 +27,6 @@ if (
         {!(_unit isKindOf "C_UAV_AI_F")}
     }
 ) exitWith {};
-
-private _existingCollisionEH = _unit getVariable ["TGC_friendlyAI_collisionEH", -1];
-if !(
-    (_existingCollisionEH >= 0) &&
-    {(_unit getEventHandlerInfo ["EpeContactStart", _existingCollisionEH]) param [0, false]}
-) then {
-    private _collisionEH = _unit addEventHandler ["EpeContactStart", {
-        params ["_unit", "_collider"];
-        if (!local _unit) exitWith {};
-        private _now = diag_tickTime;
-        if (_now < (_unit getVariable ["TGC_collisionCheckAfter", -1])) exitWith {};
-        _unit setVariable ["TGC_collisionCheckAfter", _now + 0.05];
-
-        if ([_collider] call TGC_fnc_isPlayerControlled) then {
-            _unit setVariable ["TGC_playerDamageCollisionUntil", diag_tickTime + 1];
-        };
-    }];
-    _unit setVariable ["TGC_friendlyAI_collisionEH", _collisionEH];
-};
 
 private _existingDamageEH = _unit getVariable ["TGC_friendlyAI_damageEH", -1];
 private _existingDamageEHInfo = if (_existingDamageEH >= 0) then {
@@ -79,24 +61,7 @@ private _damageEH = _unit addEventHandler ["HandleDamage", {
             damage _unit
         };
 
-        // Player damage is always rejected, regardless of the player's side.
-        if (_this call TGC_fnc_isPlayerDamage) exitWith {_oldDamage};
-
-        // Preserve protection from non-civilian AI friendly fire as well. A side
-        // is friendly when BLUFOR's current relationship meets the 0.6 threshold.
-        private _attacker = [_source, _instigator] select (!isNull _instigator);
-        private _isFriendlyAttacker = false;
-        if (!isNull _attacker && {_attacker isNotEqualTo _unit}) then {
-            private _attackerSide = side (group _attacker);
-            if (_attackerSide isEqualTo sideUnknown) then {
-                _attackerSide = side _attacker;
-            };
-            _isFriendlyAttacker =
-                (_attackerSide isNotEqualTo sideUnknown) &&
-                {(_attackerSide isNotEqualTo CIVILIAN)} &&
-                {(WEST getFriend _attackerSide) >= 0.6};
-        };
-        if (_isFriendlyAttacker) exitWith {_oldDamage};
+        if (_this call TGC_fnc_isFriendlyFire) exitWith {_oldDamage};
 
         // Recruited AI uses the same configured on-foot enemy-damage multiplier
         // as players. Keep it in this handler instead of a separate later

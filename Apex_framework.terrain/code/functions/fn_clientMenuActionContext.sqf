@@ -308,7 +308,8 @@ if (
 				{(_cursorDistance < 5)} &&
 				{(unitIsUav _cursorObject)} &&
 				{(!(_cursorObject getVariable ['QS_uav_disabled',FALSE]))} &&
-				{(_cursorObject getVariable ['QS_uav_toggleEnabled',TRUE])}
+				{(_cursorObject getVariable ['QS_uav_toggleEnabled',TRUE])} &&
+            {[QS_player,_cursorObject] call TGC_fnc_canControlWeapon}
 			) ||
 			{(
 				(!isNull (objectParent QS_player)) &&
@@ -337,6 +338,7 @@ if (
 			{(unitIsUav _cursorObject)} &&
 			{(!(_cursorObject getVariable ['QS_uav_disabled',FALSE]))} &&
 			{(_cursorObject getVariable ['QS_uav_toggleEnabled',TRUE])} &&
+            {[QS_player,_cursorObject] call TGC_fnc_canControlWeapon} &&
 			{((crew _cursorObject) isNotEqualTo [])} &&
 			{(!isRemoteControlling QS_player)} &&
 			{(cameraOn isEqualTo player)} &&
@@ -356,7 +358,7 @@ if (
 					) then {
 						QS_player playActionNow 'PutDown';
 						50 cutText [localize 'STR_QS_Text_465','PLAIN DOWN',0.333];
-						[_cursorObject,FALSE,FALSE] spawn QS_fnc_remoteControl;
+						if ([QS_player,_cursorObject] call TGC_fnc_canControlWeapon) then {[_cursorObject,FALSE,FALSE] spawn QS_fnc_remoteControl;};
 					} else {
 						if (
 							(isUAVConnected _cursorObject) ||
@@ -421,7 +423,7 @@ if (
 						if (_result) then {
 							['systemChat',(format [localize 'STR_QS_Chat_095',profileName,(_cursorObject getVariable ['QS_ST_customDN',_dn]),(mapGridPosition _cursorObject)])] remoteExec ['QS_fnc_remoteExecCmd',-2,FALSE];
 							QS_player playActionNow 'PutDown';
-							_cursorObject setDamage [1,FALSE];
+							if ([player,_cursorObject] call TGC_fnc_canDestroyAsset) then {_cursorObject setDamage [1,FALSE];};
 						} else {
 							50 cutText [localize 'STR_QS_Text_128','PLAIN DOWN',0.333];
 						};

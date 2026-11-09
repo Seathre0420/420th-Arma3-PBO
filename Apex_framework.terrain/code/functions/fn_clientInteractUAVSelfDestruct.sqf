@@ -29,7 +29,7 @@ _dn = QS_hashmap_configfile getOrDefaultCall [
 private _result = [(format [localize 'STR_QS_Text_159',(_cameraOn getVariable ['QS_ST_customDN',_dn])]),localize 'STR_QS_Menu_122',localize 'STR_QS_Menu_124',localize 'STR_QS_Menu_114',(findDisplay 46),FALSE,FALSE] call (missionNamespace getVariable 'BIS_fnc_guiMessage'); 
 if (_result) then {
 	['systemChat',(format [localize 'STR_QS_Chat_095',profileName,(_cameraOn getVariable ['QS_ST_customDN',_dn]),(mapGridPosition _cameraOn)])] remoteExec ['QS_fnc_remoteExecCmd',-2,FALSE];
-	_cameraOn setDamage [1,FALSE];
+	if ([player,_cameraOn] call TGC_fnc_canDestroyAsset) then {_cameraOn setDamage [1,FALSE];};
 } else {
 	50 cutText [localize 'STR_QS_Text_128','PLAIN DOWN',0.333];
 };

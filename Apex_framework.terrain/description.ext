@@ -830,6 +830,15 @@ class CfgFunctions {
             class addCuratorAddons {};
         };
         class Damage {
+            class applyCombatDamage {};
+            class damageSide {};
+            class damageActor {};
+            class damageDecision {};
+            class damageFired {};
+            class addDamageProtection {};
+            class canControlWeapon {};
+            class canDestroyAsset {};
+            class initDamageProtection { postInit = 1; };
             file = "TGC\Functions\Damage";
             class addEmptyVehicleHandlers {};
             class addFriendlyAIHandlers {};
@@ -839,8 +848,6 @@ class CfgFunctions {
             class isFriendlyAI {};
             class isFriendlyFire {};
             class isPlayerControlled {};
-            class isPlayerDamage {};
-            class isProtectedEmptyVehicleDamage {};
         };
         class Database {
             file = "TGC\Functions\Database";

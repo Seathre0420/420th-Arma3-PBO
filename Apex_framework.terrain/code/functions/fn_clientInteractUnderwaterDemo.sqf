@@ -39,6 +39,7 @@ if (_cursorIntersections isNotEqualTo []) then {
 				};
 				_mine = createVehicle [QS_core_classNames_demoChargeAmmo,((position player) vectorAdd [0,0.25,0.5]),[],0,'NONE'];
 				_mine setVariable ['TGC_playerPlacedExplosiveUID',getPlayerUID player,TRUE];
+                _mine setVariable ['TGC_damage_provenance',[[player] call TGC_fnc_damageSide],TRUE];
 				_mine setVectorUp _surfaceNormal;
 				_mine setPosASL _intersectPosASL;
 				[_mine,_objectParent,TRUE] call (missionNamespace getVariable 'QS_fnc_attachToRelative');
