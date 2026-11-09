@@ -202,7 +202,8 @@ private _blockingObjects = if ((_clearance # 1) <= 0) then {
 	[]
 } else {
 	nearestObjects [_position,(_clearance # 0),(_clearance # 1),TRUE] select {
-		alive _x && {!(_x isEqualTo _spawnPoint)}
+		// Keep the horizontal clearance, but ignore objects at 10 m ATL or higher.
+		alive _x && {!(_x isEqualTo _spawnPoint)} && {((getPosATL _x) # 2) < 10}
 	}
 };
 if (_blockingObjects isNotEqualTo []) exitWith {

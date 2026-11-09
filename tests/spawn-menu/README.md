@@ -62,6 +62,20 @@ from the FOB during these checks.
 | Spawn ordinary supply crates, including `B_CargoNet_01_ammo_F` | Crates retain their existing initialization and contents, including the Cargo Net's custom inventory. |
 | Spawn a normal vehicle and recruit an AI soldier | Vehicle setup and AI recruitment retain their existing behavior. |
 
+## Spawn clearance altitude acceptance checks
+
+Request a normal vehicle with no other blockers nearby. Keep the test obstacle
+within the existing 5 m horizontal clearance and allow the spawn cooldown between
+requests. Altitudes below are measured above terrain (`getPosATL`, component 2).
+Remove each spawned vehicle before the next request.
+
+| Scenario | Expected result |
+| --- | --- |
+| Living vehicle directly above the spawn point at 0 m, then 9.9 m altitude | Spawn rejected with the blocked-area message. |
+| Living vehicle directly above the spawn point at exactly 10 m, then 50 m altitude | Spawn succeeds. |
+| Supply crate directly above the spawn point at 9.9 m, then exactly 10 m altitude | Blocked at 9.9 m; succeeds at 10 m. |
+| Living vehicle below 10 m altitude but more than 5 m horizontally from the spawn point | Spawn succeeds. |
+
 ## Shared artillery limit acceptance checks
 
 The restricted classes are `B_MBT_01_arty_F`, `B_MBT_01_mlrs_F`,
