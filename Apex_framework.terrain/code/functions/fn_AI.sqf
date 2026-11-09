@@ -4053,13 +4053,7 @@ for '_x' from 0 to 1 step 0 do {
 							_QS_module_classic_uav_checkDelay = diag_tickTime + _QS_module_classic_uav_delay;
 						};
 					};
-/* Legacy Code as of 9.9.2026 */
-//|					if (_QS_module_viperTeam) then {
-// Updated Code
-					// PRIMARY AO: bypass separate automatic Viper top-ups while the shared
-					// controller is active. Existing Vipers remain; no specialist spawner is added.
-					if (_QS_module_viperTeam && {!_QS_module_classic_pressure}) then {
-// End Updated Code
+					if (_QS_module_viperTeam) then {
 						if (_QS_uiTime > _QS_module_viperTeam_checkDelay) then {
 							if (_QS_uiTime > _QS_module_viperTeam_respawnCheckDelay) then {
 								if ((count _QS_module_unitBehaviors_localUnits) < _QS_unitCap) then {
