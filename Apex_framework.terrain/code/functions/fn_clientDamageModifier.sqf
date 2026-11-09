@@ -17,6 +17,17 @@ params ['_unit','','_damage','_source','_projectile','_hitPartIndex','_instigato
 if (_this call TGC_fnc_isFriendlyFire) exitWith {0};
 private _return = 0.925;
 _objectParent = objectParent _unit;
+// Preserve the mission's pre-overhaul fall protection. Arma can identify the
+// falling unit as its own damage source. This is environmental damage, so the
+// friendly-fire resolver deliberately does not infer a friendly attacker.
+// Exit before the combat branch can apply random additional hit-index damage.
+if (
+    (isNull _objectParent) &&
+    {_source isEqualTo _unit} &&
+    {_projectile isEqualTo ''} &&
+    {!_directHit} &&
+    {(isNull _instigator) || {_instigator isEqualTo _unit}}
+) exitWith {0};
 (_unit getVariable ['QS_inzone',[]]) params ['_inSafezone','_safezoneLevel','_safezoneActive'];
 if (_inSafezone && _safezoneActive && (_safezoneLevel > 1)) exitWith {0};
 if (isNull _objectParent) then {

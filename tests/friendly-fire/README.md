@@ -15,5 +15,6 @@ Then test real weapon damage with two clients and a headless client. Record RPT,
 - Vehicle impacts, sling-load and secondary fuel explosions; verify enemy/environment damage and ordinary repairs still work.
 - Restricted/hidden/owned turret: terminal and nearby action must agree on access.
 - Profile automatic fire and reconciliation with mission-scale entity counts.
+- Player falls from low, high and extreme heights onto terrain and buildings, outside safe zones, both healthy and already injured. Check the self-source and null-source cases in the harness; real falls must retain the pre-overhaul behavior without random combat injuries. Also verify hostile vehicle impacts and weapon damage still injure players.
 
 Engine tests and physics matrix have NOT been executed by Codex. Deployment acceptance remains pending their results.

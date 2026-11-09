@@ -10,6 +10,23 @@ private _a = _west createUnit ['B_Soldier_F',[100,100,0],[],0,'NONE'];
 private _b = _west createUnit ['B_Soldier_F',[110,100,0],[],0,'NONE'];
 private _enemy = _east createUnit ['O_Soldier_F',[120,100,0],[],0,'NONE'];
 private _vehicle = createVehicle ['B_Heli_Light_01_F',[140,100,0],[],0,'NONE'];
+// Player multiplier regression: a fall can report the victim as source. It
+// must exit before random combat injuries, even for an extreme damage value.
+_a setVariable ['QS_inzone',[false,0,false]];
+private _healthBeforeFall = getAllHitPointsDamage _a;
+{
+    private _fall = [_a,'',_x,_a,'',-1,objNull,'',false];
+    [(_fall call QS_fnc_clientDamageModifier) isEqualTo 0,
+        format ['self-source fall damage %1 is suppressed',_x]] call _assert;
+    _fall set [6,_a];
+    [(_fall call QS_fnc_clientDamageModifier) isEqualTo 0,
+        'self-instigator fall is suppressed'] call _assert;
+    _fall set [3,objNull]; _fall set [6,objNull];
+    [(_fall call QS_fnc_clientDamageModifier) isEqualTo 0.025,
+        'null-source fall retains original reduction'] call _assert;
+} forEach [0.1,1,100];
+[(getAllHitPointsDamage _a) isEqualTo _healthBeforeFall,
+    'fall multiplier does not apply secondary combat injuries'] call _assert;
 // Check immediately, before reconciliation or explicit installation can mask
 // a broken EntityCreated callback (Object _this incorrectly indexed as Array).
 private _createdFiredEH = _vehicle getVariable ['TGC_damage_firedEH',-1];
