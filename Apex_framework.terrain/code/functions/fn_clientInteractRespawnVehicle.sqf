@@ -30,7 +30,6 @@ if (
 			{((crew _t) findIf {isPlayer _x}) isNotEqualTo -1}
 		}
 	} ||
-	{(diag_tickTime < (uiNamespace getVariable ['QS_RD_canRespawnVehicle',-1]))} ||
 	{(!(_t getVariable ['QS_RD_vehicleRespawnable',FALSE]))} ||
 	{
 		((['LandVehicle','Air','Ship'] findIf { _t isKindOf _x }) isEqualTo -1) &&
@@ -69,7 +68,6 @@ _displayName = QS_hashmap_configfile getOrDefaultCall [
 private _itemType = QS_core_classNames_itemToolKit;
 private _result = [(format ['%2 %1',_displayName,localize 'STR_QS_Menu_121']),localize 'STR_QS_Menu_122',localize 'STR_QS_Menu_123',localize 'STR_QS_Menu_114',(findDisplay 46),FALSE,FALSE] call (missionNamespace getVariable 'BIS_fnc_guiMessage'); 
 if (_result) then {
-	uiNamespace setVariable ['QS_RD_canRespawnVehicle',(diag_tickTime + 120)];
 	player playAction 'PutDown';
 	playSound 'ClickSoft';
 	50 cutText [localize 'STR_QS_Text_126','PLAIN DOWN',0.5];

@@ -305,7 +305,6 @@ if (_revalidate) then {
 /*/=========================== Action manager module/*/
 
 player setVariable ['QS_RD_interacting',FALSE,TRUE];
-uiNamespace setVariable ['QS_RD_canRespawnVehicle',-1];
 private _extendedContext = FALSE;
 _cursorTarget = cursorTarget;
 _cursorObject = cursorObject;
@@ -2416,7 +2415,6 @@ for '_z' from 0 to 1 step 0 do {
 						{!(_cursorObject isKindOf 'CAManBase')}
 					}
 				} &&
-				{(_QS_uiTime > (uiNamespace getVariable ['QS_RD_canRespawnVehicle',-1]))} &&
 				{(_cursorObject getVariable ['QS_RD_vehicleRespawnable',_false])} &&
 				{(!(_cursorObject getVariable ['QS_disableRespawnAction',_false]))} &&
 				{(!(_cursorObject getVariable ['QS_logistics_wreck',_false]))} &&
