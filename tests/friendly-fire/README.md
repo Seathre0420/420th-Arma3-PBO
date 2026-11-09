@@ -4,6 +4,8 @@ Run `node tests/friendly-fire/validate_source.cjs` for delimiter/string validati
 
 Copy these tests into a disposable dedicated multiplayer mission and run `[] execVM "tests\friendly-fire\validate_engine.sqf"` on the server. Require zero failures. It creates and deletes test entities.
 
+The harness checks protection immediately after vehicle creation so the periodic reconciliation cannot hide a broken `EntityCreated` callback. Require no `Type Object, expected Array` errors in the RPT during creation, including client/JIP entity creation.
+
 Then test real weapon damage with two clients and a headless client. Record RPT, overall damage and all hit-point damage before and after each shot. Protected hits must leave all values unchanged and must not incapacitate, punish, damage fuel/rotors or schedule delayed damage.
 
 - Defender missiles, terminal and nearby control: Spawn Menu and editor/script aircraft, occupied and empty, planes and helicopters, inside/outside safe zones.

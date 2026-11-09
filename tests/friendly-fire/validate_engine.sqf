@@ -10,6 +10,16 @@ private _a = _west createUnit ['B_Soldier_F',[100,100,0],[],0,'NONE'];
 private _b = _west createUnit ['B_Soldier_F',[110,100,0],[],0,'NONE'];
 private _enemy = _east createUnit ['O_Soldier_F',[120,100,0],[],0,'NONE'];
 private _vehicle = createVehicle ['B_Heli_Light_01_F',[140,100,0],[],0,'NONE'];
+// Check immediately, before reconciliation or explicit installation can mask
+// a broken EntityCreated callback (Object _this incorrectly indexed as Array).
+private _createdFiredEH = _vehicle getVariable ['TGC_damage_firedEH',-1];
+private _createdDamageEH = _vehicle getVariable ['TGC_damage_EH',-1];
+[_createdFiredEH >= 0,'EntityCreated immediately installs projectile tracking'] call _assert;
+[_createdDamageEH >= 0,'EntityCreated immediately installs damage protection'] call _assert;
+if (_createdDamageEH >= 0) then {
+    [(_vehicle getEventHandlerInfo ['HandleDamage',_createdDamageEH]) param [0,false],
+        'creation installs a valid damage handler'] call _assert;
+};
 private _event = [_a,'',0.8,_b,'B_65x39_Caseless',-1,_b,'',true];
 [(_event call TGC_fnc_damageDecision) # 0,'friendly infantry blocked'] call _assert;
 _event set [3,_enemy]; _event set [6,_enemy];
