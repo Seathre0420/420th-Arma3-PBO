@@ -222,6 +222,7 @@ private _weaponsList = configFile >> 'CfgWeapons';
 	['QS_client_radioChannels',[],FALSE],
 	['QS_client_radioChannels_dynamic',[FALSE,FALSE],FALSE],
 	['QS_client_heartbeat',-1,FALSE],
+	['QS_client_heartbeatFailure',[],FALSE],
 	['QS_client_infoPanels',[(infoPanel 'left'),(infoPanel 'right')],FALSE],
 	['QS_draw2D_projectiles',[],FALSE],
 	[

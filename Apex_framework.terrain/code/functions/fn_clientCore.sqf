@@ -204,7 +204,23 @@ if (_QS_isAdmin) then {
 	];
 	missionNamespace setVariable ['QS_armedAirEnabled',TRUE,FALSE];
 };
-missionNamespace setVariable ['QS_client_heartbeat',_timeNow,FALSE];
+private _fn_refreshHeartbeat = {
+	params ['_heartbeat'];
+	isNil {
+		private _failure = missionNamespace getVariable ['QS_client_heartbeatFailure',[]];
+		missionNamespace setVariable ['QS_client_heartbeat',_heartbeat,FALSE];
+		missionNamespace setVariable ['QS_client_heartbeatFailure',[],FALSE];
+		if (_failure isNotEqualTo []) then {
+			diag_log format [
+				'QS HEARTBEAT recovered missionTime=%1 serverTime=%2 heartbeat=%3 age=%4 graceElapsed=%5 fps=%6 activeScripts=%7 sqfScripts=%8 sqsScripts=%9 fsmScripts=%10 weapon=%11 magazine=%12 inShootingRange=%13',
+				time,serverTime,_heartbeat,time - _heartbeat,diag_tickTime - (_failure # 0),diag_fps,diag_activeScripts,
+				count diag_activeSQFScripts,count diag_activeSQSScripts,count diag_activeMissionFSMs,
+				currentWeapon player,currentMagazine player,player inArea 'QS_marker_base_firing_area'
+			];
+		};
+	};
+};
+[_timeNow] call _fn_refreshHeartbeat;
 
 //===== UI FEEDBACK (screen effects on taking damage, fire damage, drowning, fatigue, etc)
 
@@ -1771,7 +1787,7 @@ for '_z' from 0 to 1 step 0 do {
 			_objectParent = objectParent _QS_player;
 		};
 		_lifeState = lifeState _QS_player;
-		missionNamespace setVariable ['QS_client_heartbeat',_timeNow,_false];
+		[_timeNow] call _fn_refreshHeartbeat;
 		if (missionNamespace getVariable ['QS_client_sendAccuracy',_false]) then {
 			missionNamespace setVariable ['QS_client_sendAccuracy',_false,_false];
 			_weaponIsSniper = (toLowerANSI (primaryWeapon _QS_player)) in _fn_dataSniperRifles;
