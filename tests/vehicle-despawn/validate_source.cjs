@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const assert = require('node:assert/strict');
+const vm = require('node:vm');
 const root = require('node:path').resolve(__dirname, '../..');
 const read = p => fs.readFileSync(require('node:path').join(root, p), 'utf8');
 function balanced(s) {
@@ -28,20 +29,76 @@ for (const file of fs.readdirSync(require('node:path').join(root, 'Apex_framewor
 assert(sites > 100, 'Missing broad removal-site coverage');
 const core = read('Apex_framework.terrain/code/functions/fn_core.sqf');
 // Regression for the occupied Black Wasp deletion. All three deletion side
-// effects must remain inside the final distance-and-living-player decision.
+// effects must remain inside the final abandonment-and-living-player decision.
 const abandonmentDecision = core.match(
-  /private _spawnMenuCleanupDistance = \[1500,100\] select _spawnMenuInBase;\s*if \(([\s\S]*?)\) then \{([^{}]*?)\}/
+  /private _spawnMenuAbandoned = if \(_spawnMenuInBase\) then \{[^{}]*\} else \{[^{}]*\};\s*if \(([\s\S]*?)\) then \{([^{}]*?)\}/
 );
 assert(abandonmentDecision, 'Missing Spawn Menu abandonment decision');
 assert.equal(
   abandonmentDecision[1].replace(/\s+/g, ' ').trim(),
-  '((_spawnMenuOwner distance2D _v) > _spawnMenuCleanupDistance) && {((crew _v) findIf {isPlayer _x && {alive _x}}) isEqualTo -1}',
+  '_spawnMenuAbandoned && {((crew _v) findIf {isPlayer _x && {alive _x}}) isEqualTo -1}',
   'Spawn Menu abandonment must require zero living player occupants at the final decision'
 );
 assert.match(abandonmentDecision[2], /missionNamespace setVariable \['QS_analytics_entities_deleted',/);
 assert.match(abandonmentDecision[2], /deleteVehicle \(\['CONTEXT',_v,'ABANDONED',/);
 assert.match(abandonmentDecision[2], /\(serverNamespace getVariable 'QS_v_Monitor'\) set \[_forEachIndex,_false\];/);
 assert(!/\b(?:sleep|uiSleep|spawn)\b/.test(abandonmentDecision[2]), 'Do not yield between the occupancy check and deletion');
+// Exercise the actual timer statements with stubbed Arma variables and zone
+// queries. This checks state transitions without simulating the Arma engine.
+const ownerTracking = core.match(/_spawnMenuOwners set \[getPlayerUID _x,_x\];([\s\S]*?)\} forEach allPlayers;/);
+assert(ownerTracking, 'Missing owner base tracking');
+assert(core.indexOf(ownerTracking[0]) < core.indexOf('private _isSpawnMenuVehicle ='), 'Track absence before occupancy or attachment/deployment/packing exemptions');
+assert.match(ownerTracking[1], /\['GET',_x,_spawnMenuBaseZones\] call QS_fnc_zoneManager/);
+const timerJS = ownerTracking[1]
+  .replace(/private /g, 'const ')
+  .replace(/_x getVariable (\[[^\n;]+\])/g, 'getVariable($1)')
+  .replace(/\(\(\['GET',_x,_spawnMenuBaseZones\] call QS_fnc_zoneManager\) isNotEqualTo \[\]\)/g, '(inBase)')
+  .replace(/_x setVariable (\[[^\n;]+\]);/g, 'setVariable($1);')
+  .replace(/\) then \{/g, ') {');
+function ownerState() {
+  const variables = new Map();
+  return {
+    variables,
+    observe(inBase, serverTime) {
+      vm.runInNewContext(timerJS, {
+        inBase, serverTime, _false: false,
+        getVariable: ([name, fallback]) => variables.get(name) ?? fallback,
+        setVariable: ([name, value]) => variables.set(name, value)
+      });
+    }
+  };
+}
+const absence = core.match(/private _ownerOutsideBaseFor = if \(([^\n]+?)\) then \{([^{}]+)\} else \{([^{}]+)\};/);
+const policy = core.match(/private _spawnMenuAbandoned = if \(_spawnMenuInBase\) then \{([^{}]+)\} else \{([^{}]+)\};/);
+assert(absence && policy, 'Missing base timer or field distance policy');
+const absenceJS = `(${absence[1]}) ? (${absence[2]}) : (${absence[3]})`;
+function abandoned(owner, serverTime, vehicleInBase = true, distance = 0) {
+  const state = {
+    serverTime,
+    _ownerOutsideBaseSince: owner.variables.get('QS_spawnMenu_ownerOutsideBaseSince') ?? -1,
+    distance
+  };
+  state._ownerOutsideBaseFor = vm.runInNewContext(absenceJS, state);
+  const decision = vehicleInBase ? policy[1] : policy[2].replace('_spawnMenuOwner distance2D _v', 'distance');
+  return vm.runInNewContext(decision.trim(), state);
+}
+const owner = ownerState();
+const otherOwner = ownerState();
+owner.observe(true, 0);
+assert.equal(abandoned(owner, 1000, true, 5000), false, 'Owner inside base protects the vehicle regardless of distance');
+owner.observe(false, 1000);
+owner.observe(false, 1030);
+assert.equal(abandoned(owner, 1060), false, 'Exactly 60 seconds outside is not more than 60 seconds');
+assert.equal(abandoned(owner, 1061), true, 'Continuous absence over 60 seconds permits cleanup even near the base boundary');
+otherOwner.observe(true, 1061);
+assert.equal(abandoned(otherOwner, 1061), false, 'One owner must not affect another owner timer');
+owner.observe(true, 1062);
+assert.equal(abandoned(owner, 1100), false, 'Returning to base clears eligibility');
+owner.observe(false, 1100);
+assert.equal(abandoned(owner, 1160), false, 'Leaving again starts a fresh interval');
+assert.equal(abandoned(owner, 1161), true);
+assert.equal(abandoned(owner, 1161, false, 3000), false, 'Outside-base vehicles retain the strict distance boundary');
+assert.equal(abandoned(otherOwner, 1061, false, 3001), true, 'Field cleanup still uses distance regardless of owner base membership');
 const begin = core.indexOf("\t\t\tif ((missionNamespace getVariable 'QS_garbageCollector') isNotEqualTo []) then {");
 const finish = core.indexOf('\t\t\t\t} count _QS_garbageCollector;', begin);
 assert(begin >= 0 && finish > begin);
@@ -54,7 +111,6 @@ assert(deletionPass.indexOf('_despawnCleanupIndex = _despawnCleanupIndex + 1;') 
 // Exercise metadata transport from the actual SQF expressions with distinct
 // queue entries, successful recycling, null entries and a fresh subsequent pass.
 // This evaluates only the array/index operations, not Arma deletion semantics.
-const vm = require('node:vm');
 const captureLines = [...cleanup.matchAll(/_despawnCleanupDetails pushBack (\[[^\n;]+\]);/g)].map(m => m[1]);
 assert.equal(captureLines[0], captureLines[1]);
 const lookup = deletionPass.match(/private _despawnCleanupDetail = ([^;]+);/)[1];

@@ -3684,13 +3684,24 @@ for '_x' from 0 to 1 step 0 do {
 
 	if (_timeNow > _vRespawn_checkDelay) then {
 		if ((serverNamespace getVariable 'QS_v_Monitor') isNotEqualTo []) then {
-			private _spawnMenuOwners = createHashMap;
-			{
-				_spawnMenuOwners set [getPlayerUID _x,_x];
-			} forEach allPlayers;
 			private _spawnMenuBaseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {
 				(_x # 0) isEqualTo 'BASE_HIGHSEC_0'
 			};
+			private _spawnMenuOwners = createHashMap;
+			{
+				_spawnMenuOwners set [getPlayerUID _x,_x];
+				// Track the owner's absence even while their vehicle is occupied or protected.
+				private _ownerOutsideBaseSince = _x getVariable ['QS_spawnMenu_ownerOutsideBaseSince',-1];
+				if ((['GET',_x,_spawnMenuBaseZones] call QS_fnc_zoneManager) isNotEqualTo []) then {
+					if (_ownerOutsideBaseSince >= 0) then {
+						_x setVariable ['QS_spawnMenu_ownerOutsideBaseSince',-1,_false];
+					};
+				} else {
+					if (_ownerOutsideBaseSince < 0) then {
+						_x setVariable ['QS_spawnMenu_ownerOutsideBaseSince',serverTime,_false];
+					};
+				};
+			} forEach allPlayers;
 			if (_trigger_delete_fobVehicles) then {
 				_trigger_delete_fobVehicles = _false;
 				['VEHICLES_REMOVE'] call _fn_fobAssets;
@@ -3946,7 +3957,7 @@ for '_x' from 0 to 1 step 0 do {
 							};
 						};
 						// Spawn Menu abandonment requires no living player occupants and checks attachment,
-						// deployment, packing and owner distance from the vehicle's current position.
+						// deployment and packing. On base use owner absence; in the field use distance.
 						private _isSpawnMenuVehicle = (_spawnMenuOwnerUID isNotEqualTo '') && {!unitIsUAV _v};
 						if (
 							_isSpawnMenuVehicle &&
@@ -3959,13 +3970,19 @@ for '_x' from 0 to 1 step 0 do {
 							if (!isNull _spawnMenuOwner) then {
 								// Use the configured main base polygon (and its existing circular fallback).
 								private _spawnMenuInBase = (['GET',_v,_spawnMenuBaseZones] call QS_fnc_zoneManager) isNotEqualTo [];
-								private _spawnMenuCleanupDistance = [1500,100] select _spawnMenuInBase;
+								private _ownerOutsideBaseSince = _spawnMenuOwner getVariable ['QS_spawnMenu_ownerOutsideBaseSince',-1];
+								private _ownerOutsideBaseFor = if (_ownerOutsideBaseSince < 0) then {-1} else {serverTime - _ownerOutsideBaseSince};
+								private _spawnMenuAbandoned = if (_spawnMenuInBase) then {
+									_ownerOutsideBaseFor > 60
+								} else {
+									(_spawnMenuOwner distance2D _v) > 3000
+								};
 								if (
-									((_spawnMenuOwner distance2D _v) > _spawnMenuCleanupDistance) &&
+									_spawnMenuAbandoned &&
 									{((crew _v) findIf {isPlayer _x && {alive _x}}) isEqualTo -1}
 								) then {
 									missionNamespace setVariable ['QS_analytics_entities_deleted',((missionNamespace getVariable 'QS_analytics_entities_deleted') + 1),_false];
-									deleteVehicle (['CONTEXT',_v,'ABANDONED','fn_core.sqf:3966',['ownerDistance',_spawnMenuOwner distance2D _v,'threshold',_spawnMenuCleanupDistance,'inBase',_spawnMenuInBase]] call QS_fnc_vehicleDespawnLog);
+									deleteVehicle (['CONTEXT',_v,'ABANDONED','fn_core.sqf:3966',['ownerDistance',_spawnMenuOwner distance2D _v,'fieldDistanceThreshold',3000,'inBase',_spawnMenuInBase,'ownerOutsideBaseFor',_ownerOutsideBaseFor,'baseTimeout',60]] call QS_fnc_vehicleDespawnLog);
 									(serverNamespace getVariable 'QS_v_Monitor') set [_forEachIndex,_false];
 								};
 							};
