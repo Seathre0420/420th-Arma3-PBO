@@ -514,7 +514,7 @@ if (_player getUnitTrait 'medic') then {
 								0.666,
 								0.666,
 								0,
-								(if (_vehicle isKindOf 'CAManBase') then {(format ['%1 (%2m)',(name _unit),(ceil _distance)])} else {''}),
+								(if (_vehicle isKindOf 'CAManBase') then {(format ['%1 (%2m)',(if (isPlayer _unit) then {name _unit} else {'AI'}),(ceil _distance)])} else {''}),
 								1,
 								0.03,
 								_font,
