@@ -8,7 +8,7 @@ node Apex_framework.terrain/tests/validate-server-performance.cjs
 ```
 
 These checks do not execute Arma. For engine assertions, create an isolated empty
-test mission, copy `fn_aoDamageProtection.sqf` into its `code/functions/` folder,
+test mission, copy `fn_aoDamageProtection.sqf` and `fn_aoDamageArrival.sqf` into its `code/functions/` folder,
 and copy `validate_engine.sqf` into its root. Run
 `[] execVM "validate_engine.sqf"` on the server. Read `[AO damage test]` results
 in the RPT; the final line must report zero failures. Never run this harness in
@@ -28,6 +28,12 @@ On a disposable multiplayer copy of the full Classic mission, also verify:
    radius does not unlock the AO. A living player dismounted on the ground at
    2,000 m or closer unlocks it within approximately one second. Test 2,001 m
    separately. Prone/crouched players and players standing in buildings qualify.
+   Exercise this through the normal client loop on a dedicated server. Repeat
+   with a player already inside the radius at AO start and a player joining
+   during the lock. Inspect `QS_classicDamage_arrival` on the server while locked.
+   Its fields are epoch, player, server receive time, and player owner.
+   Spectator/Zeus camera use must not submit arrival reports. Also verify that
+   stale-epoch reports and reports naming another player's unit are rejected.
 3. After unlocking, leave the radius and board a vehicle: the AO stays unlocked.
    Check both native reinforcements and Altis pressure-controller deliveries;
    transported infantry are protected before unlock, aircraft operators are not.
@@ -40,6 +46,12 @@ On a disposable multiplayer copy of the full Classic mission, also verify:
 6. Cycle/pause a locked AO and force/queue Defend. Old forces must be released;
    Defend forces follow their existing rules. The next Classic AO starts locked.
    Repeat with AI recycling enabled and inspect the RPT for script errors.
+7. Arrive while initial forces are still spawning. Shoot infantry, armor, tower
+   HMGs and their gunners, then repeat after ownership transfers. Spawn tower
+   weapons on both sides of the unlock, including after a player was already
+   inside at AO start. Walls remain protected and HMGs become vulnerable.
+   Deliver an old `LOCAL` callback after release, and an old `RELEASE` callback
+   after the next AO begins. Neither may restore immunity or release a newer AO.
 
 Use gunfire/explosions to test invulnerability. Engine `setDamage` deliberately
 bypasses `allowDamage`, so scripted damage is not a valid combat test.

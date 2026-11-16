@@ -7,6 +7,7 @@ if ((missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE]]) # 1) 
 	diag_log '[AO damage test] Refusing to replace an active AO';
 };
 QS_fnc_aoDamageProtection = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageProtection.sqf';
+QS_fnc_aoDamageArrival = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageArrival.sqf';
 private _failures = [];
 private _assert = {
 	params ['_ok','_label'];
@@ -94,12 +95,33 @@ _tower allowDamage FALSE;
 private _late = call _fn_man;
 ['REGISTER',[_late],1000000] call QS_fnc_aoDamageProtection;
 [isDamageAllowed _late,'reinforcements remain vulnerable after unlock'] call _assert;
+[!([objNull,1000000] call QS_fnc_aoDamageArrival),'null arrival report rejected'] call _assert;
+[!([_late,1000000] call QS_fnc_aoDamageArrival),'AI arrival report rejected'] call _assert;
+// Recreate a client seeing delayed lock metadata after explicit release.
+missionNamespace setVariable ['QS_classicDamage_context',[1000000,TRUE,FALSE,_position],TRUE];
+_infantry setVariable ['QS_classicDamage_protected',TRUE,TRUE];
+['LOCAL',_infantry,1000000] call QS_fnc_aoDamageProtection;
+[isDamageAllowed _infantry,'delayed install cannot override explicit release with stale lock metadata'] call _assert;
+['ALLOW',_infantry,1000000] call QS_fnc_aoDamageProtection;
+[isDamageAllowed _infantry,'delayed ALLOW respects explicit release with stale lock metadata'] call _assert;
+['RELEASE',_infantry,1000000] call QS_fnc_aoDamageProtection;
+['RELEASE',_infantry,1000000] call QS_fnc_aoDamageProtection;
+[isDamageAllowed _infantry && {count _handlers isEqualTo 0},'duplicate release is harmless'] call _assert;
+missionNamespace setVariable ['QS_classicDamage_context',[1000000,TRUE,TRUE,_position],TRUE];
+private _lateStatic = ['O_HMG_02_high_F'] call _fn_vehicle;
+_lateStatic allowDamage (_lateStatic isKindOf 'StaticWeapon');
+['REGISTER',[_lateStatic],1000000] call QS_fnc_aoDamageProtection;
+[isDamageAllowed _lateStatic,'tower weapon spawned after unlock remains vulnerable'] call _assert;
 [!(['TICK',objNull,1000000] call QS_fnc_aoDamageProtection),'unlocked monitor ends permanently'] call _assert;
 
 ['STOP'] call QS_fnc_aoDamageProtection;
 missionNamespace setVariable ['QS_classicDamage_context',[1000001,TRUE,FALSE,_position],TRUE];
 ['REGISTER',[_infantry],1000001] call QS_fnc_aoDamageProtection;
 [!isDamageAllowed _infantry,'next AO resets protection'] call _assert;
+['RELEASE',_infantry,1000000] call QS_fnc_aoDamageProtection;
+[!isDamageAllowed _infantry,'old explicit release cannot affect a newer AO'] call _assert;
+['STOP',objNull,1000000] call QS_fnc_aoDamageProtection;
+[!isDamageAllowed _infantry && {count (missionNamespace getVariable ['QS_classicDamage_entities',[]]) > 0},'stale monitor cannot retire newer tracking'] call _assert;
 ['LOCAL',_infantry,1000000] call QS_fnc_aoDamageProtection;
 [!isDamageAllowed _infantry,'stale previous-AO callback cannot unlock current unit'] call _assert;
 ['REGISTER',[_late],1000000] call QS_fnc_aoDamageProtection;
@@ -118,6 +140,28 @@ _infantry allowDamage FALSE;
 [!isDamageAllowed _infantry,'stale release preserves recycled unit new damage policy'] call _assert;
 ['ALLOW',_infantry,1000001] call QS_fnc_aoDamageProtection;
 [!isDamageAllowed _infantry,'stale spawn timer preserves recycled unit new damage policy'] call _assert;
+
+// Validate the receiver and monitor with an actual connected dismounted player.
+// Remote ownership/camera behavior is covered by the dedicated-server checklist.
+private _players = allPlayers select {isPlayer _x && {!(_x isKindOf 'HeadlessClient_F')} &&
+	{alive _x} && {!isObjectHidden _x} && {isNull (objectParent _x)}};
+if (_players isNotEqualTo []) then {
+	private _arrivalPlayer = _players # 0;
+	missionNamespace setVariable ['QS_mission_aoType','CLASSIC'];
+	missionNamespace setVariable ['QS_classicDamage_context',[1000002,TRUE,FALSE,getPosATL _arrivalPlayer],TRUE];
+	missionNamespace setVariable ['QS_classicDamage_entities',[]];
+	['REGISTER',[_late],1000002] call QS_fnc_aoDamageProtection;
+	[!([_arrivalPlayer,1000001] call QS_fnc_aoDamageArrival),'previous AO arrival rejected'] call _assert;
+	[!([_late,1000002] call QS_fnc_aoDamageArrival),'AI cannot report arrival in locked Classic AO'] call _assert;
+	missionNamespace setVariable ['QS_aoCycleVar',TRUE];
+	[!([_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival),'arrival rejected during cycle'] call _assert;
+	missionNamespace setVariable ['QS_aoCycleVar',FALSE];
+	[[_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival,'current player arrival accepted'] call _assert;
+	[!(['TICK',objNull,1000002] call QS_fnc_aoDamageProtection) && {isDamageAllowed _late},'monitor consumes arrival and releases tracked infantry'] call _assert;
+	['STOP'] call QS_fnc_aoDamageProtection;
+} else {
+	diag_log '[AO damage test] SKIP: receiver/monitor assertions require a living dismounted player';
+};
 {if (!isNull _x) then {deleteVehicle _x;};} forEach _objects;
 {if (!isNull _x) then {deleteGroup _x;};} forEach _groups;
 missionNamespace setVariable ['QS_csatCommander',nil,TRUE];

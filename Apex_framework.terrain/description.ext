@@ -155,6 +155,7 @@ class CfgFunctions {
 			class defendAssault {file = "code\functions\fn_defendAssault.sqf";};
 			class aoDefend {file = "code\functions\fn_aoDefend.sqf";};
 			class aoDamageProtection {file = "code\functions\fn_aoDamageProtection.sqf";};
+			class aoDamageArrival {file = "code\functions\fn_aoDamageArrival.sqf";};
 			class aoEnemy {file = "code\functions\fn_aoEnemy.sqf";};
 			class aoEnemyReinforce {file = "code\functions\fn_aoEnemyReinforce.sqf";};
 			class aoEnemyReinforceVehicles {file = "code\functions\fn_aoEnemyReinforceVehicles.sqf";};

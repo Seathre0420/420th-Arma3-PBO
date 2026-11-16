@@ -317,7 +317,8 @@ if ((random 1) > _staticChance) then {
 		private _perfSpawn = ['aoEnemy.createVehicle',1] call QS_fnc_perfBegin;
 		_object = createVehicle [QS_core_vehicles_map getOrDefault [toLowerANSI (_x # 0),(_x # 0)],[0,0,0]];
 		[_perfSpawn,([0,1] select (!isNull _object)),[typeOf _object,netId _object]] call QS_fnc_perfEnd;
-		_object allowDamage FALSE;
+		// Wall pieces stay protected; tower weapons follow the AO damage gate.
+		_object allowDamage (_object isKindOf 'StaticWeapon');
 		['REGISTER',[_object],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
 		_attachPos = _x # 1;
 		_attachPos set [2,(_attachPos # 2) - _offset];

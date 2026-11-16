@@ -36,7 +36,7 @@ function balanced(source, name) {
   }
   assert.equal(stack.length, 0, `${name}: unclosed delimiter`);
 }
-const names = ['aoDamageProtection', 'core', 'AI', 'aoEnemy', 'unitSetup',
+const names = ['aoDamageProtection', 'aoDamageArrival', 'clientCore', 'core', 'AI', 'aoEnemy', 'unitSetup',
   'aoEnemyReinforce', 'aoEnemyReinforceVehicles', 'aoBoatPatrol', 'serverObjectsMapper',
   'serverObjectsRecycler', 'createAAVehicle', 'AIXHeliInsert', 'AIXHeliInsertLanding', 'scSpawnHeli'];
 for (const name of names) balanced(fn(name), name);
@@ -87,4 +87,17 @@ assert(controller.includes("_current && {local _arg}"), 'Stale releases must not
 assert(fn('aoEnemy').includes("['ALLOW',_vehicle,_epoch]"), 'Delayed armor callbacks must carry their AO epoch');
 assert(fn('createAAVehicle').includes("['ALLOW',_vehicle,_epoch]"), 'Delayed AA-site callbacks must carry their AO epoch');
 assert(controller.includes("remoteExec ['',_jipID]"), 'Persistent installs must be retired');
+const arrival = fn('aoDamageArrival');
+assert(/class QS_fnc_aoDamageArrival \{allowedTargets = 2; jip = 0;\};/.test(read('Apex_framework.terrain/code/config/security.hpp')));
+assert(read('Apex_framework.terrain/description.ext').includes('class aoDamageArrival {file = "code\\functions\\fn_aoDamageArrival.sqf";};'));
+assert(arrival.includes('owner _unit isNotEqualTo _caller'), 'Arrival reports must validate player ownership');
+assert(arrival.includes('_epoch isNotEqualTo (_context # 0)'), 'Stale arrival reports must be rejected');
+assert(arrival.includes('> 2000'), 'Server must enforce the arrival radius');
+assert(!controller.includes('isTouchingGround'), 'Server monitor must not depend on remote ground contact');
+assert(fn('clientCore').includes('isTouchingGround player'), 'Client must observe its own ground contact');
+assert(fn('clientCore').includes('_classicDamageReportAfter = _QS_uiTime + 1'), 'Arrival retries must be bounded');
+assert(controller.includes("_mode in ['LOCAL','ALLOW','RELEASE'] && {canSuspend}"), 'Entity damage updates must be unscheduled');
+assert(controller.includes('QS_classicDamage_releasedEpoch'), 'Explicit release must supersede stale replicated lock state');
+assert(controller.indexOf("missionNamespace setVariable ['QS_classicDamage_entities',[]];", controller.indexOf("if (_mode in ['UNLOCK','STOP'])")) < controller.indexOf('} forEach _entities;'), 'Release must detach tracking before iterating');
+assert(fn('aoEnemy').includes("_object allowDamage (_object isKindOf 'StaticWeapon');"), 'Late tower weapons must start vulnerable while walls stay protected');
 console.log(`PASS: ${names.length + 1} SQF files structurally balanced; legacy objectives, Defend isolation, spawn scope, recycler and JIP lifecycle checked. Engine test required.`);

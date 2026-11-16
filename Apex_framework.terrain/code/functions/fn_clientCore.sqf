@@ -1721,8 +1721,21 @@ _fn_getObjectVolume = missionNamespace getVariable 'QS_fnc_getObjectVolume';
 _fn_eventAttach = missionNamespace getVariable 'QS_fnc_eventAttach';
 
 /*/================================================================================================================= LOOP/*/
+private _classicDamageReportAfter = 0;
 for '_z' from 0 to 1 step 0 do {
 	_QS_uiTime = diag_tickTime;
+	if (_QS_uiTime >= _classicDamageReportAfter) then {
+		_classicDamageReportAfter = _QS_uiTime + 1;
+		private _damageContext = missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE,TRUE,[]]];
+		if (_damageContext # 1 && {!(_damageContext # 2)} &&
+			{local player} && {alive player} && {!isObjectHidden player} &&
+			{cameraOn isEqualTo player} && {isNull curatorCamera} &&
+			{isNull (objectParent player)} && {isTouchingGround player} &&
+			{!((getUnitFreefallInfo player) # 0)} &&
+			{(player distance2D (_damageContext # 3)) <= 2000}) then {
+			[player,_damageContext # 0] remoteExecCall ['QS_fnc_aoDamageArrival',2,FALSE];
+		};
+	};
 	_timeNow = time;
 	_cameraView = cameraView;
 	if (_QS_uiTime > _QS_miscDelay1) then {
