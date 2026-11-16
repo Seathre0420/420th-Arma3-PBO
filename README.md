@@ -167,25 +167,29 @@ above terrain. Moving during the countdown cancels the jump and shows
 not start overlapping countdowns. Use the existing `Open Parachute` action during
 freefall; the player's backpack and equipment are preserved.
 
-Halo Jump is available with fewer than three connected Transport Pilots, counting
-both regular (`pilot_heli`) and whitelisted (`pilot_heli_WL`) roles. At three or
-more, the action remains visible, but selecting it leaves the player in place
-and displays both a hint and a private system chat message to that player:
-`Halo Jump is unavailable when there are 3 or more Transport Pilots`
-The count includes pilots who are dead or outside base, excludes AI and players
-only queued for the role, and is checked when selected and again before
-teleportation. Total player population does not affect availability. A missing
+Halo Jump requires both fewer than 20 connected human players on the server and
+no Transport Pilot inside the main base boundary (`BASE_HIGHSEC_0`, including its
+circular fallback). Both regular (`pilot_heli`) and whitelisted (`pilot_heli_WL`)
+Transport Pilots are checked. Pilots outside base do not block jumping. Dead
+players still count toward population and, if holding a Transport Pilot role
+inside base, block jumping. AI and headless clients do not count; being queued
+for Transport Pilot alone does not make a player a pilot.
+
+The action remains visible when blocked. Selecting it leaves the player in place
+and displays the reason as both a hint and a private system chat message:
+`Halo Jump is unavailable when there is a Transport Pilot on base`, or
+`Halo Jump is unavailable when there are 20 or more players on the server`.
+The on-base pilot message takes precedence when both requirements fail. Both
+requirements are checked when selected and again before teleportation. A missing
 AO center also prevents teleportation.
 
-The server checks the Transport Pilot count approximately every five seconds.
-When it reaches three or more, CROSSROAD announces `Halo Jump is unavailable`
-in BLUFOR side chat. When it drops below three, CROSSROAD announces
-`Halo Jump is available`. Each announcement is sent once per availability change,
-including to a player hosting the server. Counts that stay on the same side of
-the limit do not repeat the message. If the first check already finds three or
-more pilots, it announces unavailability once; starting below three is silent.
-These announcements are not replayed to joining players. Attempting a blocked
-jump still shows the private explanatory chat message and hint above.
+The server checks the same two requirements approximately every five seconds.
+CROSSROAD announces `Halo Jump is unavailable` or `Halo Jump is available` in
+BLUFOR side chat once per availability change, including to a player hosting the
+server. Unchanged availability does not repeat the message. If the first check
+finds jumping unavailable, it announces unavailability once; starting available
+is silent. These announcements are not replayed to joining players. Attempting
+a blocked jump still shows the private explanatory chat message and hint above.
 
 ## Spawn Menu vehicle abandonment
 

@@ -22,12 +22,11 @@ if (
 private _baseZones = (missionNamespace getVariable ['QS_system_zones',[]]) select {(_x # 0) isEqualTo 'BASE_HIGHSEC_0'};
 if ((['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []) exitWith {};
 
-// Count regular and whitelisted Transport Pilots, including dead players and those away from base.
-private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
-if (_pilotCount >= 3) exitWith {
-	private _message = 'Halo Jump is unavailable when there are 3 or more Transport Pilots';
-	systemChat _message;
-	hint _message;
+// Both population and on-base Transport Pilot requirements must pass.
+private _unavailableReason = [] call QS_fnc_haloJumpAvailability;
+if (_unavailableReason isNotEqualTo '') exitWith {
+	systemChat _unavailableReason;
+	hint _unavailableReason;
 };
 
 private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
@@ -93,11 +92,10 @@ systemChat 'Halo Jumping in 10';
 			{(_caller distance _terminal) >= 20} ||
 			{(['GET',_terminal,_baseZones] call QS_fnc_zoneManager) isEqualTo []}
 		) exitWith {};
-		private _pilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count allPlayers;
-		if (_pilotCount >= 3) exitWith {
-			private _message = 'Halo Jump is unavailable when there are 3 or more Transport Pilots';
-			systemChat _message;
-			hint _message;
+		private _unavailableReason = [] call QS_fnc_haloJumpAvailability;
+		if (_unavailableReason isNotEqualTo '') exitWith {
+			systemChat _unavailableReason;
+			hint _unavailableReason;
 		};
 		private _aoCenter = missionNamespace getVariable ['QS_aoPos',[0,0,0]];
 		if (_aoCenter isEqualTo [0,0,0]) exitWith {

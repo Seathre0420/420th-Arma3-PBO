@@ -1627,8 +1627,7 @@ for '_x' from 0 to 1 step 0 do {
 		_serverTime = serverTime;
 		_allPlayers = allPlayers - (entities 'HeadlessClient_F');
 		/*/===== Halo Jump availability announcements/*/
-		private _haloJumpPilotCount = {isPlayer _x && {(_x getVariable ['QS_unit_role','']) in ['pilot_heli','pilot_heli_WL']}} count _allPlayers;
-		private _haloJumpNowAvailable = _haloJumpPilotCount < 3;
+		private _haloJumpNowAvailable = ([_allPlayers] call QS_fnc_haloJumpAvailability) isEqualTo '';
 		if (isServer && {_haloJumpNowAvailable isNotEqualTo _haloJumpAvailable}) then {
 			_haloJumpAvailable = _haloJumpNowAvailable;
 			private _haloJumpMessage = ['Halo Jump is unavailable','Halo Jump is available'] select _haloJumpAvailable;

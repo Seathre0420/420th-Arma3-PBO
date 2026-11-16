@@ -598,6 +598,7 @@ class CfgFunctions {
 			class gridSpawnPatrol {file = "code\functions\fn_gridSpawnPatrol.sqf";};
 			class gridToPos {file = "code\functions\fn_gridToPos.sqf";};
 			class groupIndicator {file = "code\functions\fn_groupIndicator.sqf";};
+			class haloJumpAvailability {file = "code\functions\fn_haloJumpAvailability.sqf";};
 			class hcCore {file = "code\functions\fn_hcCore.sqf";};
 			class hCommMenu {file = "code\functions\fn_hCommMenu.sqf";};
 			class highCommand {file = "code\functions\fn_highCommand.sqf";};
