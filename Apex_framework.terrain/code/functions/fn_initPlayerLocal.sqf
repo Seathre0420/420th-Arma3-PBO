@@ -232,6 +232,8 @@ private _weaponsList = configFile >> 'CfgWeapons';
 			'QS_marker_veh_baseservice_03',
 			'QS_marker_veh_baseservice_04',
 			'QS_marker_veh_baseservice_05',
+			'QS_marker_veh_baseservice_06',
+			'QS_marker_veh_baseservice_07',
 			'QS_marker_veh_fieldservice_01',
 			'QS_marker_veh_fieldservice_02',
 			'QS_marker_veh_fieldservice_03',
@@ -246,7 +248,9 @@ private _weaponsList = configFile >> 'CfgWeapons';
 			'QS_marker_veh_baseservice_02',
 			'QS_marker_veh_baseservice_03',
 			'QS_marker_veh_baseservice_04',
-			'QS_marker_veh_baseservice_05'
+			'QS_marker_veh_baseservice_05',
+			'QS_marker_veh_baseservice_06',
+			'QS_marker_veh_baseservice_07'
 		],
 		FALSE
 	],
@@ -264,7 +268,9 @@ private _weaponsList = configFile >> 'CfgWeapons';
 		'QS_veh_heliservice_mkrs',
 		[
 			'QS_marker_veh_baseservice_02',
-			'QS_marker_veh_baseservice_05'
+			'QS_marker_veh_baseservice_05',
+			'QS_marker_veh_baseservice_06',
+			'QS_marker_veh_baseservice_07'
 		],
 		FALSE
 	],
@@ -347,6 +353,22 @@ private _weaponsList = configFile >> 'CfgWeapons';
 				'a3\ui_f\data\igui\cfg\cursors\iconRepairAt_ca.paa',
 				[1,1,1,1],
 				(markerPos 'QS_marker_veh_baseservice_05'),
+				1.5,
+				1.5,
+				0
+			],
+			[
+				'a3\ui_f\data\igui\cfg\cursors\iconRepairAt_ca.paa',
+				[1,1,1,1],
+				(markerPos 'QS_marker_veh_baseservice_06'),
+				1.5,
+				1.5,
+				0
+			],
+			[
+				'a3\ui_f\data\igui\cfg\cursors\iconRepairAt_ca.paa',
+				[1,1,1,1],
+				(markerPos 'QS_marker_veh_baseservice_07'),
 				1.5,
 				1.5,
 				0
