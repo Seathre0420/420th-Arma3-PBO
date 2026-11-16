@@ -32,6 +32,9 @@ The engine harness additionally checks concurrent/ambiguous same-ammo merges,
 duplicates, stale snapshots, expiry, malformed reports, live-launch admission,
 and accepted-launch identity after projectile deletion. These are real SQF
 tests, but do not prove network replication or timing under combat load.
+The harness also exercises the cache worker with null/deleted targets followed
+by a live target, and checks recovery from the boolean cache value produced by
+the previous cleanup bug. Require an array cache and no select type errors.
 
 With two graphical clients and a headless client, additionally:
 

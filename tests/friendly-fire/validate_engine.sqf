@@ -128,6 +128,35 @@ uiSleep 0.8;
 ['REPORT',[_report]] call TGC_fnc_damageMissileSync;
 [((_vehicle getVariable ['TGC_damage_incoming',[]]) findIf {(_x # 4) isEqualTo _launchKey}) < 0,
     'expired cached launch cannot be revived by an old report'] call _assert;
+// Regression: select must skip null/deleted targets without returning a Bool
+// or dropping later live entries. Exercise the actual asynchronous cache worker.
+private _deletedTarget = createVehicle ['B_Quadbike_01_F',[160,100,0],[],0,'NONE'];
+isNil {
+    _vehicle setVariable ['TGC_damage_incoming',[
+        ['testMissile',WEST,serverTime + 3,objNull,'test/cleanup',serverTime]
+    ]];
+    localNamespace setVariable ['TGC_missile_targets',[objNull,_deletedTarget,_vehicle]];
+    deleteVehicle _deletedTarget;
+    ['REPORT',[]] call TGC_fnc_damageMissileSync;
+};
+private _cleanupDeadline = diag_tickTime + 2;
+waitUntil {
+    uiSleep 0.05;
+    ((localNamespace getVariable ['TGC_missile_targets',[]]) isEqualTo [_vehicle]) ||
+        {diag_tickTime >= _cleanupDeadline}
+};
+[(localNamespace getVariable ['TGC_missile_targets',FALSE]) isEqualTo [_vehicle],
+    'cleanup skips null/deleted targets and retains later live targets as an array'] call _assert;
+// The worker must also tolerate a cache already corrupted by the old code.
+localNamespace setVariable ['TGC_missile_targets',FALSE];
+uiSleep 0.35;
+[(localNamespace getVariable ['TGC_missile_targets',FALSE]) isEqualType [],
+    'cleanup recovers a previously corrupted target list'] call _assert;
+localNamespace setVariable ['TGC_missile_targets',FALSE];
+['REPORT',[]] call TGC_fnc_damageMissileSync;
+[(localNamespace getVariable ['TGC_missile_targets',FALSE]) isEqualType [],
+    'report ingestion recovers a previously corrupted target list'] call _assert;
+_vehicle setVariable ['TGC_damage_incoming',[]];
 deleteVehicle _charge;
 {deleteVehicle _x} forEach [_a,_b,_enemy,_vehicle];
 deleteGroup _west; deleteGroup _east;

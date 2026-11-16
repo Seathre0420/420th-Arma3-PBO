@@ -42,6 +42,8 @@ if (_mode isEqualTo 'REQUEST') exitWith {
 if (count _payload > 128) exitWith {};
 private _launches = localNamespace getVariable ['TGC_missile_launches',createHashMap];
 private _targets = localNamespace getVariable ['TGC_missile_targets',[]];
+// Recover state saved by the former exitWith-in-select cleanup bug.
+if !(_targets isEqualType []) then {_targets = [];};
 private _batches = createHashMap;
 private _accepted = [];
 {
@@ -98,21 +100,26 @@ localNamespace setVariable ['TGC_missile_cacheWorker',TRUE];
                 private _launch = _launches get _x;
                 if (isNull (_launch # 1) && {serverTime > ((_launch # 5) + 0.75)}) then {_launches deleteAt _x;};
             } forEach keys _launches;
-            private _targets = (localNamespace getVariable ['TGC_missile_targets',[]]) select {
-                if (isNull _x) exitWith {FALSE};
-                private _incoming = (_x getVariable ['TGC_damage_incoming',[]]) select {serverTime <= (_x # 2)};
-                _x setVariable ['TGC_damage_incoming',_incoming,FALSE];
-                // Covers transfers whose Local callback/request raced the first report.
-                private _owner = owner _x;
-                if (_owner > 2 && {_owner isNotEqualTo (_x getVariable ['TGC_missile_cacheOwner',-1])}) then {
-                    private _target = _x;
-                    private _rows = (_incoming select {count _x >= 6}) apply {[_target,_x # 0,_x # 1,_x # 2,_x # 3,_x # 4,_x # 5]};
-                    for '_offset' from 0 to ((count _rows) - 1) step 128 do {
-                        ['APPLY',_rows select [_offset,128]] remoteExecCall ['TGC_fnc_damageMissileSync',_owner,FALSE];
+            private _targets = localNamespace getVariable ['TGC_missile_targets',[]];
+            if !(_targets isEqualType []) then {_targets = [];};
+            _targets = _targets select {
+                // exitWith here would return FALSE for the whole select,
+                // corrupting the saved array as soon as a target is deleted.
+                !isNull _x && {
+                    private _incoming = (_x getVariable ['TGC_damage_incoming',[]]) select {serverTime <= (_x # 2)};
+                    _x setVariable ['TGC_damage_incoming',_incoming,FALSE];
+                    // Covers transfers whose Local callback/request raced the first report.
+                    private _owner = owner _x;
+                    if (_owner > 2 && {_owner isNotEqualTo (_x getVariable ['TGC_missile_cacheOwner',-1])}) then {
+                        private _target = _x;
+                        private _rows = (_incoming select {count _x >= 6}) apply {[_target,_x # 0,_x # 1,_x # 2,_x # 3,_x # 4,_x # 5]};
+                        for '_offset' from 0 to ((count _rows) - 1) step 128 do {
+                            ['APPLY',_rows select [_offset,128]] remoteExecCall ['TGC_fnc_damageMissileSync',_owner,FALSE];
+                        };
                     };
-                };
-                _x setVariable ['TGC_missile_cacheOwner',_owner,FALSE];
-                _incoming isNotEqualTo []
+                    _x setVariable ['TGC_missile_cacheOwner',_owner,FALSE];
+                    _incoming isNotEqualTo []
+                }
             };
             localNamespace setVariable ['TGC_missile_targets',_targets];
             private _rates = localNamespace getVariable ['TGC_missile_rates',createHashMap];
