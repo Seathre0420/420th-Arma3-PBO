@@ -187,6 +187,7 @@ if (_mode in ['UNLOCK','STOP']) exitWith {
 		missionNamespace setVariable ['QS_classicDamage_arrival',[]];
 	};
 	if (_releaseEpoch < 0) exitWith {};
+	if (isServer && {_mode isEqualTo 'STOP'}) then {['CANCEL',_releaseEpoch] call QS_fnc_aoAA;};
 	{
 		_x params ['_entity','_jipID'];
 		isNil {

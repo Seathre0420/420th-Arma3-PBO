@@ -66,7 +66,7 @@ private _fn_groundPick = {
 // relaxed separation. Aircraft cargo, paradrops and deliberate elevated
 // building/composition positions keep their own paths.
 if ((_this param [0,[]]) in ['SLOTS','VEHICLE_SLOTS']) exitWith {
-	params ['_mode','_anchor','_count',['_heading',0],['_class','O_Soldier_F'],['_separateGroups',TRUE],['_concealed',FALSE],['_exclusion',-1],['_validPosition',{TRUE}]];
+	params ['_mode','_anchor','_count',['_heading',0],['_class','O_Soldier_F'],['_separateGroups',TRUE],['_concealed',FALSE],['_exclusion',-1],['_validPosition',{TRUE}],['_deadline',1e30],['_reservation','']];
 	if (_count <= 0 || {_count > 32} || {_anchor isEqualTo []}) exitWith {[]};
 	// The audited callers create on the server, then hand completed groups to
 	// HCs. Local claim arrays cannot arbitrate simultaneous network owners.
@@ -98,12 +98,12 @@ if ((_this param [0,[]]) in ['SLOTS','VEHICLE_SLOTS']) exitWith {
 		if (_infantry) then {_patterns append [[0.5,0],[0,0.5],[0.5,0.5]];};
 		private _timedOut = FALSE;
 		{
-			if (_timedOut) exitWith {};
+			if (_timedOut || {diag_tickTime >= _deadline}) exitWith {_timedOut = TRUE;};
 			_x params ['_offsetColumn','_offsetRow'];
 			for '_row' from -2 to 2 do {
 				if (_timedOut) exitWith {};
 				for '_column' from -2 to 2 do {
-					if (!canSuspend && {(diag_tickTime - _started) > 0.004}) exitWith {_timedOut = TRUE;};
+					if (diag_tickTime >= _deadline || {!canSuspend && {(diag_tickTime - _started) > 0.004}}) exitWith {_timedOut = TRUE;};
 					private _columnAt = _column + _offsetColumn;
 					private _rowAt = _row + _offsetRow;
 					// Skip nominal cells beyond the admitted square before asking
@@ -135,6 +135,7 @@ if ((_this param [0,[]]) in ['SLOTS','VEHICLE_SLOTS']) exitWith {
 			if (_timedOut || {!canSuspend && {(diag_tickTime - _started) > 0.004}}) exitWith {};
 		} forEach _patterns;
 	};
+	if (diag_tickTime >= _deadline) then {_result = [];};
 	if (_result isNotEqualTo []) then {
 		isNil {
 			private _claims = (missionNamespace getVariable ['QS_groundSpawn_claims',[]]) select {diag_tickTime < (_x # 0)};
@@ -150,7 +151,7 @@ if ((_this param [0,[]]) in ['SLOTS','VEHICLE_SLOTS']) exitWith {
 				!([_x,_occupied] call _fn_groundSeparate) ||
 				{(_players inAreaArray [_x,_radius,_radius,0,FALSE]) isNotEqualTo []}
 			}) >= 0) then {_result = [];} else {
-				_claims pushBack [diag_tickTime + 20,+_anchor,+_result,!_infantry];
+				_claims pushBack [[1e30,diag_tickTime + 20] select (_reservation isEqualTo ''),+_anchor,+_result,!_infantry,_reservation];
 			};
 			missionNamespace setVariable ['QS_groundSpawn_claims',_claims,FALSE];
 		};
@@ -158,7 +159,14 @@ if ((_this param [0,[]]) in ['SLOTS','VEHICLE_SLOTS']) exitWith {
 	_result
 };
 
-params [['_pos',[]],['_dir',-1],['_side',sideUnknown],['_type',''],['_isProne',FALSE],['_grp',grpNull],['_useRecycler',FALSE],['_deleteWhenEmpty',TRUE],['_groundValid',{TRUE}],['_groundExclusion',-1]];
+// Reserved creation is atomic: check live occupancy, consume the claim, then
+// create the four units without a scheduled suspension between those steps.
+if (canSuspend && {(_this param [10,[]]) isNotEqualTo []}) exitWith {
+	private _reservedGroup = grpNull;
+	isNil {_reservedGroup = _this call QS_fnc_spawnGroup;};
+	_reservedGroup
+};
+params [['_pos',[]],['_dir',-1],['_side',sideUnknown],['_type',''],['_isProne',FALSE],['_grp',grpNull],['_useRecycler',FALSE],['_deleteWhenEmpty',TRUE],['_groundValid',{TRUE}],['_groundExclusion',-1],['_reserved',[]]];
 // End Updated Code
 if (
 	(_pos isEqualTo []) ||
@@ -192,7 +200,26 @@ private _groundSlots = [];
 // building and existing-group callers retain their compact creation contract.
 private _spread = (count _this > 8) && {(WEST getFriend _side) < 0.6} && {(_pos # 0) > 0} && {(_pos # 1) > 0} &&
 	{(_pos # 0) < worldSize} && {(_pos # 1) < worldSize} && {abs (_pos param [2,0]) < 2} && {!surfaceIsWater _pos};
-if (_spread) then {_groundSlots = ['SLOTS',_pos,count _groupComposition,_dir,'O_Soldier_F',TRUE,FALSE,_groundExclusion,_groundValid] call QS_fnc_spawnGroup;};
+if (_reserved isNotEqualTo []) then {
+	_reserved params ['_reservation','_slots'];
+	private _claims = missionNamespace getVariable ['QS_groundSpawn_claims',[]];
+	private _claimIndex = _claims findIf {(_x param [4,'']) isEqualTo _reservation && {(_x # 2) isEqualTo _slots}};
+	if (isServer && {_claimIndex >= 0} && {count _slots isEqualTo count _groupComposition}) then {
+		private _occupied = [];
+		{if (_forEachIndex isNotEqualTo _claimIndex && {diag_tickTime < (_x # 0)}) then {_occupied append (_x # 2);};} forEach _claims;
+		{if (alive _x && {isNull objectParent _x}) then {_occupied pushBack getPosATL _x;};} forEach (_pos nearEntities ['CAManBase',110]);
+		{if (((getPosATL _x) # 2) < 5) then {_occupied pushBack getPosATL _x;};} forEach (nearestObjects [_pos,['LandVehicle','Air','Ship'],110,TRUE]);
+		private _players = allPlayers select {alive _x && {!(_x isKindOf 'HeadlessClient_F')}};
+		if ((_slots findIf {!([_x,_occupied] call _fn_groundSeparate) || {(_players inAreaArray [_x,30 max _groundExclusion,30 max _groundExclusion,0,FALSE]) isNotEqualTo []} || {!([_x] call _groundValid)}}) < 0) then {
+			_groundSlots = +_slots;
+			_claims deleteAt _claimIndex;
+			missionNamespace setVariable ['QS_groundSpawn_claims',_claims,FALSE];
+		};
+	};
+	_spread = TRUE;
+} else {
+	if (_spread) then {_groundSlots = ['SLOTS',_pos,count _groupComposition,_dir,'O_Soldier_F',TRUE,FALSE,_groundExclusion,_groundValid] call QS_fnc_spawnGroup;};
+};
 if (_spread && {_groundSlots isEqualTo []}) exitWith {[_perfGroup,0] call QS_fnc_perfEnd; grpNull};
 // End Updated Code
 if (isNull _grp) then {
@@ -258,6 +285,7 @@ for '_i' from 0 to ((count _groupComposition) - 1) step 1 do {
 		[_perfCreate,([0,1] select (!isNull _unit))] call QS_fnc_perfEnd;
 		QS_core_unittraits_map set [typeOf _unit,getAllUnitTraits _unit,TRUE];
 	};
+	if (isNull _unit) exitWith {};
 	_unit = _unit call (missionNamespace getVariable 'QS_fnc_unitSetup');
 	if ((rank _unit) isNotEqualTo ((_groupComposition # _i) # 1)) then {
 		_unit setRank ((_groupComposition # _i) # 1);

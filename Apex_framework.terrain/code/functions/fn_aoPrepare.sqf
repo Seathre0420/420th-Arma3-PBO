@@ -51,6 +51,10 @@ if (worldName isEqualTo 'Stratis') then {
 missionNamespace setVariable ['QS_aoSize',_aoSize,TRUE];
 'QS_marker_aoCircle' setMarkerSizeLocal [_aoSize,_aoSize];
 
+// Fail before creating HQ/objectives or publishing AI activation triggers.
+private _aaResult = [_QS_AOpos,_aoSize,_QS_classicDamageEpoch] call QS_fnc_aoAA;
+if (!(_aaResult # 0)) exitWith {_aaResult};
+
 diag_log '****************************************************';
 diag_log '***** AO PREPARE ******* 1 *************************';
 diag_log '****************************************************';

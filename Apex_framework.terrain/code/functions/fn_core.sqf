@@ -1785,6 +1785,17 @@ for '_x' from 0 to 1 step 0 do {
 // End Updated Code
 							private _QS_classicDamageEpoch = ['START',_QS_AOpos] call QS_fnc_aoDamageProtection;
 							_aoArray = [_ao] call _fn_aoPrepare;
+							if ((_aoArray param [0,TRUE]) isEqualTo FALSE) exitWith {
+								['STOP'] call QS_fnc_aoDamageProtection;
+								_mainMissionActive = _false;
+								private _failures = 1 + (missionNamespace getVariable ['QS_classic_aaFailures',0]);
+								// At most three consecutive attempts, then a five-minute cooldown.
+								_aoStartDelay = time + ([30,300] select (_failures >= 3));
+								missionNamespace setVariable ['QS_classic_aaFailures',[_failures,0] select (_failures >= 3),FALSE];
+								missionNamespace setVariable ['QS_megaDefense_core',['IDLE',_megaDefenseEpoch,[]],FALSE];
+								diag_log format ['[ClassicAA] AO rejected: %1; next rotation attempt after %2',_aoArray,_aoStartDelay];
+							};
+							missionNamespace setVariable ['QS_classic_aaFailures',0,FALSE];
 // Added Code
 							missionNamespace setVariable ['QS_megaDefense_core',['PRIMARY',_megaDefenseEpoch,+(missionNamespace getVariable ['QS_HQpos',[]])],FALSE];
 							// MEGA_CORE_PREPARE_END

@@ -176,12 +176,11 @@ if (_type isEqualTo 'defend_paratypes_1') exitWith {
 	['o_soldier_pg_f']
 };
 if (_type isEqualTo 'classic_enemyinftypes_1') exitWith {
-	// Main groups list to spawn for classic AO
+	// AA teams are allocated separately by player count in fn_aoEnemy.
 	[
 		'oia_infsquad',4,
 		'oia_infteam',2,
 		'oia_infassault',2,
-		'oia_infteam_aa',3,
 		'oia_infteam_at',0.5,
 		'oia_infteam_hat',1,
 		'oi_reconpatrol',1,
@@ -194,7 +193,6 @@ if (_type isEqualTo 'classic_enemyinftypes_stratis_1') exitWith {
 	[
 		'oia_infsquad',5,
 		'oia_infassault',1,
-		'oia_infteam_aa',1,
 		'oi_reconpatrol',0.5,
 		'oia_infteam_lat',0.25,
 		'oia_arteam',4
@@ -240,10 +238,11 @@ if (_type isEqualTo 'classic_garrisonindarray_3') exitWith {
 	// HQ guards
 	[
 		'o_soldieru_ar_f','o_soldieru_medic_f','o_engineer_u_f','o_soldieru_exp_f','o_soldieru_gl_f',
-		'o_urban_heavygunner_f','o_soldieru_m_f','o_soldieru_aa_f','o_soldieru_at_f','o_soldieru_lat_f','o_urban_sharpshooter_f'
+		'o_urban_heavygunner_f','o_soldieru_m_f','o_soldieru_at_f','o_soldieru_lat_f','o_urban_sharpshooter_f'
 	]
 };
 if (_type isEqualTo 'classic_reinforcearray_1') exitWith {
+	// Reinforcements do not add AA teams beyond the initial AO allocation.
 	[
 		'oia_infsquad',2,
 		'oia_infteam',2,
@@ -253,7 +252,6 @@ if (_type isEqualTo 'classic_reinforcearray_1') exitWith {
 		'og_infassaultteam',1,
 		'oia_arteam',2,
 		'oia_infteam_hat',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2),
-		'oia_infteam_aa',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_air',0]) min 3),
 		'oia_infteam_at',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2)
 	]
 };
@@ -261,7 +259,6 @@ if (_type isEqualTo 'classic_reinforcearray_stratis') exitWith {
 	[
 		'oia_infsquad',5,
 		'oia_infassault',2,
-		'oia_infteam_aa',(0.5 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_air',0]) min 2),
 		'oi_reconpatrol',0.5,
 		'oia_arteam',4
 	]
@@ -334,6 +331,7 @@ if (_type isEqualTo 'urbanspawn_nodes_1') exitWith {
 	]
 };
 if (_type isEqualTo 'urbanspawn_groups_1') exitWith {
+	// Urban/HQ reinforcements share the fixed initial AO AA allocation.
 	[
 		'oia_infsquad',2,
 		'oia_infteam',2,
@@ -343,7 +341,6 @@ if (_type isEqualTo 'urbanspawn_groups_1') exitWith {
 		'og_infassaultteam',1,
 		'oia_arteam',2,
 		'oia_infteam_hat',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2),
-		'oia_infteam_aa',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_air',0]) min 3),
 		'oia_infteam_at',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2)
 	]
 };
@@ -355,17 +352,13 @@ if (_type isEqualTo 'urbanspawn_groups_stratis_1') exitWith {
 		'oia_infassault',2,
 		'og_infsquad',1,
 		'og_infassaultteam',1,
-		'oia_arteam',2,
-		//'oia_infteam_hat',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2),
-		'oia_infteam_aa',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_air',0]) min 3)//,
-		//'oia_infteam_at',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_armor',0]) min 2)
+		'oia_arteam',2
 	]
 };
 if (_type isEqualTo 'urbanspawn_groups_2') exitWith {
 	[
 		'oia_infsquad',4,
-		'oia_arteam',2,
-		'oia_infteam_aa',(1 max (missionNamespace getVariable ['QS_AI_targetsKnowledge_threat_air',0]) min 3)
+		'oia_arteam',2
 	]
 };
 if (_type isEqualTo 'civilians_fugitives') exitWith {

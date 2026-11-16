@@ -144,18 +144,45 @@ private _nearForestPosition = [0,0,0];
 private _forestPositionIndex = -1;
 private _patrolGroup = grpNull;
 private _bestPlaces = [];
-_registeredPositions = missionNamespace getVariable ['QS_registeredPositions',[]];
-for '_x' from 0 to (_grpCount - 1) step 1 do {
-	if ((random 1) > 0.5) then {
-		_bestPlaces = [];
-	} else {
-		_bestPlaces = [_centerPos,_aoSize,(selectRandomWeighted _placeTypes),15,3];
+// Prepared AA groups consume reserved footprints before ordinary patrols.
+private _aaState = missionNamespace getVariable ['QS_classic_aaGroups',[-1,[]]];
+private _aaGroups = _aaState # 1;
+if ((_aaState # 0) isNotEqualTo _QS_classicDamageEpoch ||
+	{((missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE]]) # 0) isNotEqualTo _QS_classicDamageEpoch} ||
+	{!((missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE]]) # 1)} ||
+	{missionNamespace getVariable ['QS_aoCycleVar',FALSE]} ||
+	{missionNamespace getVariable ['QS_aoSuspended',FALSE]}) exitWith {
+	diag_log '[ClassicAA] Missing current prepared allocation; cycling AO';
+	['CANCEL',_QS_classicDamageEpoch] call QS_fnc_aoAA;
+	if (((missionNamespace getVariable ['QS_classicDamage_context',[-1]]) # 0) isEqualTo _QS_classicDamageEpoch) then {
+		missionNamespace setVariable ['QS_aoCycleVar',TRUE,FALSE];
 	};
-	_randomPos = ['RADIUS',_centerPos,([_aoSize,_aoSize * 0.85] select ((random 1) > 0.5)),'LAND',[1.5,-1,0.5,3,0,FALSE,objNull],TRUE,_bestPlaces,[],FALSE] call (missionNamespace getVariable 'QS_fnc_findRandomPos');
-	if ((_randomPos distance2D _centerPos) < (_aoSize * 1.5)) then {
-		_patrolGroup = [_randomPos,(random 360),EAST,(selectRandomWeighted _infTypes),FALSE,grpNull,TRUE,TRUE,{
-			params ['_point']; (_point distance2D _centerPos) < (_aoSize * 1.5) && {['BLACKLIST',_point] call QS_fnc_findRandomPos}
-		}] call (missionNamespace getVariable 'QS_fnc_spawnGroup');
+};
+missionNamespace setVariable ['QS_classic_aaGroups',[-1,[]],FALSE];
+// Transfer cleanup ownership before configuring patrols or spawning other units.
+{(missionNamespace getVariable 'QS_classic_AI_enemy_0') append units _x;} forEach _aaGroups;
+private _aaGroupCount = count _aaGroups;
+private _patrolType = '';
+_registeredPositions = missionNamespace getVariable ['QS_registeredPositions',[]];
+for '_patrolIndex' from 0 to (_aaGroupCount + _grpCount - 1) step 1 do {
+	_patrolGroup = grpNull;
+	if (_patrolIndex < _aaGroupCount) then {
+		_patrolGroup = _aaGroups # _patrolIndex;
+		_randomPos = getPosATL (leader _patrolGroup);
+		{_x enableSimulationGlobal TRUE;} forEach units _patrolGroup;
+		_patrolType = 'oia_infteam_aa';
+	} else {
+		_patrolType = selectRandomWeighted _infTypes;
+		_bestPlaces = [];
+		if ((random 1) <= 0.5) then {_bestPlaces = [_centerPos,_aoSize,(selectRandomWeighted _placeTypes),15,3];};
+		_randomPos = ['RADIUS',_centerPos,([_aoSize,_aoSize * 0.85] select ((random 1) > 0.5)),'LAND',[1.5,-1,0.5,3,0,FALSE,objNull],TRUE,_bestPlaces,[],FALSE] call QS_fnc_findRandomPos;
+		if (_randomPos isNotEqualTo [] && {(_randomPos distance2D _centerPos) < (_aoSize * 1.5)}) then {
+			_patrolGroup = [_randomPos,random 360,EAST,_patrolType,FALSE,grpNull,TRUE,TRUE,{
+				params ['_point']; (_point distance2D _centerPos) < (_aoSize * 1.5) && {['BLACKLIST',_point] call QS_fnc_findRandomPos}
+			}] call QS_fnc_spawnGroup;
+		};
+	};
+	if (!isNull _patrolGroup && {units _patrolGroup isNotEqualTo []}) then {
 // Added Code
 		// AO_PATROL_ADMISSION_BEGIN
 		call {
@@ -166,7 +193,7 @@ for '_x' from 0 to (_grpCount - 1) step 1 do {
 		{
 			[_x] call (missionNamespace getVariable 'QS_fnc_setCollectible');
 			_x setVehiclePosition [(getPosWorld _x), [], 0, 'CAN_COLLIDE'];
-			_enemiesArray pushBack _x;
+			if (_patrolIndex >= _aaGroupCount) then {_enemiesArray pushBack _x;};
 		} forEach (units _patrolGroup);
 		_patrolRoute = (_patrolGroup getVariable 'QS_AI_GRP_TASK') # 1;
 		if (_registeredPositions isNotEqualTo []) then {
@@ -213,7 +240,7 @@ for '_x' from 0 to (_grpCount - 1) step 1 do {
 		// AO_PATROL_ADMISSION_END
 // End Updated Code
 	} else {
-		diag_log format ['***** AO ENEMY * INFANTRY PATROL INVALID POSITION * %1 *****',_randomPos];
+		diag_log format ['***** AO ENEMY * INFANTRY PATROL SPAWN FAILED * %1 * %2 *****',_patrolType,_randomPos];
 	};
 };
 
