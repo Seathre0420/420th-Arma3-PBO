@@ -1,6 +1,10 @@
 /* Every machine installs; only the owner returns numeric damage. */
 params ['_entity'];
 if (isNull _entity || {!(_entity isKindOf 'AllVehicles')}) exitWith {};
+if (local _entity && {!isServer} && {!(_entity getVariable ['TGC_missile_ownerReady',FALSE])}) then {
+    _entity setVariable ['TGC_missile_ownerReady',TRUE,FALSE];
+    ['REQUEST',[_entity]] remoteExecCall ['TGC_fnc_damageMissileSync',2,FALSE];
+};
 private _firedID = _entity getVariable ['TGC_damage_firedEH',-1];
 if (_firedID < 0 || {!((_entity getEventHandlerInfo ['Fired',_firedID]) param [0,false])}) then {
     _entity setVariable ['TGC_damage_firedEH',_entity addEventHandler ['Fired',{_this call TGC_fnc_damageFired}]];
@@ -10,7 +14,11 @@ if (_firedID < 0 || {!((_entity getEventHandlerInfo ['Fired',_firedID]) param [0
             _entity setVariable ['TGC_damage_contact',[[[_other] call TGC_fnc_damageActor] call TGC_fnc_damageSide,diag_tickTime + 0.25]];
         };
     }];
-    _entity addEventHandler ['Local',{params ['_entity','_local']; if (_local) then {[_entity] call TGC_fnc_addDamageProtection}}];
+    _entity addEventHandler ['Local',{
+        params ['_entity','_local'];
+        _entity setVariable ['TGC_missile_ownerReady',FALSE,FALSE];
+        if (_local) then {[_entity] call TGC_fnc_addDamageProtection};
+    }];
 };
 [_entity] call TGC_fnc_damageSide;
 private _id = _entity getVariable ['TGC_damage_EH',-1];

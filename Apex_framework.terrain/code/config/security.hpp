@@ -247,6 +247,7 @@ class CfgRemoteExec {
 		class QS_fnc_spawnMenuJoinAI {allowedTargets = 0;};
 		class QS_fnc_updateVehicleUnloadPolicy {allowedTargets = 0;};
 		class TGC_fnc_addCuratorAddons {allowedTargets = 2;};
+        class TGC_fnc_damageMissileSync {allowedTargets = 0; jip = 0;};
 		class TGC_fnc_forceRiflemanRole {allowedTargets = 2; jip = 0;};
 		class TGC_fnc_forceSideMission {allowedTargets = 2;};
 		class TGC_fnc_manageMainAO {allowedTargets = 2;};

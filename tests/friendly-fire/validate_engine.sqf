@@ -73,6 +73,61 @@ WEST setFriend [EAST,1];
 _event set [3,_enemy]; _event set [6,_enemy]; _event set [4,'testBullet'];
 [(_event call TGC_fnc_damageDecision) # 0,'allied different side protects'] call _assert;
 WEST setFriend [EAST,_relationship];
+// Concurrent missile deltas survive deletion, stale snapshots and expiry.
+private _sampled = serverTime;
+private _friendlyRow = [_vehicle,'testMissile',WEST,_sampled + 0.75,objNull,'test/friendly',_sampled];
+private _hostileRow = [_vehicle,'testMissile',EAST,_sampled + 0.75,objNull,'test/hostile',_sampled];
+[[_friendlyRow]] call TGC_fnc_damageMissileMerge;
+[[_hostileRow]] call TGC_fnc_damageMissileMerge;
+[(count (_vehicle getVariable ['TGC_damage_incoming',[]])) isEqualTo 2,
+    'concurrent shooters merge even after projectile deletion'] call _assert;
+_event set [3,objNull]; _event set [6,objNull]; _event set [4,'testMissile'];
+[!((_event call TGC_fnc_damageDecision) # 0),'mixed same-ammo missiles remain ambiguous'] call _assert;
+private _stale = +_friendlyRow;
+_stale set [6,_sampled - 0.1]; _stale set [3,_sampled + 0.65];
+[[_stale,_friendlyRow]] call TGC_fnc_damageMissileMerge;
+private _merged = (_vehicle getVariable ['TGC_damage_incoming',[]]) select {(_x # 4) isEqualTo 'test/friendly'};
+[((_merged # 0) # 2) isEqualTo (_sampled + 0.75),
+    'stale snapshots and duplicates cannot replace or extend a deadline'] call _assert;
+private _expired = +_hostileRow;
+_expired set [5,'test/expired']; _expired set [3,serverTime - 0.1];
+[[_expired]] call TGC_fnc_damageMissileMerge;
+[((_vehicle getVariable ['TGC_damage_incoming',[]]) findIf {(_x # 4) isEqualTo 'test/expired'}) < 0,
+    'expired delta is discarded'] call _assert;
+_vehicle setVariable ['TGC_damage_incoming',[]];
+[[_friendlyRow]] call TGC_fnc_damageMissileMerge;
+[(_event call TGC_fnc_damageDecision) # 0,'owner-local missile fallback protects'] call _assert;
+['REPORT',[[_vehicle,'testMissile',WEST,serverTime + 0.75,objNull,'2/unregistered',serverTime],['bad']]] call TGC_fnc_damageMissileSync;
+[(count (_vehicle getVariable ['TGC_damage_incoming',[]])) isEqualTo 1,
+    'unknown projectile and malformed reports rejected'] call _assert;
+uiSleep 0.8;
+[!((_event call TGC_fnc_damageDecision) # 0),'fallback expires without refresh'] call _assert;
+_vehicle setVariable ['TGC_damage_incoming',[]];
+// Exercise authoritative acceptance as well as the local merge primitive.
+private _missile = createVehicle ['M_Titan_AA',[100,100,10000],[],0,'CAN_COLLIDE'];
+private _launchKey = format ['2/test-%1',diag_tickTime];
+private _reportAt = serverTime;
+private _report = [_vehicle,typeOf _missile,WEST,_reportAt + 0.75,_missile,_launchKey,_reportAt];
+['REPORT',[_report]] call TGC_fnc_damageMissileSync;
+[((_vehicle getVariable ['TGC_damage_incoming',[]]) findIf {(_x # 4) isEqualTo _launchKey}) >= 0,
+    'server accepts a live missile from its owner'] call _assert;
+deleteVehicle _missile;
+uiSleep 0.02;
+private _afterDeletion = +_report;
+_afterDeletion set [6,serverTime]; _afterDeletion set [3,serverTime + 0.75];
+['REPORT',[_afterDeletion]] call TGC_fnc_damageMissileSync;
+private _accepted = (_vehicle getVariable ['TGC_damage_incoming',[]]) select {(_x # 4) isEqualTo _launchKey};
+[(count _accepted isEqualTo 1) && {((_accepted # 0) # 5) isEqualTo (_afterDeletion # 6)},
+    'accepted launch survives projectile deletion for in-transit reports'] call _assert;
+private _forged = +_afterDeletion;
+_forged set [2,EAST]; _forged set [6,serverTime + 0.01]; _forged set [3,serverTime + 0.76];
+['REPORT',[_forged]] call TGC_fnc_damageMissileSync;
+private _protected = (_vehicle getVariable ['TGC_damage_incoming',[]]) select {(_x # 4) isEqualTo _launchKey};
+[((_protected # 0) # 1) isEqualTo WEST,'accepted launch allegiance cannot be rewritten'] call _assert;
+uiSleep 0.8;
+['REPORT',[_report]] call TGC_fnc_damageMissileSync;
+[((_vehicle getVariable ['TGC_damage_incoming',[]]) findIf {(_x # 4) isEqualTo _launchKey}) < 0,
+    'expired cached launch cannot be revived by an old report'] call _assert;
 deleteVehicle _charge;
 {deleteVehicle _x} forEach [_a,_b,_enemy,_vehicle];
 deleteGroup _west; deleteGroup _east;

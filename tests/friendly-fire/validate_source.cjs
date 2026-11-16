@@ -18,6 +18,7 @@ const files = [
   'Apex_framework.terrain/code/functions/fn_spawnMenuManagedVehicleInit.sqf',
   'Apex_framework.terrain/code/functions/fn_vSetup.sqf',
   'Apex_framework.terrain/description.ext',
+  'Apex_framework.terrain/code/config/security.hpp',
   'tests/friendly-fire/validate_engine.sqf'
 ];
 for (const file of files) {

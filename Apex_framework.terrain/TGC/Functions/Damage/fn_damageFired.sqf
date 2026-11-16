@@ -16,17 +16,5 @@ if (_index < 0) then {_records pushBack [_ammo,_side,serverTime + 300]} else {
 };
 if (_publish) then {_launcher setVariable ['TGC_damage_shots',_records,true]};
 if (!isNull _projectile && {local _projectile} && {_projectile isKindOf 'MissileBase'}) then {
-    [_projectile,_side,_ammo] spawn {
-        params ['_projectile','_side','_ammo'];
-        while {!isNull _projectile} do {
-            private _target = missileTarget _projectile;
-            if (!isNull _target) then {
-                private _incoming = (_target getVariable ['TGC_damage_incoming',[]]) select {serverTime <= (_x # 2)};
-                _incoming = _incoming select {(_x param [3,objNull]) isNotEqualTo _projectile};
-                _incoming pushBack [_ammo,_side,serverTime + 0.75,_projectile];
-                _target setVariable ['TGC_damage_incoming',_incoming,true];
-            };
-            uiSleep 0.25;
-        };
-    };
+    [_projectile,_side,_ammo] call TGC_fnc_damageMissileTrack;
 };

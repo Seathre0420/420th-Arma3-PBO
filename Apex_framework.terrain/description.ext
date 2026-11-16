@@ -837,6 +837,9 @@ class CfgFunctions {
             class damageActor {};
             class damageDecision {};
             class damageFired {};
+            class damageMissileTrack {};
+            class damageMissileMerge {};
+            class damageMissileSync {};
             class addDamageProtection {};
             class canControlWeapon {};
             class canDestroyAsset {};
