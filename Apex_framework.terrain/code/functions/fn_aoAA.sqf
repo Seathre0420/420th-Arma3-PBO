@@ -51,11 +51,21 @@ if (_reason isEqualTo '') then {
 		if (isNull _grp || {count units _grp isNotEqualTo 4}) exitWith {_reason = 'INCOMPLETE_GROUP';};
 		private _composition = QS_core_groups_map get 'oia_infteam_aa';
 		private _units = units _grp;
-		if ((_composition findIf {
-			private _class = (_x # 0);
-			_class = QS_core_units_map getOrDefault [toLowerANSI _class,_class];
-			toLowerANSI (typeOf (_units # _forEachIndex)) isNotEqualTo toLowerANSI _class
-		}) >= 0) exitWith {_reason = 'WRONG_COMPOSITION';};
+		// findIf does not supply _forEachIndex: the old check inherited the
+		// outer plan index and compared every role with the same soldier.
+		// Compare sorted class lists, preserving duplicates without relying on
+		// the engine's group-member ordering.
+		private _expectedClasses = _composition apply {
+			private _class = _x # 0;
+			toLowerANSI (QS_core_units_map getOrDefault [toLowerANSI _class,_class])
+		};
+		private _actualClasses = _units apply {toLowerANSI (typeOf _x)};
+		_expectedClasses sort TRUE;
+		_actualClasses sort TRUE;
+		if (_actualClasses isNotEqualTo _expectedClasses) exitWith {
+			diag_log format ['[ClassicAA] Composition mismatch expected=%1 actual=%2',_expectedClasses,_actualClasses];
+			_reason = 'WRONG_COMPOSITION';
+		};
 		{_x enableSimulationGlobal FALSE;} forEach _units;
 	} forEach _plans;
 };
