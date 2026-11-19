@@ -4,8 +4,20 @@
  * Aircraft, AA operators, the commander and objective objects keep their rules.
  * Only the server registers entities or changes the one-way AO state.
  */
-params [['_mode',''],['_arg',objNull],['_epoch',-1]];
+params [['_mode',''],['_arg',objNull],['_epoch',-1],['_aoName','']];
 if (isRemoteExecuted && {remoteExecutedOwner isNotEqualTo 2}) exitWith {FALSE};
+if (_mode isEqualTo 'VERIFY_RELEASE') exitWith {
+	private _verified = [];
+	{
+		if (!isNull _x && {local _x} && {(_x getVariable ['QS_classicDamage_epoch',-2]) isEqualTo _epoch}) then {
+			['RELEASE',_x,_epoch] call QS_fnc_aoDamageProtection;
+			if (isDamageAllowed _x) then {_verified pushBack (netId _x);};
+		};
+	} forEach _arg;
+	if (_verified isNotEqualTo []) then {
+		[_epoch,_verified] remoteExecCall ['QS_fnc_aoDamageReleaseAck',2,FALSE];
+	};
+};
 // Scheduled spawn callers must not be interrupted between checking and writing.
 if (_mode in ['LOCAL','ALLOW','RELEASE'] && {canSuspend}) exitWith {
 	isNil {_this call QS_fnc_aoDamageProtection;};
@@ -110,15 +122,36 @@ if (_mode isEqualTo 'START') exitWith {
 	if ((missionNamespace getVariable ['QS_mission_aoType','']) isNotEqualTo 'CLASSIC' ||
 		{missionNamespace getVariable ['QS_defendActive',FALSE]}) exitWith {-1};
 	private _next = 1 + (_context # 0);
-	missionNamespace setVariable ['QS_classicDamage_context',[_next,TRUE,FALSE,+_arg],TRUE];
 	missionNamespace setVariable ['QS_classicDamage_entities',[]];
 	missionNamespace setVariable ['QS_classicDamage_arrival',[]];
-	// One lightweight monitor per locked AO, independent of yielding spawn scripts.
-	[_next] spawn {
-		params ['_epoch'];
-		while {['TICK',objNull,_epoch] call QS_fnc_aoDamageProtection} do {uiSleep 1;};
-	};
+	missionNamespace setVariable ['QS_classicDamage_name',_aoName];
+	missionNamespace setVariable ['QS_classicDamage_context',[_next,TRUE,FALSE,+_arg],TRUE];
+	diag_log format ['[AO damage] LOCK ao=%1 epoch=%2 center=%3',_aoName,_next,_arg];
+	['MONITOR'] call QS_fnc_aoDamageProtection;
 	_next
+};
+if (_mode isEqualTo 'MONITOR') exitWith {
+	isNil {
+		private _current = missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE,TRUE,[]]];
+		if (!(_current # 1) || {_current # 2}) exitWith {};
+		private _currentEpoch = _current # 0;
+		private _monitor = missionNamespace getVariable ['QS_classicDamage_monitor',scriptNull];
+		if (!scriptDone _monitor && {(missionNamespace getVariable ['QS_classicDamage_monitorEpoch',-1]) isEqualTo _currentEpoch}) exitWith {};
+		_monitor = [_currentEpoch] spawn {
+			params ['_epoch'];
+			while {['TICK',objNull,_epoch] call QS_fnc_aoDamageProtection} do {uiSleep 1;};
+		};
+		missionNamespace setVariable ['QS_classicDamage_monitor',_monitor];
+		missionNamespace setVariable ['QS_classicDamage_monitorEpoch',_currentEpoch];
+	};
+};
+if (_mode isEqualTo 'DIAGNOSE' && {!isRemoteExecuted}) exitWith {
+	if (!(_context # 1) || {_context # 2}) exitWith {[]};
+	private _nearby = allPlayers select {!(_x isKindOf 'HeadlessClient_F') && {(_x distance2D (_context # 3)) <= 2100}};
+	private _players = _nearby apply {[name _x,owner _x,round (_x distance2D (_context # 3)),alive _x,isObjectHidden _x,typeOf (objectParent _x)]};
+	private _result = [_context # 0,missionNamespace getVariable ['QS_classicDamage_arrival',[]],_players];
+	diag_log format ['[AO damage] LOCKED ao=%1 epoch/arrival/players=%2',missionNamespace getVariable ['QS_classicDamage_name',''],_result];
+	_result
 };
 if (_mode isEqualTo 'REGISTER') exitWith {
 	if (_epoch < 0 || {_epoch isNotEqualTo (_context # 0)} || {!(_context # 1)} || {_context # 2}) exitWith {};
@@ -159,45 +192,43 @@ if (_mode isEqualTo 'TICK') exitWith {
 		['STOP',objNull,_epoch] call QS_fnc_aoDamageProtection; FALSE
 	};
 	private _arrival = missionNamespace getVariable ['QS_classicDamage_arrival',[]];
-	private _arrived = FALSE;
-	if (_arrival isNotEqualTo []) then {
-		_arrival params ['_arrivalEpoch','_player','_receivedAt','_owner'];
-		_arrived = _arrivalEpoch isEqualTo _epoch && {diag_tickTime - _receivedAt <= 3} &&
-			{!isNull _player} && {owner _player isEqualTo _owner} &&
-			{isPlayer _player} && {alive _player} && {!isObjectHidden _player} &&
-			{isNull (objectParent _player)} && {(_player distance2D (_context # 3)) <= 2000};
-	};
+	private _arrived = (_arrival param [0,-1]) isEqualTo _epoch;
 	if (_arrived) then {['UNLOCK',objNull,_epoch] call QS_fnc_aoDamageProtection;};
 	!_arrived
 };
 if (_mode in ['UNLOCK','STOP']) exitWith {
-	private _entities = [];
 	private _releaseEpoch = -1;
 	// Close registration and detach the list before any scheduled release work.
 	isNil {
 		_context = +(missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE,TRUE,[]]]);
 		if (_epoch >= 0 && {_epoch isNotEqualTo (_context # 0)}) exitWith {};
 		if (_mode isEqualTo 'UNLOCK' && {!(_context # 1) || {_context # 2}}) exitWith {};
+		if (_mode isEqualTo 'UNLOCK' && {
+			(missionNamespace getVariable ['QS_aoCycleVar',FALSE]) ||
+			{missionNamespace getVariable ['QS_aoSuspended',FALSE]} ||
+			{missionNamespace getVariable ['QS_customAO_active',FALSE]} ||
+			{missionNamespace getVariable ['QS_defendActive',FALSE]} ||
+			{(missionNamespace getVariable ['QS_mission_aoType','CLASSIC']) isNotEqualTo 'CLASSIC'}
+		}) exitWith {};
 		_releaseEpoch = _context # 0;
 		_context set [1,_mode isEqualTo 'UNLOCK'];
 		_context set [2,TRUE];
 		missionNamespace setVariable ['QS_classicDamage_context',_context,TRUE];
-		_entities = missionNamespace getVariable ['QS_classicDamage_entities',[]];
+		private _entities = missionNamespace getVariable ['QS_classicDamage_entities',[]];
+		private _name = missionNamespace getVariable ['QS_classicDamage_name',''];
+		private _arrival = missionNamespace getVariable ['QS_classicDamage_arrival',[]];
+		if (_mode isEqualTo 'UNLOCK' || {_entities isNotEqualTo []}) then {
+			diag_log format ['[AO damage] %1 ao=%2 epoch=%3 distance=%4 tracked=%5',
+				_mode,_name,_releaseEpoch,_arrival param [4,-1],count _entities];
+			private _jobs = missionNamespace getVariable ['QS_classicDamage_releaseJobs',createHashMap];
+			private _deadline = diag_tickTime + 60 + (count _entities / 32);
+			_jobs set [_releaseEpoch,[_name,_entities,createHashMap,createHashMap,0,_deadline,createHashMap,[]]];
+			missionNamespace setVariable ['QS_classicDamage_releaseJobs',_jobs];
+		};
 		missionNamespace setVariable ['QS_classicDamage_entities',[]];
 		missionNamespace setVariable ['QS_classicDamage_arrival',[]];
 	};
 	if (_releaseEpoch < 0) exitWith {};
+	call QS_fnc_aoDamageReleasePending;
 	if (isServer && {_mode isEqualTo 'STOP'}) then {['CANCEL',_releaseEpoch] call QS_fnc_aoAA;};
-	{
-		_x params ['_entity','_jipID'];
-		isNil {
-			if (!isNull _entity && {(_entity getVariable ['QS_classicDamage_epoch',-2]) isEqualTo _releaseEpoch}) then {
-				_entity setVariable ['QS_classicDamage_protected',FALSE,TRUE];
-				['RELEASE',_entity,_releaseEpoch] call QS_fnc_aoDamageProtection;
-				['RELEASE',_entity,_releaseEpoch] remoteExecCall ['QS_fnc_aoDamageProtection',-2,FALSE];
-			};
-			// Remove persistent installation even when a build was cancelled/deleted.
-			remoteExec ['',_jipID];
-		};
-	} forEach _entities;
 };

@@ -218,6 +218,7 @@ class CfgRemoteExec {
 		class QS_fnc_defendAssault {allowedTargets = 0; jip = 0;};
 		class QS_fnc_aoDamageProtection {allowedTargets = 0; jip = 1;};
 		class QS_fnc_aoDamageArrival {allowedTargets = 2; jip = 0;};
+		class QS_fnc_aoDamageReleaseAck {allowedTargets = 2; jip = 0;};
 		class QS_fnc_engineerServiceOwner {allowedTargets = 0; jip = 0;};
 		class QS_fnc_engineerServiceServer {allowedTargets = 2; jip = 0;};
 		class QS_fnc_engineerServiceResponse {allowedTargets = 1; jip = 0;};

@@ -156,6 +156,8 @@ class CfgFunctions {
 			class aoDefend {file = "code\functions\fn_aoDefend.sqf";};
 			class aoDamageProtection {file = "code\functions\fn_aoDamageProtection.sqf";};
 			class aoDamageArrival {file = "code\functions\fn_aoDamageArrival.sqf";};
+			class aoDamageReleasePending {file = "code\functions\fn_aoDamageReleasePending.sqf";};
+			class aoDamageReleaseAck {file = "code\functions\fn_aoDamageReleaseAck.sqf";};
 			class aoAA {file = "code\functions\fn_aoAA.sqf";};
 			class aoEnemy {file = "code\functions\fn_aoEnemy.sqf";};
 			class aoEnemyReinforce {file = "code\functions\fn_aoEnemyReinforce.sqf";};

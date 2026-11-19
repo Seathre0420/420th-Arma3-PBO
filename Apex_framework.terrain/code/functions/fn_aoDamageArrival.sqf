@@ -16,7 +16,13 @@ isNil {
 	if (!isPlayer _unit || {_unit isKindOf 'HeadlessClient_F'} || {!alive _unit} ||
 		{isObjectHidden _unit} || {owner _unit isNotEqualTo _caller} ||
 		{!isNull (objectParent _unit)} || {(_unit distance2D (_context # 3)) > 2000}) exitWith {};
-	missionNamespace setVariable ['QS_classicDamage_arrival',[_epoch,_unit,diag_tickTime,_caller]];
+	private _arrival = missionNamespace getVariable ['QS_classicDamage_arrival',[]];
+	if ((_arrival param [0,-1]) isNotEqualTo _epoch) then {
+		private _distance = _unit distance2D (_context # 3);
+		missionNamespace setVariable ['QS_classicDamage_arrival',[_epoch,_unit,diag_tickTime,_caller,_distance]];
+		diag_log format ['[AO damage] ARRIVAL ao=%1 epoch=%2 owner=%3 distance=%4',
+			missionNamespace getVariable ['QS_classicDamage_name',''],_epoch,_caller,_distance];
+	};
 	_accepted = TRUE;
 };
 _accepted

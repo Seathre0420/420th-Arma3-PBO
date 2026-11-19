@@ -1738,6 +1738,7 @@ _fn_eventAttach = missionNamespace getVariable 'QS_fnc_eventAttach';
 
 /*/================================================================================================================= LOOP/*/
 private _classicDamageReportAfter = 0;
+private _classicDamageSpectatorIDD = getNumber (configFile >> 'RscDisplayEGSpectator' >> 'idd');
 for '_z' from 0 to 1 step 0 do {
 	_QS_uiTime = diag_tickTime;
 	if (_QS_uiTime >= _classicDamageReportAfter) then {
@@ -1745,7 +1746,10 @@ for '_z' from 0 to 1 step 0 do {
 		private _damageContext = missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE,TRUE,[]]];
 		if (_damageContext # 1 && {!(_damageContext # 2)} &&
 			{local player} && {alive player} && {!isObjectHidden player} &&
-			{cameraOn isEqualTo player} && {isNull curatorCamera} &&
+			{isNull curatorCamera} &&
+			{_classicDamageSpectatorIDD <= 0 || {isNull (findDisplay _classicDamageSpectatorIDD)}} &&
+			{!(missionNamespace getVariable ['ace_spectator_isSet',FALSE])} &&
+			{isNull (missionNamespace getVariable ['BIS_fnc_moduleRemoteControl_unit',objNull])} &&
 			{isNull (objectParent player)} && {isTouchingGround player} &&
 			{!((getUnitFreefallInfo player) # 0)} &&
 			{(player distance2D (_damageContext # 3)) <= 2000}) then {

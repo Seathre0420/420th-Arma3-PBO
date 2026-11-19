@@ -1511,7 +1511,13 @@ _fn_dynamicGroups = missionNamespace getVariable 'BIS_fnc_dynamicGroups';
 _fn_eventAttach = missionNamespace getVariable 'QS_fnc_eventAttach';
 
 /*/============================================================================= LOOP/*/
+private _aoDamageMaintenanceAfter = 0;
 for '_x' from 0 to 1 step 0 do {
+	if (diag_tickTime >= _aoDamageMaintenanceAfter) then {
+		_aoDamageMaintenanceAfter = diag_tickTime + 1;
+		['MONITOR'] call QS_fnc_aoDamageProtection;
+		call QS_fnc_aoDamageReleasePending;
+	};
 	_timeNow = time;
 	// Observe external force changes without logging unchanged server ticks.
 	private _defendLogForceNow = missionNamespace getVariable ['QS_forceDefend',0];
@@ -1783,7 +1789,7 @@ for '_x' from 0 to 1 step 0 do {
 							missionNamespace setVariable ['QS_megaDefense_pending',FALSE,FALSE];
 							missionNamespace setVariable ['QS_megaDefense_targetEpoch',-1,FALSE];
 // End Updated Code
-							private _QS_classicDamageEpoch = ['START',_QS_AOpos] call QS_fnc_aoDamageProtection;
+							private _QS_classicDamageEpoch = ['START',_QS_AOpos,-1,_aoName] call QS_fnc_aoDamageProtection;
 							_aoArray = [_ao] call _fn_aoPrepare;
 							if ((_aoArray param [0,TRUE]) isEqualTo FALSE) exitWith {
 								['STOP'] call QS_fnc_aoDamageProtection;

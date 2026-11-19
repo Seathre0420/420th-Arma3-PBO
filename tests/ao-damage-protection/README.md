@@ -8,7 +8,8 @@ node Apex_framework.terrain/tests/validate-server-performance.cjs
 ```
 
 These checks do not execute Arma. For engine assertions, create an isolated empty
-test mission, copy `fn_aoDamageProtection.sqf` and `fn_aoDamageArrival.sqf` into its `code/functions/` folder,
+test mission, copy `fn_aoDamageProtection.sqf`, `fn_aoDamageArrival.sqf` and
+`fn_aoDamageReleasePending.sqf` into its `code/functions/` folder,
 and copy `validate_engine.sqf` into its root. Run
 `[] execVM "validate_engine.sqf"` on the server. Read `[AO damage test]` results
 in the RPT; the final line must report zero failures. Never run this harness in
@@ -26,14 +27,16 @@ On a disposable multiplayer copy of the full Classic mission, also verify:
    retain their normal damage behavior. Existing AA crew protection is retained.
 2. A vehicle occupant, pilot, parachutist, dead player or spectator within the
    radius does not unlock the AO. A living player dismounted on the ground at
-   2,000 m or closer unlocks it within approximately one second. Test 2,001 m
+   2,000 m or closer unlocks it within roughly two monitor ticks. Test 2,001 m
    separately. Prone/crouched players and players standing in buildings qualify.
    Exercise this through the normal client loop on a dedicated server. Repeat
    with a player already inside the radius at AO start and a player joining
    during the lock. Inspect `QS_classicDamage_arrival` on the server while locked.
-   Its fields are epoch, player, server receive time, and player owner.
+   Its fields are epoch, player, server receive time, player owner, and distance.
    Spectator/Zeus camera use must not submit arrival reports. Also verify that
    stale-epoch reports and reports naming another player's unit are rejected.
+   Verify that a player boarding or leaving after the first accepted report
+   still unlocks the AO, even after a delayed tick or a monitor restart.
 3. After unlocking, leave the radius and board a vehicle: the AO stays unlocked.
    Check both native reinforcements and Altis pressure-controller deliveries;
    transported infantry are protected before unlock, aircraft operators are not.
@@ -52,6 +55,12 @@ On a disposable multiplayer copy of the full Classic mission, also verify:
    inside at AO start. Walls remain protected and HMGs become vulnerable.
    Deliver an old `LOCAL` callback after release, and an old `RELEASE` callback
    after the next AO begins. Neither may restore immunity or release a newer AO.
+8. Transfer a group during release. The server should retry on the new owner
+   and record the verified count by owner in the `[AO damage] RELEASE_COMPLETE`
+   RPT entry. Check separately that an unconfirmed release produces an unresolved
+   count and samples. While the AO remains locked, run
+   `['DIAGNOSE'] call QS_fnc_aoDamageProtection` locally on the server to log the
+   arrival record and nearby players' distances and vehicle states.
 
 Use gunfire/explosions to test invulnerability. Engine `setDamage` deliberately
 bypasses `allowDamage`, so scripted damage is not a valid combat test.

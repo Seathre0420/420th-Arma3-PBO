@@ -8,6 +8,9 @@ if ((missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE]]) # 1) 
 };
 QS_fnc_aoDamageProtection = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageProtection.sqf';
 QS_fnc_aoDamageArrival = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageArrival.sqf';
+QS_fnc_aoDamageReleasePending = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageReleasePending.sqf';
+// The isolated mission has no dedicated AA groups to cancel.
+QS_fnc_aoAA = {};
 private _failures = [];
 private _assert = {
 	params ['_ok','_label'];
@@ -157,6 +160,12 @@ if (_players isNotEqualTo []) then {
 	[!([_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival),'arrival rejected during cycle'] call _assert;
 	missionNamespace setVariable ['QS_aoCycleVar',FALSE];
 	[[_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival,'current player arrival accepted'] call _assert;
+	private _firstArrival = missionNamespace getVariable 'QS_classicDamage_arrival';
+	// Simulate a long scheduler delay without sleeping or changing the player.
+	_firstArrival set [2,diag_tickTime - 20];
+	[[_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival &&
+		{((missionNamespace getVariable 'QS_classicDamage_arrival') # 2) isEqualTo (_firstArrival # 2)},
+		'duplicate report preserves the first accepted arrival'] call _assert;
 	[!(['TICK',objNull,1000002] call QS_fnc_aoDamageProtection) && {isDamageAllowed _late},'monitor consumes arrival and releases tracked infantry'] call _assert;
 	['STOP'] call QS_fnc_aoDamageProtection;
 } else {
