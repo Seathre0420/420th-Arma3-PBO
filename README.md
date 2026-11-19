@@ -167,7 +167,7 @@ above terrain. Moving during the countdown cancels the jump and shows
 not start overlapping countdowns. Use the existing `Open Parachute` action during
 freefall; the player's backpack and equipment are preserved.
 
-Halo Jump requires both fewer than 20 connected human players on the server and
+Halo Jump requires both fewer than 30 connected human players on the server and
 no Transport Pilot inside the main base boundary (`BASE_HIGHSEC_0`, including its
 circular fallback). Both regular (`pilot_heli`) and whitelisted (`pilot_heli_WL`)
 Transport Pilots are checked. Pilots outside base do not block jumping. Dead
@@ -178,7 +178,7 @@ for Transport Pilot alone does not make a player a pilot.
 The action remains visible when blocked. Selecting it leaves the player in place
 and displays the reason as both a hint and a private system chat message:
 `Halo Jump is unavailable when there is a Transport Pilot on base`, or
-`Halo Jump is unavailable when there are 20 or more players on the server`.
+`Halo Jump is unavailable when there are 30 or more players on the server`.
 The on-base pilot message takes precedence when both requirements fail. Both
 requirements are checked when selected and again before teleportation. A missing
 AO center also prevents teleportation.

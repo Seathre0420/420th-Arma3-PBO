@@ -14,7 +14,7 @@ private _pilotOnBase = (_humanPlayers findIf {
 if (_pilotOnBase) exitWith {
 	'Halo Jump is unavailable when there is a Transport Pilot on base'
 };
-if ((count _humanPlayers) >= 20) exitWith {
-	'Halo Jump is unavailable when there are 20 or more players on the server'
+if ((count _humanPlayers) >= 30) exitWith {
+	'Halo Jump is unavailable when there are 30 or more players on the server'
 };
 ''
