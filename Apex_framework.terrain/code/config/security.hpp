@@ -236,11 +236,13 @@ class CfgRemoteExec {
 		class QS_fnc_clientModKickWarning {allowedTargets = 1; jip = 0;};
 		class QS_fnc_clientSetTeamFeature {allowedTargets = 1; jip = 1;};
 		class QS_fnc_clientTrackProjectile {allowedTargets = 1;};
+		class QS_fnc_clientReceiveAircraftProjectile {allowedTargets = 1; jip = 0;};
 		class QS_fnc_serverAIIntelDelta {allowedTargets = 2;};
 		class QS_fnc_serverGetDonatorSkins {allowedTargets = 2;};
 		class QS_fnc_serverPrivateChannels {allowedTargets = 2;};
 		class QS_fnc_serverPMC {allowedTargets = 2;};
 		class QS_fnc_serverSetEntityFeatureType {allowedTargets = 2; jip = 0;};
+		class QS_fnc_serverTrackAircraftProjectile {allowedTargets = 2; jip = 0;};
 		class QS_fnc_serverSetPlayerFace {allowedTargets = 2; jip = 0;};
 		class QS_fnc_serverSetTeamFeature {allowedTargets = 2;};
 		class QS_fnc_serverValidateClientMods {allowedTargets = 2; jip = 0;};

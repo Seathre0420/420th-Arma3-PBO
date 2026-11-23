@@ -233,8 +233,33 @@ if (_weapon isEqualTo 'Throw') then {
 						((toLowerANSI _weapon) isEqualTo 'rockets_230mm_gat')
 					] call (missionNamespace getVariable 'QS_fnc_clientTrackProjectile');
 				};
-				if ((toLowerANSI _simulation) isEqualTo 'shotmissile') then {
-					[_projectile,TRUE,TRUE] call (missionNamespace getVariable 'QS_fnc_clientTrackProjectile');
+				private _isMissile = (toLowerANSI _simulation) isEqualTo 'shotmissile';
+				if ((_vehicle isKindOf 'Air') && {_isMissile || {_projectile isKindOf 'BombCore'}}) then {
+					[_projectile,TRUE,TRUE,FALSE] call QS_fnc_clientTrackProjectile;
+					if (isMultiplayer) then {
+						[_projectile] spawn {
+							params ['_projectile'];
+							private _projectileId = '';
+							private _deadline = diag_tickTime + 1;
+							waitUntil {
+								if (isNull _projectile) exitWith {TRUE};
+								_projectileId = netId _projectile;
+								if (!(_projectileId in ['','0:0']) || {diag_tickTime >= _deadline}) exitWith {TRUE};
+								uiSleep 0.05;
+								FALSE
+							};
+							if (isNull _projectile || {_projectileId in ['','0:0']}) exitWith {};
+							if (isServer) then {
+								isNil {[_projectileId] call QS_fnc_serverTrackAircraftProjectile;};
+							} else {
+								[_projectileId] remoteExecCall ['QS_fnc_serverTrackAircraftProjectile',2,FALSE];
+							};
+						};
+					};
+				} else {
+					if (_isMissile) then {
+						[_projectile,TRUE,TRUE] call (missionNamespace getVariable 'QS_fnc_clientTrackProjectile');
+					};
 				};
 				if (
 					((objectParent _unit) getVariable ['QS_mortar_lite',FALSE]) &&

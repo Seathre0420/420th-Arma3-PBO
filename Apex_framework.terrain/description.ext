@@ -241,6 +241,7 @@ class CfgFunctions {
 			class clientEventFired {file = "code\functions\fn_clientEventFired.sqf";};
 			class clientEventFiredMan {file = "code\functions\fn_clientEventFiredMan.sqf";};
 			class clientTrackProjectile {file = "code\functions\fn_clientTrackProjectile.sqf";};
+			class clientReceiveAircraftProjectile {file = "code\functions\fn_clientReceiveAircraftProjectile.sqf";};
 			class clientEventFiredNear {file = "code\functions\fn_clientEventFiredNear.sqf";};
 			class clientEventFiredPrevent {file = "code\functions\fn_clientEventFiredPrevent.sqf";};
 			class clientEventGestureChanged {file = "code\functions\fn_clientEventGestureChanged.sqf";};
@@ -709,6 +710,7 @@ class CfgFunctions {
 			class serverRestart {file = "code\functions\fn_serverRestart.sqf";};
 			class serverSetAISkill {file = "code\functions\fn_serverSetAISkill.sqf";};
 			class serverSetEntityFeatureType {file = "code\functions\fn_serverSetEntityFeatureType.sqf";};
+			class serverTrackAircraftProjectile {file = "code\functions\fn_serverTrackAircraftProjectile.sqf";};
 			class serverValidateClientMods {file = "code\functions\fn_serverValidateClientMods.sqf";};
 			class serverSetPlayerFace {file = "code\functions\fn_serverSetPlayerFace.sqf";};
 			class serverSetTeamFeature {file = "code\functions\fn_serverSetTeamFeature.sqf";};
