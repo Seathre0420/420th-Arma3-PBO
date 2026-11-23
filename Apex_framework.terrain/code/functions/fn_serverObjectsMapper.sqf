@@ -133,7 +133,13 @@ private _mappedThisBatch = 0;
 		if (_orientation isNotEqualTo []) then {
 			([_newObj] + _orientation) call (missionNamespace getVariable 'BIS_fnc_setPitchBank');
 		};
-		_newObj allowDamage (_allowDamage && {!(['LOCKED',_newObj] call QS_fnc_aoDamageProtection)});
+		// Some mortar compositions disable damage by default. Classic AO weapons follow the gate.
+		if (!isNil '_QS_classicDamageEpoch' && {_QS_classicDamageEpoch >= 0} &&
+			{_newObj isKindOf 'StaticWeapon'} && {(getNumber (configOf _newObj >> 'side')) in [0,2]}) then {
+			['ALLOW',_newObj,_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;
+		} else {
+			isNil {_newObj allowDamage (_allowDamage && {!(['LOCKED',_newObj] call QS_fnc_aoDamageProtection)});};
+		};
 		_newObj enableSimulationGlobal _simulation;
 		if (_simulation) then {
 			if (_dynSim) then {
@@ -148,11 +154,11 @@ private _mappedThisBatch = 0;
 	};
 	if (_newObj isEqualType objNull) then {
 		if (!isNil '_QS_classicDamageEpoch') then {['REGISTER',[_newObj],_QS_classicDamageEpoch] call QS_fnc_aoDamageProtection;};
-		0 = _newObjs pushBack _newObj;
+		_newObjs pushBack _newObj;
 	} else {
 		if (_newObj isEqualType []) then {
 			{
-				0 = _newObjs pushBack _x;
+				_newObjs pushBack _x;
 			} forEach _newObj;
 		};
 	};

@@ -1,5 +1,5 @@
 /* Run on the server in an isolated test mission, never a live mission.
- * Copy fn_aoDamageProtection.sqf into code/functions/ in that mission first.
+ * Copy the functions listed in README.md into code/functions/ first.
  * No mission framework or mods are required (Nyx requires Tanks DLC assets).
  */
 if (!isServer) exitWith {};
@@ -9,6 +9,11 @@ if ((missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE]]) # 1) 
 QS_fnc_aoDamageProtection = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageProtection.sqf';
 QS_fnc_aoDamageArrival = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageArrival.sqf';
 QS_fnc_aoDamageReleasePending = compile preprocessFileLineNumbers 'code/functions/fn_aoDamageReleasePending.sqf';
+QS_fnc_serverObjectsMapper = compile preprocessFileLineNumbers 'code/functions/fn_serverObjectsMapper.sqf';
+QS_fnc_commonMultiplyMatrix = compile preprocessFileLineNumbers 'code/functions/fn_commonMultiplyMatrix.sqf';
+QS_fnc_perfBegin = {0};
+QS_fnc_perfEnd = {};
+QS_core_vehicles_map = createHashMap;
 // The isolated mission has no dedicated AA groups to cancel.
 QS_fnc_aoAA = {};
 private _failures = [];
@@ -33,10 +38,18 @@ private _fn_vehicle = {
 	_objects pushBack _vehicle;
 	_vehicle
 };
+private _mapMortar = {
+	params ['_QS_classicDamageEpoch'];
+	private _mapped = [_position,0,[['I_G_Mortar_01_F',[10,10,0],0,[],FALSE,TRUE,FALSE,{}]]] call QS_fnc_serverObjectsMapper;
+	_objects append _mapped;
+	_mapped # 0
+};
 // Manually seed a locked epoch: proximity polling is tested separately with players.
 missionNamespace setVariable ['QS_classicDamage_context',[1000000,TRUE,FALSE,_position],TRUE];
 missionNamespace setVariable ['QS_classicDamage_entities',[]];
 private _infantry = call _fn_man;
+private _mappedMortar = [1000000] call _mapMortar;
+[!isDamageAllowed _mappedMortar,'mapped mortar obeys the active lock'] call _assert;
 private _armor = ['O_APC_Wheeled_02_rcws_v2_F'] call _fn_vehicle;
 private _armorGroup = createVehicleCrew _armor;
 _groups pushBack _armorGroup;
@@ -92,6 +105,9 @@ _tower allowDamage FALSE;
 [!(['LOCKED',_commander] call QS_fnc_aoDamageProtection),'commander excluded from new protection'] call _assert;
 
 ['UNLOCK'] call QS_fnc_aoDamageProtection;
+[isDamageAllowed _mappedMortar,'mapped mortar released after unlock'] call _assert;
+[isDamageAllowed ([1000000] call _mapMortar),'mapped mortar created after unlock takes damage'] call _assert;
+[!isDamageAllowed ([-1] call _mapMortar),'out-of-scope mortar retains composition damage setting'] call _assert;
 [count _handlers isEqualTo 0,'unlock removes all local handler entries'] call _assert;
 [isDamageAllowed _infantry && {isDamageAllowed _armor} && {isDamageAllowed _mortar} && {isDamageAllowed _reinforcement},'unlock releases tracked forces'] call _assert;
 [!isDamageAllowed _commander && {!isDamageAllowed _tower},'commander/tower original protection retained'] call _assert;
@@ -166,11 +182,33 @@ if (_players isNotEqualTo []) then {
 	[[_arrivalPlayer,1000002] call QS_fnc_aoDamageArrival &&
 		{((missionNamespace getVariable 'QS_classicDamage_arrival') # 2) isEqualTo (_firstArrival # 2)},
 		'duplicate report preserves the first accepted arrival'] call _assert;
-	[!(['TICK',objNull,1000002] call QS_fnc_aoDamageProtection) && {isDamageAllowed _late},'monitor consumes arrival and releases tracked infantry'] call _assert;
+	private _delayedMonitor = [] spawn {uiSleep 60;};
+	missionNamespace setVariable ['QS_classicDamage_monitor',_delayedMonitor];
+	missionNamespace setVariable ['QS_classicDamage_monitorEpoch',1000002];
+	['MONITOR'] call QS_fnc_aoDamageProtection;
+	[isDamageAllowed _late && {(missionNamespace getVariable 'QS_classicDamage_context') # 2},'core watchdog consumes arrival while the original monitor is delayed'] call _assert;
+	terminate _delayedMonitor;
 	['STOP'] call QS_fnc_aoDamageProtection;
 } else {
 	diag_log '[AO damage test] SKIP: receiver/monitor assertions require a living dismounted player';
 };
+// Give an older job more than two full batches so fixed oldest-first ordering fails this check.
+private _backlog = [];
+for '_i' from 1 to 96 do {_backlog pushBack [objNull,''];};
+private _jobs = createHashMapFromArray [
+	[1000003,['old',_backlog,createHashMap,createHashMap,0,diag_tickTime + 60,createHashMap,[]]],
+	[1000004,['new',[[objNull,'']],createHashMap,createHashMap,0,diag_tickTime + 60,createHashMap,[]]]
+];
+missionNamespace setVariable ['QS_classicDamage_releaseJobs',_jobs];
+isNil {
+	call QS_fnc_aoDamageReleasePending;
+	[count _backlog isEqualTo 64,'one release pass obeys the 32-entity budget'] call _assert;
+	call QS_fnc_aoDamageReleasePending;
+	[!(1000004 in _jobs) && {1000003 in _jobs},'new AO gets a release pass while the old queue still has work'] call _assert;
+};
+private _workerDeadline = diag_tickTime + 10;
+waitUntil {uiSleep 0.1; count _jobs isEqualTo 0 || {diag_tickTime >= _workerDeadline}};
+[count _jobs isEqualTo 0,'release worker drains the backlog without the mission core'] call _assert;
 {if (!isNull _x) then {deleteVehicle _x;};} forEach _objects;
 {if (!isNull _x) then {deleteGroup _x;};} forEach _groups;
 missionNamespace setVariable ['QS_csatCommander',nil,TRUE];

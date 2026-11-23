@@ -8,8 +8,9 @@ node Apex_framework.terrain/tests/validate-server-performance.cjs
 ```
 
 These checks do not execute Arma. For engine assertions, create an isolated empty
-test mission, copy `fn_aoDamageProtection.sqf`, `fn_aoDamageArrival.sqf` and
-`fn_aoDamageReleasePending.sqf` into its `code/functions/` folder,
+test mission, copy `fn_aoDamageProtection.sqf`, `fn_aoDamageArrival.sqf`,
+`fn_aoDamageReleasePending.sqf`, `fn_serverObjectsMapper.sqf` and
+`fn_commonMultiplyMatrix.sqf` into its `code/functions/` folder,
 and copy `validate_engine.sqf` into its root. Run
 `[] execVM "validate_engine.sqf"` on the server. Read `[AO damage test]` results
 in the RPT; the final line must report zero failures. Never run this harness in
@@ -55,7 +56,10 @@ On a disposable multiplayer copy of the full Classic mission, also verify:
    inside at AO start. Walls remain protected and HMGs become vulnerable.
    Deliver an old `LOCAL` callback after release, and an old `RELEASE` callback
    after the next AO begins. Neither may restore immunity or release a newer AO.
-8. Transfer a group during release. The server should retry on the new owner
+8. With a group on a headless client, unlock the AO and verify its units take damage
+   and the server credits that headless client's owner ID in the release summary.
+   Repeat with two headless clients, transferring a group during release.
+   The server should retry on the new owner
    and record the verified count by owner in the `[AO damage] RELEASE_COMPLETE`
    RPT entry. Check separately that an unconfirmed release produces an unresolved
    count and samples. While the AO remains locked, run

@@ -107,6 +107,21 @@ assert(transition.includes("_jobs set [_releaseEpoch,[") &&
 assert(core.includes("['MONITOR'] call QS_fnc_aoDamageProtection;") &&
   core.includes('call QS_fnc_aoDamageReleasePending;'), 'Core must recover monitor and service release jobs');
 assert(/class QS_fnc_aoDamageReleaseAck \{allowedTargets = 2; jip = 0;\};/.test(read('Apex_framework.terrain/code/config/security.hpp')));
-assert(fn('aoDamageReleaseAck').includes('owner _entity isEqualTo _sender'), 'Only the current owner can acknowledge release');
+const ack = fn('aoDamageReleaseAck');
+assert(ack.includes('owner _entity isEqualTo _requestedOwner') && ack.includes('_token isEqualTo _expectedToken'));
+assert(ack.includes("if (_sender isEqualTo 0) then {(entities 'HeadlessClient_F') apply {owner _x}} else {[]}") &&
+  ack.includes('_requestedOwner isEqualTo _sender || {_requestedOwner in _headlessOwners}'),
+  'Only headless owners can use the masked sender path');
+assert(release.includes('if ((_request # 1) isNotEqualTo _owner)') && release.includes('_entities pushBack [_entity,_request # 3]') &&
+  controller.includes('_verified pushBack [netId _entity,_token]'), 'Preserve the owner token across retries and echo it with the verified entity');
+const monitor = controller.slice(controller.indexOf("if (_mode isEqualTo 'MONITOR')"), controller.indexOf("if (_mode isEqualTo 'DIAGNOSE'"));
+assert(monitor.includes("['TICK',objNull,_currentEpoch]") && monitor.indexOf("['TICK',objNull,_currentEpoch]") < monitor.indexOf('!scriptDone _monitor'),
+  'An accepted arrival must have a path past a stalled live monitor');
+assert(release.includes('_epochs findIf {_x > _lastEpoch}') && release.includes("['QS_classicDamage_lastReleaseEpoch',_epoch]"),
+  'Another epoch must get a turn when an older queue fills the pass');
+assert(release.includes("scriptDone (missionNamespace getVariable ['QS_classicDamage_releaseWorker',scriptNull])") &&
+  release.includes('uiSleep 1;\n\t\t\t\tcall QS_fnc_aoDamageReleasePending;'), 'Keep large releases moving while the core loop is busy');
+assert(fn('serverObjectsMapper').includes("['ALLOW',_newObj,_QS_classicDamageEpoch]") &&
+  fn('serverObjectsMapper').includes("_newObj isKindOf 'StaticWeapon'"), 'Hostile Classic statics must follow the gate across unlock');
 assert(fn('aoEnemy').includes("_object allowDamage (_object isKindOf 'StaticWeapon');"), 'Late tower weapons must start vulnerable while walls stay protected');
 console.log(`PASS: ${names.length + 1} SQF files structurally balanced; legacy objectives, Defend isolation, spawn scope, recycler and JIP lifecycle checked. Engine test required.`);

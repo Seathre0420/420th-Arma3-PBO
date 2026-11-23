@@ -9,9 +9,10 @@ if (isRemoteExecuted && {remoteExecutedOwner isNotEqualTo 2}) exitWith {FALSE};
 if (_mode isEqualTo 'VERIFY_RELEASE') exitWith {
 	private _verified = [];
 	{
-		if (!isNull _x && {local _x} && {(_x getVariable ['QS_classicDamage_epoch',-2]) isEqualTo _epoch}) then {
-			['RELEASE',_x,_epoch] call QS_fnc_aoDamageProtection;
-			if (isDamageAllowed _x) then {_verified pushBack (netId _x);};
+		_x params ['_entity','_token'];
+		if (!isNull _entity && {local _entity} && {(_entity getVariable ['QS_classicDamage_epoch',-2]) isEqualTo _epoch}) then {
+			['RELEASE',_entity,_epoch] call QS_fnc_aoDamageProtection;
+			if (isDamageAllowed _entity) then {_verified pushBack [netId _entity,_token];};
 		};
 	} forEach _arg;
 	if (_verified isNotEqualTo []) then {
@@ -135,6 +136,10 @@ if (_mode isEqualTo 'MONITOR') exitWith {
 		private _current = missionNamespace getVariable ['QS_classicDamage_context',[-1,FALSE,TRUE,[]]];
 		if (!(_current # 1) || {_current # 2}) exitWith {};
 		private _currentEpoch = _current # 0;
+		// The core loop can consume a latched arrival even if the monitor is still alive but delayed.
+		if (((missionNamespace getVariable ['QS_classicDamage_arrival',[]]) param [0,-1]) isEqualTo _currentEpoch) exitWith {
+			['TICK',objNull,_currentEpoch] call QS_fnc_aoDamageProtection;
+		};
 		private _monitor = missionNamespace getVariable ['QS_classicDamage_monitor',scriptNull];
 		if (!scriptDone _monitor && {(missionNamespace getVariable ['QS_classicDamage_monitorEpoch',-1]) isEqualTo _currentEpoch}) exitWith {};
 		_monitor = [_currentEpoch] spawn {
