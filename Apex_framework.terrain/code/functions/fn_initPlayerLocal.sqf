@@ -952,7 +952,7 @@ enableRadio TRUE;
 if (currentChannel isEqualTo 4) then {
 	setCurrentChannel 5;
 };
-private _QS_radioChannels = [];
+private _QS_radioChannels = [8]; // Subscribe to General on each join.
 if (_isAdmin) then {
 	_QS_radioChannels pushBack 1;
 };
@@ -1011,11 +1011,6 @@ if (isNil {missionProfileNamespace getVariable 'QS_client_radioChannels_profile'
 		if ((_QS_radioChannels_profile # 6) isEqualType TRUE) then {
 			if (_QS_radioChannels_profile # 6) then {
 				[1,7] call (missionNamespace getVariable 'QS_fnc_clientRadio');
-			};
-		};
-		if ((_QS_radioChannels_profile # 7) isEqualType TRUE) then {
-			if (_QS_radioChannels_profile # 7) then {
-				[1,8] call (missionNamespace getVariable 'QS_fnc_clientRadio');
 			};
 		};
 		if ((_QS_radioChannels_profile # 8) isEqualType TRUE) then {
