@@ -39,4 +39,9 @@ for (const source of [client, server, board]) {
   assert(source.includes('call QS_fnc_vehicleAccessNear'), 'UI, server and boarding must share proximity rules');
   assert(!/distance (?:_vehicle|_v|cursorObject)\s*(?:<=|>)\s*3/.test(source), 'Model-origin radius would strand owners at large vehicle doors');
 }
+const clientCore = fs.readFileSync(path.join(functions, 'fn_clientCore.sqf'), 'utf8');
+const despawnDriverGate = clientCore.match(/\(!lockedDriver _cursorObject\)[\s\S]*?(?=\(\(crew _cursorObject\) isEqualTo \[\]\))/);
+assert(despawnDriverGate, 'Despawn must check both the driver lock and crew');
+assert.match(despawnDriverGate[0], /\(!lockedDriver _cursorObject\)\s*\|\|\s*\{\s*\(unitIsUAV _cursorObject\)\s*&&\s*\{\(_cursorObject getVariable \['QS_spawnMenu_spawnedBy',''\]\) isNotEqualTo ''\}/, 'Unlocked vehicles and Spawn Menu UAVs must still pass the driver lock check');
+assert.match(despawnDriverGate[0], /\|\|\s*\{\s*private _ownerUID = _cursorObject getVariable \['QS_vehicleAccess_ownerUID',''\];\s*if \(_ownerUID isEqualTo ''\) then \{\s*_ownerUID = _cursorObject getVariable \['QS_spawnMenu_spawnedBy',''\];\s*\};\s*\(_ownerUID isNotEqualTo ''\) && \{_ownerUID isEqualTo \(getPlayerUID _QS_player\)\}/, 'Despawn must bypass the driver lock only for a matching owner, with the spawner as fallback');
 console.log('Vehicle access registrations, source structure, owner whitelist and seat request regression checks passed. Dedicated multiplayer checks remain required.');

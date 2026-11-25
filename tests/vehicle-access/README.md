@@ -7,6 +7,11 @@ script errors enabled and inspect client/server RPTs. Source checks:
 | Scenario | Expected result |
 | --- | --- |
 | A takes ownership while driving | Driver locks by default; B loses driver entry action. |
+| A spawns a helicopter, takes ownership, exits, and aims at its fuselage from within 2 m; B checks from the same spot | A sees Despawn; B does not. Cancel once as A and verify the pilot seat stays locked. Confirm on the next attempt and verify deletion. |
+| B remains aboard A's locked helicopter as a passenger; repeat with B outside and the inventory locked | Despawn is hidden from A in both cases. |
+| A spawns a helicopter and locks the pilot seat without taking ownership | A can despawn it; B cannot while the seat is locked. |
+| A spawns a helicopter and B takes ownership before exiting | With the pilot seat locked, B sees Despawn and A does not. |
+| An otherwise eligible helicopter has an unlocked pilot seat; a Spawn Menu UAV has a locked driver seat and only AI crew | Existing Despawn visibility applies for both A and B. |
 | Toggle Driver, Gunner, Commander, Passenger separately | Corresponding entry and seat-switch actions disappear/reappear; unrelated groups remain available. |
 | Ghost Hawk and armed Huron | Gunner controls both weapon turrets, including auxiliary side gun. |
 | Vehicle with FFV and ordinary cargo | Passenger controls both; Gunner does not control FFV. |

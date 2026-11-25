@@ -2457,6 +2457,13 @@ for '_z' from 0 to 1 step 0 do {
 					{
 						(unitIsUAV _cursorObject) &&
 						{(_cursorObject getVariable ['QS_spawnMenu_spawnedBy','']) isNotEqualTo ''}
+					} ||
+					{
+						private _ownerUID = _cursorObject getVariable ['QS_vehicleAccess_ownerUID',''];
+						if (_ownerUID isEqualTo '') then {
+							_ownerUID = _cursorObject getVariable ['QS_spawnMenu_spawnedBy',''];
+						};
+						(_ownerUID isNotEqualTo '') && {_ownerUID isEqualTo (getPlayerUID _QS_player)}
 					}
 				} &&
 				{
